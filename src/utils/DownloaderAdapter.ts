@@ -7,7 +7,9 @@ export class DownloaderAdapter implements Downloader {
 
     request.on('response', () => {});
 
-    request.on('error', () => {});
+    request.on('error', async (error) => {
+      throw error;
+    });
 
     request.on('finish', () => {});
 
