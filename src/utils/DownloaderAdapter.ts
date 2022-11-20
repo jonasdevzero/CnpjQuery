@@ -21,10 +21,10 @@ export class DownloaderAdapter implements Downloader {
 
     const request = http.request(url);
 
-    const destFilePath = path.join(destDir, urlPath);
-    const file = fs.createWriteStream(destFilePath);
-
     request.on('response', (response) => {
+      const destFilePath = path.join(destDir, urlPath);
+      const file = fs.createWriteStream(destFilePath);
+
       response.pipe(file);
     });
 

@@ -131,7 +131,17 @@ describe('DownloaderAdapter Util', () => {
   test('Should call fs.createWriteStream with correct value', async () => {
     const sut = makeSut();
 
+    const requestSpy = jest.spyOn(http, 'request');
+
     await sut.download('http://any_url.zip');
+
+    const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const listener = jest.fn(
+      onSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    listener({ pipe: jest.fn((_stream: fs.WriteStream) => null) } as any);
 
     const fsSpy = jest.spyOn(fs, 'createWriteStream');
     const calledUrl = fsSpy.mock.calls[0][0].toString();
