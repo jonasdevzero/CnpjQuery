@@ -26,6 +26,8 @@ export class DownloaderAdapter implements Downloader {
       const file = fs.createWriteStream(destFilePath);
 
       response.pipe(file);
+
+      file.on('finish', () => {});
     });
 
     request.on('error', async (error) => {
