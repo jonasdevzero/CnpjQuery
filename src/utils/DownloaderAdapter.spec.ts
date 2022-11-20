@@ -21,7 +21,7 @@ jest.mock('node:https', () => ({
 }));
 
 jest.mock('node:fs', () => ({
-  createWriteStream: jest.fn((url: string) => {}),
+  createWriteStream: jest.fn((url: string) => 'any_stream'),
 }));
 
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
@@ -137,5 +137,29 @@ describe('DownloaderAdapter Util', () => {
     const calledUrl = fsSpy.mock.calls[0][0].toString();
 
     expect(calledUrl.endsWith('temp\\any_url.zip')).toBeTruthy();
+  });
+
+  test('Should call response.pipe with correct value', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const fsSpy = jest.spyOn(fs, 'createWriteStream');
+
+    const listener = jest.fn(
+      onSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    listener({ pipe: jest.fn((_file: fs.WriteStream) => null) } as any);
+
+    const responseParam = listener.mock.calls[0][0];
+    const fileStream = fsSpy.mock.results[0].value;
+
+    const pipeSpy = jest.spyOn(responseParam, 'pipe');
+
+    expect(pipeSpy).toHaveBeenCalledWith(fileStream);
   });
 });
