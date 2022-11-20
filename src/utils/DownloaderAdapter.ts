@@ -1,6 +1,10 @@
 import Http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { Downloader } from '../presentation/protocols/downloader';
+
+const destDir = path.join(process.cwd(), 'temp');
 
 export class DownloaderAdapter implements Downloader {
   async download(url: string): Promise<string> {
@@ -10,11 +14,15 @@ export class DownloaderAdapter implements Downloader {
       throw new InvalidParamError('url');
     }
 
-    const urlProtocol = /(http[s]?)/g.exec(url)[0];
+    const [urlProtocol] = /(http[s]?)/g.exec(url);
+    const urlPath = /http[s]?:\/\/(.+)/g.exec(url)[1];
 
     const http: typeof Http = await import(`node:${urlProtocol}`);
 
     const request = http.request(url);
+
+    const destFilePath = path.join(destDir, urlPath);
+    const file = fs.createWriteStream(destFilePath);
 
     request.on('response', () => {});
 
