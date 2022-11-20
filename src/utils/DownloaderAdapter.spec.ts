@@ -35,6 +35,21 @@ describe('DownloaderAdapter Util', () => {
     expect(typeof listener).toBe('function');
   });
 
+  test('Should handle request error listener', async () => {
+    const sut = new DownloaderAdapter();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.com');
+
+    const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const [event, listener] = onSpy.mock.calls[1];
+
+    expect(event).toBe('error');
+    expect(typeof listener).toBe('function');
+  });
+
   test('Should throw if http.request throws', async () => {
     const sut = new DownloaderAdapter();
 
