@@ -9,9 +9,25 @@ jest.mock('node:http', () => ({
   },
 }));
 
+const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
+
 describe('DownloaderAdapter Util', () => {
+  test('Should throw if http.request throws', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    requestSpy.mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    await expect(sut.download('http://any_url.com')).rejects.toThrow();
+
+    requestSpy.mockClear();
+  });
+
   test('Should call http.request with correct param', async () => {
-    const sut = new DownloaderAdapter();
+    const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
 
@@ -21,7 +37,7 @@ describe('DownloaderAdapter Util', () => {
   });
 
   test('Should handle request response listener', async () => {
-    const sut = new DownloaderAdapter();
+    const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
 
@@ -36,7 +52,7 @@ describe('DownloaderAdapter Util', () => {
   });
 
   test('Should handle request error listener', async () => {
-    const sut = new DownloaderAdapter();
+    const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
 
@@ -51,7 +67,7 @@ describe('DownloaderAdapter Util', () => {
   });
 
   test('Should handle request finish listener', async () => {
-    const sut = new DownloaderAdapter();
+    const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
 
@@ -66,7 +82,7 @@ describe('DownloaderAdapter Util', () => {
   });
 
   test('Should throw if request error listener was called', async () => {
-    const sut = new DownloaderAdapter();
+    const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
 
@@ -77,17 +93,5 @@ describe('DownloaderAdapter Util', () => {
     const listener = onSpy.mock.calls[1][1] as (error: Error) => void;
 
     await expect(listener(new Error())).rejects.toThrow();
-  });
-
-  test('Should throw if http.request throws', async () => {
-    const sut = new DownloaderAdapter();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    requestSpy.mockImplementationOnce(() => {
-      throw new Error();
-    });
-
-    await expect(sut.download('http://any_url.com')).rejects.toThrow();
   });
 });
