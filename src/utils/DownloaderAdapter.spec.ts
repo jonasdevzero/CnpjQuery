@@ -23,6 +23,7 @@ jest.mock('node:https', () => ({
 jest.mock('node:fs', () => ({
   createWriteStream: jest.fn((url: string) => ({
     on: jest.fn((event: string, listener: (...args: any) => void) => {}),
+    close: jest.fn(),
   })),
 }));
 
@@ -200,5 +201,33 @@ describe('DownloaderAdapter Util', () => {
 
     expect(event).toBe('finish');
     expect(typeof fileListener).toBe('function');
+  });
+
+  test('Should close stream on finish listener was called', async () => {
+    const sut = makeSut();
+
+    await sut.download('http://any_url.zip');
+
+    const requestSpy = jest.spyOn(http, 'request');
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener({ pipe: () => {} } as any);
+
+    const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
+    const fileOnSpy = jest.spyOn(writeStreamSpy.mock.results[0].value, 'on');
+
+    const finishListener = jest.fn(fileOnSpy.mock.calls[0][1] as () => void);
+    finishListener();
+
+    const fileCloseSpy = jest.spyOn(
+      writeStreamSpy.mock.results[0].value,
+      'close',
+    );
+
+    expect(fileCloseSpy).toHaveBeenCalledTimes(1);
   });
 });
