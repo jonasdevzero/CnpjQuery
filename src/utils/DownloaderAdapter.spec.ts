@@ -21,7 +21,9 @@ jest.mock('node:https', () => ({
 }));
 
 jest.mock('node:fs', () => ({
-  createWriteStream: jest.fn((url: string) => 'any_stream'),
+  createWriteStream: jest.fn((url: string) => ({
+    on: jest.fn((event: string, listener: (...args: any) => void) => {}),
+  })),
 }));
 
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
@@ -157,7 +159,6 @@ describe('DownloaderAdapter Util', () => {
     await sut.download('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const fsSpy = jest.spyOn(fs, 'createWriteStream');
 
     const listener = jest.fn(
       onSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
@@ -166,10 +167,38 @@ describe('DownloaderAdapter Util', () => {
     listener({ pipe: jest.fn((_file: fs.WriteStream) => null) } as any);
 
     const responseParam = listener.mock.calls[0][0];
-    const fileStream = fsSpy.mock.results[0].value;
 
     const pipeSpy = jest.spyOn(responseParam, 'pipe');
+    const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
 
-    expect(pipeSpy).toHaveBeenCalledWith(fileStream);
+    const pipeCalledParam = pipeSpy.mock.calls[0][0];
+    const fileStream = writeStreamSpy.mock.results[0].value;
+
+    expect(JSON.stringify(pipeCalledParam)).toBe(JSON.stringify(fileStream));
+  });
+
+  test('Should handle stream finish listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const requestListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    requestListener({ pipe: jest.fn((_stream) => null) } as any);
+
+    const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
+
+    const fileOnSpy = jest.spyOn(writeStreamSpy.mock.results[0].value, 'on');
+
+    const [event, fileListener] = fileOnSpy.mock.calls[0];
+
+    expect(event).toBe('finish');
+    expect(typeof fileListener).toBe('function');
   });
 });
