@@ -4,7 +4,7 @@ import { DownloaderAdapter } from './DownloaderAdapter';
 jest.mock('node:http', () => ({
   request() {
     return {
-      on: jest.fn((event: string, listener: () => void) => {}),
+      on: jest.fn((event: string, listener: (...args: any) => void) => {}),
     };
   },
 }));
@@ -63,6 +63,20 @@ describe('DownloaderAdapter Util', () => {
 
     expect(event).toBe('finish');
     expect(typeof listener).toBe('function');
+  });
+
+  test('Should throw if request error listener was called', async () => {
+    const sut = new DownloaderAdapter();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download("'http://any_url.com");
+
+    const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const listener = onSpy.mock.calls[1][1] as (error: Error) => void;
+
+    await expect(listener(new Error())).rejects.toThrow();
   });
 
   test('Should throw if http.request throws', async () => {
