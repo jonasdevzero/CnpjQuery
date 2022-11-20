@@ -1,8 +1,17 @@
 import http from 'node:http';
+import https from 'node:https';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { DownloaderAdapter } from './DownloaderAdapter';
 
 jest.mock('node:http', () => ({
+  request() {
+    return {
+      on: jest.fn((event: string, listener: (...args: any) => void) => {}),
+    };
+  },
+}));
+
+jest.mock('node:https', () => ({
   request() {
     return {
       on: jest.fn((event: string, listener: (...args: any) => void) => {}),
@@ -102,5 +111,15 @@ describe('DownloaderAdapter Util', () => {
     await expect(sut.download('invalid_url')).rejects.toThrow(
       new InvalidParamError('url'),
     );
+  });
+
+  test('Should import correct url protocol', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(https, 'request');
+
+    await sut.download('https://any_url.zip');
+
+    expect(requestSpy).toHaveBeenCalledWith('https://any_url.zip');
   });
 });
