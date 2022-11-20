@@ -346,4 +346,25 @@ describe('DownloaderAdapter Util', () => {
     await expect(responseErrorListener()).rejects.toThrow();
     expect(streamCloseSpy).toHaveBeenCalledTimes(1);
   });
+
+  test('Should handle response end listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const [event, listener] = responseOnSpy.mock.calls[1];
+
+    expect(event).toBe('end');
+    expect(typeof listener).toBe('function');
+  });
 });
