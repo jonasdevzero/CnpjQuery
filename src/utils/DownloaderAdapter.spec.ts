@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { DownloaderAdapter } from './DownloaderAdapter';
 
 jest.mock('node:http', () => ({
@@ -21,7 +22,7 @@ describe('DownloaderAdapter Util', () => {
       throw new Error();
     });
 
-    await expect(sut.download('http://any_url.com')).rejects.toThrow();
+    await expect(sut.download('http://any_url.zip')).rejects.toThrow();
 
     requestSpy.mockClear();
   });
@@ -31,9 +32,9 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.com');
+    await sut.download('http://any_url.zip');
 
-    expect(requestSpy).toHaveBeenCalledWith('http://any_url.com');
+    expect(requestSpy).toHaveBeenCalledWith('http://any_url.zip');
   });
 
   test('Should handle request response listener', async () => {
@@ -41,7 +42,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.com');
+    await sut.download('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
@@ -56,7 +57,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.com');
+    await sut.download('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
@@ -71,7 +72,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.com');
+    await sut.download('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
@@ -86,12 +87,20 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download("'http://any_url.com");
+    await sut.download('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
     const listener = onSpy.mock.calls[1][1] as (error: Error) => void;
 
     await expect(listener(new Error())).rejects.toThrow();
+  });
+
+  test('Should throw if an invalid url was given', async () => {
+    const sut = makeSut();
+
+    await expect(sut.download('invalid_url')).rejects.toThrow(
+      new InvalidParamError('url'),
+    );
   });
 });
