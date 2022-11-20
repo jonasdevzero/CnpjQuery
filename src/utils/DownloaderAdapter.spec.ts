@@ -1,5 +1,6 @@
 import http from 'node:http';
 import https from 'node:https';
+import fs from 'node:fs';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { DownloaderAdapter } from './DownloaderAdapter';
 
@@ -17,6 +18,10 @@ jest.mock('node:https', () => ({
       on: jest.fn((event: string, listener: (...args: any) => void) => {}),
     };
   },
+}));
+
+jest.mock('node:fs', () => ({
+  createWriteStream: jest.fn((url: string) => {}),
 }));
 
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
@@ -121,5 +126,16 @@ describe('DownloaderAdapter Util', () => {
     await sut.download('https://any_url.zip');
 
     expect(requestSpy).toHaveBeenCalledWith('https://any_url.zip');
+  });
+
+  test('Should call fs.createWriteStream with correct value', async () => {
+    const sut = makeSut();
+
+    await sut.download('http://any_url.zip');
+
+    const fsSpy = jest.spyOn(fs, 'createWriteStream');
+    const calledUrl = fsSpy.mock.calls[0][0].toString();
+
+    expect(calledUrl.endsWith('temp\\any_url.zip')).toBeTruthy();
   });
 });
