@@ -254,4 +254,36 @@ describe('DownloaderAdapter Util', () => {
     expect(event).toBe('error');
     expect(typeof listener).toBe('function');
   });
+
+  test('Should close write stream and throw if stream error listener was called', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener({ pipe: () => {} } as any);
+
+    const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
+    const streamOnSpy = jest.spyOn(writeStreamSpy.mock.results[0].value, 'on');
+
+    const streamErrorListener = jest.fn(
+      streamOnSpy.mock.calls[1][1] as () => {},
+    );
+
+    const streamCloseSpy = jest.spyOn(
+      writeStreamSpy.mock.results[0].value,
+      'close',
+    );
+    streamCloseSpy.mockClear();
+
+    await expect(streamErrorListener()).rejects.toThrow();
+    expect(streamCloseSpy).toHaveBeenCalledTimes(1);
+  });
 });
