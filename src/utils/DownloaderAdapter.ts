@@ -27,6 +27,8 @@ export class DownloaderAdapter implements Downloader {
 
       response.pipe(file);
 
+      response.on('error', () => {});
+
       file.on('finish', () => {
         file.close();
       });
