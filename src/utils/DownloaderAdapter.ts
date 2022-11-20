@@ -7,7 +7,7 @@ import { Downloader } from '../presentation/protocols/downloader';
 const destDir = path.join(process.cwd(), 'temp');
 
 export class DownloaderAdapter implements Downloader {
-  async download(url: string): Promise<string> {
+  async download(url: string): Promise<void> {
     const isValidUrl = /http[s]?:\/\/.+\.(zip)/g.test(url);
 
     if (!isValidUrl) {
@@ -50,6 +50,6 @@ export class DownloaderAdapter implements Downloader {
 
     request.on('finish', () => {});
 
-    return null;
+    request.end();
   }
 }
