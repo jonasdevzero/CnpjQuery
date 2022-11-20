@@ -8,6 +8,7 @@ jest.mock('node:http', () => ({
   request() {
     return {
       on: jest.fn((event: string, listener: (...args: any) => void) => {}),
+      end: jest.fn(),
     };
   },
 }));
@@ -16,6 +17,7 @@ jest.mock('node:https', () => ({
   request() {
     return {
       on: jest.fn((event: string, listener: (...args: any) => void) => {}),
+      end: jest.fn(),
     };
   },
 }));
@@ -63,6 +65,18 @@ describe('DownloaderAdapter Util', () => {
     await sut.download('http://any_url.zip');
 
     expect(requestSpy).toHaveBeenCalledWith('http://any_url.zip');
+  });
+
+  test('Should call request end', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestEndSpy = jest.spyOn(requestSpy.mock.results[0].value, 'end');
+
+    expect(requestEndSpy).toHaveBeenCalledTimes(1);
   });
 
   test('Should handle request response listener', async () => {
