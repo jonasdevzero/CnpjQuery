@@ -230,4 +230,28 @@ describe('DownloaderAdapter Util', () => {
 
     expect(fileCloseSpy).toHaveBeenCalledTimes(1);
   });
+
+  test('Should handle stream error listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener({ pipe: () => {} } as any);
+
+    const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
+    const fileOnSpy = jest.spyOn(writeStreamSpy.mock.results[0].value, 'on');
+
+    const [event, listener] = fileOnSpy.mock.calls[1];
+
+    expect(event).toBe('error');
+    expect(typeof listener).toBe('function');
+  });
 });
