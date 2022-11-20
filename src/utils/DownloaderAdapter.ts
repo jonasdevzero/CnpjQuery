@@ -3,7 +3,9 @@ import { Downloader } from '../presentation/protocols/downloader';
 
 export class DownloaderAdapter implements Downloader {
   async download(url: string): Promise<string> {
-    http.request(url);
+    const request = http.request(url);
+
+    request.on('response', () => {});
 
     return null;
   }
