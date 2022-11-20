@@ -23,7 +23,7 @@ jest.mock('node:https', () => ({
 jest.mock('node:fs', () => ({
   createWriteStream: jest.fn((url: string) => ({
     on: jest.fn((event: string, listener: (...args: any) => void) => {}),
-    close: jest.fn(),
+    close: jest.fn(() => {}),
   })),
 }));
 
@@ -37,6 +37,10 @@ const makeFakeResponse = (): http.IncomingMessage => {
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
 
 describe('DownloaderAdapter Util', () => {
+  afterEach(() => {
+    jest.spyOn(fs, 'createWriteStream').mockClear();
+  });
+
   test('Should throw if http.request throws', async () => {
     const sut = makeSut();
 
@@ -288,7 +292,6 @@ describe('DownloaderAdapter Util', () => {
       writeStreamSpy.mock.results[0].value,
       'close',
     );
-    streamCloseSpy.mockClear();
 
     await expect(streamErrorListener()).rejects.toThrow();
     expect(streamCloseSpy).toHaveBeenCalledTimes(1);
@@ -315,5 +318,32 @@ describe('DownloaderAdapter Util', () => {
 
     expect(event).toBe('error');
     expect(typeof listener).toBe('function');
+  });
+
+  test('Should close stream and throw if response error listener was called', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const responseErrorListener = responseOnSpy.mock.calls[0][1];
+
+    const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
+    const streamCloseSpy = jest.spyOn(
+      writeStreamSpy.mock.results[0].value,
+      'close',
+    );
+
+    await expect(responseErrorListener()).rejects.toThrow();
+    expect(streamCloseSpy).toHaveBeenCalledTimes(1);
   });
 });
