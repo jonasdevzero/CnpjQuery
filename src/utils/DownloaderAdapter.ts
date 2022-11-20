@@ -31,7 +31,10 @@ export class DownloaderAdapter implements Downloader {
         file.close();
       });
 
-      file.on('error', () => {});
+      file.on('error', async () => {
+        file.close();
+        throw new Error();
+      });
     });
 
     request.on('error', async (error) => {
