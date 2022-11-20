@@ -9,6 +9,8 @@ export class DownloaderAdapter implements Downloader {
 
     request.on('error', () => {});
 
+    request.on('finish', () => {});
+
     return null;
   }
 }
