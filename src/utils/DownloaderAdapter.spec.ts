@@ -27,6 +27,13 @@ jest.mock('node:fs', () => ({
   })),
 }));
 
+const makeFakeResponse = (): http.IncomingMessage => {
+  return {
+    pipe: jest.fn((_stream: fs.WriteStream) => null),
+    on: jest.fn((event: string, listener: () => void) => {}),
+  } as unknown as http.IncomingMessage;
+};
+
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
 
 describe('DownloaderAdapter Util', () => {
@@ -144,7 +151,7 @@ describe('DownloaderAdapter Util', () => {
       onSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
     );
 
-    listener({ pipe: jest.fn((_stream: fs.WriteStream) => null) } as any);
+    listener(makeFakeResponse());
 
     const fsSpy = jest.spyOn(fs, 'createWriteStream');
     const calledUrl = fsSpy.mock.calls[0][0].toString();
@@ -165,7 +172,7 @@ describe('DownloaderAdapter Util', () => {
       onSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
     );
 
-    listener({ pipe: jest.fn((_file: fs.WriteStream) => null) } as any);
+    listener(makeFakeResponse());
 
     const responseParam = listener.mock.calls[0][0];
 
@@ -191,7 +198,7 @@ describe('DownloaderAdapter Util', () => {
       requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
     );
 
-    requestListener({ pipe: jest.fn((_stream) => null) } as any);
+    requestListener(makeFakeResponse());
 
     const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
 
@@ -215,7 +222,7 @@ describe('DownloaderAdapter Util', () => {
       requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
     );
 
-    responseListener({ pipe: () => {} } as any);
+    responseListener(makeFakeResponse());
 
     const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
     const fileOnSpy = jest.spyOn(writeStreamSpy.mock.results[0].value, 'on');
@@ -244,7 +251,7 @@ describe('DownloaderAdapter Util', () => {
       requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
     );
 
-    responseListener({ pipe: () => {} } as any);
+    responseListener(makeFakeResponse());
 
     const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
     const fileOnSpy = jest.spyOn(writeStreamSpy.mock.results[0].value, 'on');
@@ -268,7 +275,7 @@ describe('DownloaderAdapter Util', () => {
       requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
     );
 
-    responseListener({ pipe: () => {} } as any);
+    responseListener(makeFakeResponse());
 
     const writeStreamSpy = jest.spyOn(fs, 'createWriteStream');
     const streamOnSpy = jest.spyOn(writeStreamSpy.mock.results[0].value, 'on');
@@ -285,5 +292,28 @@ describe('DownloaderAdapter Util', () => {
 
     await expect(streamErrorListener()).rejects.toThrow();
     expect(streamCloseSpy).toHaveBeenCalledTimes(1);
+  });
+
+  test('Should handle response error listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const responseOnListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseOnListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseOnListener.mock.calls[0][0], 'on');
+
+    const [event, listener] = responseOnSpy.mock.calls[0];
+
+    expect(event).toBe('error');
+    expect(typeof listener).toBe('function');
   });
 });
