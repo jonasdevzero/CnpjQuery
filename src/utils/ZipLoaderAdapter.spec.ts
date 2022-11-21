@@ -314,4 +314,31 @@ describe('ZupLoaderAdapter Util', () => {
     expect(errorListener).toHaveBeenCalledTimes(1);
     expect(errorListener).toHaveBeenCalledWith(error);
   });
+
+  test('Should emit end event if response end listener was called', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    const stream = await sut.load('http://any_url.zip');
+    const endListener = jest.fn();
+
+    stream.on('end', endListener);
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const responseEndListener = jest.fn(
+      responseOnSpy.mock.calls[2][1] as () => void,
+    );
+
+    responseEndListener();
+
+    expect(endListener).toHaveBeenCalledTimes(1);
+  });
 });
