@@ -10,7 +10,10 @@ import {
 const destDir = path.join(process.cwd(), 'temp');
 
 export class DownloaderAdapter implements Downloader {
-  async download(url: string, callback?: DownloaderCallback): Promise<void> {
+  async download(
+    url: string,
+    callback: DownloaderCallback = () => {},
+  ): Promise<void> {
     const isValidUrl = /http[s]?:\/\/.+\.(zip)/g.test(url);
 
     if (!isValidUrl) {
@@ -32,36 +35,20 @@ export class DownloaderAdapter implements Downloader {
 
       response.on('error', (error: Error) => {
         file.close();
-
-        if (typeof callback === 'function') {
-          callback(error, null);
-        }
+        callback(error, null);
       });
 
-      response.on('end', () => {
-        if (typeof callback === 'function') {
-          callback(null, destFilePath);
-        }
-      });
+      response.on('end', () => callback(null, destFilePath));
 
-      file.on('finish', () => {
-        file.close();
-      });
+      file.on('finish', () => file.close());
 
       file.on('error', (error) => {
         file.close();
-
-        if (typeof callback === 'function') {
-          callback(error, null);
-        }
+        callback(error, null);
       });
     });
 
-    request.on('error', (error) => {
-      if (typeof callback === 'function') {
-        callback(error, null);
-      }
-    });
+    request.on('error', (error) => callback(error, null));
 
     request.on('finish', () => {});
 
