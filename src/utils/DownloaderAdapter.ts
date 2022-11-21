@@ -28,6 +28,8 @@ export class DownloaderAdapter implements Downloader {
       response.on('entry', () => {});
 
       response.on('error', () => {});
+
+      response.on('end', () => {});
     });
 
     request.on('error', (error) => {});
