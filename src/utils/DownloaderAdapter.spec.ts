@@ -27,7 +27,10 @@ jest.mock('unzipper', () => ({
 }));
 
 const makeFakeResponse = (): http.IncomingMessage => {
-  return { pipe: jest.fn() } as unknown as http.IncomingMessage;
+  return {
+    pipe: jest.fn(),
+    on: jest.fn(),
+  } as unknown as http.IncomingMessage;
 };
 
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
@@ -143,5 +146,27 @@ describe('DownloaderAdapter Util', () => {
 
     expect(responsePipeSpy).toHaveBeenCalledTimes(1);
     expect(responsePipeSpy).toHaveBeenCalledWith(unzipperParseCallResult);
+  });
+
+  test('Should handle response entry listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+
+    const [event, listener] = responseOnSpy.mock.calls[0];
+
+    expect(event).toBe('entry');
+    expect(typeof listener).toBe('function');
   });
 });
