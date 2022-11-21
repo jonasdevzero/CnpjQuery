@@ -1,4 +1,5 @@
 import { QueryCnpj } from '../../domain/useCases/queryCnpj';
+import { serverError } from '../helpers/httpHelper';
 import { QueryCnpjController } from './QueryCnpj';
 
 const makeFakeQueryCnpj = (): QueryCnpj => {
@@ -44,7 +45,6 @@ describe('QueryCnpj Controller', () => {
 
     const httpResponse = await sut.handle({});
 
-    expect(httpResponse.statusCode).toBe(500);
-    expect(httpResponse.body).toEqual(new Error());
+    expect(httpResponse).toEqual(serverError(new Error()));
   });
 });

@@ -1,4 +1,5 @@
 import { QueryCnpj } from '../../domain/useCases/queryCnpj';
+import { ok, serverError } from '../helpers/httpHelper';
 import { Controller } from '../protocols/controller';
 import { HttpRequest, HttpResponse } from '../protocols/http';
 
@@ -13,14 +14,9 @@ export class QueryCnpjController implements Controller {
     try {
       await this.queryCnpj.query();
 
-      return {
-        statusCode: 200,
-      };
+      return ok();
     } catch (error) {
-      return {
-        statusCode: 500,
-        body: error,
-      };
+      return serverError(error);
     }
   }
 }
