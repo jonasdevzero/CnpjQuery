@@ -41,7 +41,7 @@ const makeFakeEntry = (): Entry => {
 
 const makeSut = (): ZipLoaderAdapter => new ZipLoaderAdapter();
 
-describe('ZupLoaderAdapter Util', () => {
+describe('ZipLoaderAdapter Util', () => {
   afterEach(() => {
     jest.spyOn(http, 'request').mockClear();
   });

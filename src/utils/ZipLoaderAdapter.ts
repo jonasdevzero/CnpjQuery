@@ -8,7 +8,24 @@ import {
 } from '../presentation/protocols/zipLoader';
 
 export class ZipLoaderAdapter implements ZipLoader {
+  private readonly event = new Event();
+  private readonly lineBreak = '\n';
+  private pendingData = '';
+
   async load(url: string): Promise<ZipLoaderStream> {
+    const urlProtocol = this.validateUrlAndReturnProtocol(url);
+    const http: typeof Http = await import(`node:${urlProtocol}`);
+
+    const request = http.request(url);
+
+    request.on('response', this.handleResponse.bind(this));
+    request.on('error', this.handleError.bind(this));
+    request.end();
+
+    return this.event;
+  }
+
+  private validateUrlAndReturnProtocol(url: string) {
     const isValidUrl = /http[s]?:\/\/.+\.(zip)/g.test(url);
 
     if (!isValidUrl) {
@@ -17,42 +34,38 @@ export class ZipLoaderAdapter implements ZipLoader {
 
     const [urlProtocol] = /(http[s]?)/g.exec(url);
 
-    const http: typeof Http = await import(`node:${urlProtocol}`);
-    const event = new Event();
+    return urlProtocol;
+  }
 
-    const request = http.request(url);
+  private handleResponse(response: Http.IncomingMessage) {
+    response.pipe(unzipper.Parse());
+    response.on('entry', this.handleUnzipperEntry.bind(this));
+    response.on('error', this.handleError.bind(this));
+    response.on('end', () => this.event.emit('end'));
+  }
 
-    request.on('response', (response) => {
-      let pendingData = '';
+  private handleUnzipperEntry(entry: unzipper.Entry) {
+    entry.on('data', this.handleUnzipperEntryData.bind(this));
+  }
 
-      response.pipe(unzipper.Parse());
+  private handleUnzipperEntryData(chunk: string) {
+    this.pendingData += chunk;
+    this.processData();
+  }
 
-      response.on('entry', (entry: unzipper.Entry) => {
-        entry.on('data', (chunk: string) => {
-          pendingData += chunk;
+  private processData() {
+    let rowIndex = this.pendingData.indexOf(this.lineBreak);
 
-          let rowIndex = pendingData.indexOf('\n');
+    while (rowIndex !== -1) {
+      const row = this.pendingData.slice(0, rowIndex);
+      this.event.emit('data', row);
 
-          while (rowIndex !== -1) {
-            const row = pendingData.slice(0, rowIndex);
+      this.pendingData = this.pendingData.slice(rowIndex + 1);
+      rowIndex = this.pendingData.indexOf(this.lineBreak);
+    }
+  }
 
-            event.emit('data', row);
-
-            pendingData = pendingData.slice(rowIndex + 1);
-            rowIndex = pendingData.indexOf('\n');
-          }
-        });
-      });
-
-      response.on('error', (error) => event.emit('error', error));
-
-      response.on('end', () => event.emit('end'));
-    });
-
-    request.on('error', (error) => event.emit('error', error));
-
-    request.end();
-
-    return event;
+  private handleError(error: Error) {
+    this.event.emit('error', error);
   }
 }
