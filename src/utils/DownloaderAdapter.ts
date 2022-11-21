@@ -2,12 +2,15 @@ import Http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import { Downloader } from '../presentation/protocols/downloader';
+import {
+  Downloader,
+  DownloaderCallback,
+} from '../presentation/protocols/downloader';
 
 const destDir = path.join(process.cwd(), 'temp');
 
 export class DownloaderAdapter implements Downloader {
-  async download(url: string): Promise<void> {
+  async download(url: string, callback?: DownloaderCallback): Promise<void> {
     const isValidUrl = /http[s]?:\/\/.+\.(zip)/g.test(url);
 
     if (!isValidUrl) {
@@ -32,7 +35,11 @@ export class DownloaderAdapter implements Downloader {
         throw new Error();
       });
 
-      response.on('end', () => {});
+      response.on('end', () => {
+        if (typeof callback === 'function') {
+          callback(null, destFilePath);
+        }
+      });
 
       file.on('finish', () => {
         file.close();
