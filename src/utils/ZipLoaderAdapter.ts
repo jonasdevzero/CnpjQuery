@@ -23,10 +23,25 @@ export class ZipLoaderAdapter implements ZipLoader {
     const request = http.request(url);
 
     request.on('response', (response) => {
+      let pendingData = '';
+
       response.pipe(unzipper.Parse());
 
       response.on('entry', (entry: unzipper.Entry) => {
-        entry.on('data', () => {});
+        entry.on('data', (chunk: string) => {
+          pendingData += chunk;
+
+          let rowIndex = pendingData.indexOf('\n');
+
+          while (rowIndex !== -1) {
+            const row = pendingData.slice(0, rowIndex);
+
+            event.emit('data', row);
+
+            pendingData = pendingData.slice(rowIndex + 1);
+            rowIndex = pendingData.indexOf('\n');
+          }
+        });
       });
 
       response.on('error', () => {});
