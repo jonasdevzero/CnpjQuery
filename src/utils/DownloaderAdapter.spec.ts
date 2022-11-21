@@ -43,6 +43,31 @@ describe('DownloaderAdapter Util', () => {
     jest.spyOn(fs, 'createWriteStream').mockClear();
   });
 
+  test('Should call callback method if success', async () => {
+    const sut = makeSut();
+    let filePath = '';
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip', (_, result) => {
+      filePath = result;
+    });
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+
+    const responseEndListener = jest.fn(responseOnSpy.mock.calls[1][1]);
+    responseEndListener();
+
+    expect(filePath.endsWith('temp\\any_url.zip')).toBeTruthy();
+  });
+
   test('Should throw if http.request throws', async () => {
     const sut = makeSut();
 
