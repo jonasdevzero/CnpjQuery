@@ -24,6 +24,8 @@ export class DownloaderAdapter implements Downloader {
 
     request.on('response', (response) => {
       response.pipe(unzipper.Parse());
+
+      response.on('entry', () => {});
     });
 
     request.on('error', (error) => {});
