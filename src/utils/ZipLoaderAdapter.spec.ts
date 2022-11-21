@@ -248,4 +248,41 @@ describe('ZupLoaderAdapter Util', () => {
     expect(event).toBe('data');
     expect(typeof listener).toBe('function');
   });
+
+  test('Should emit data event with correct values if entry data listener was called', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    const stream = await sut.load('http://any_url.zip');
+    const dataListener = jest.fn();
+
+    stream.on('data', dataListener);
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const entryListener = jest.fn(
+      responseOnSpy.mock.calls[0][1] as (entry: Entry) => void,
+    );
+
+    entryListener(makeFakeEntry());
+
+    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
+    const entryDataListener = jest.fn(
+      entryOnSpy.mock.calls[0][1] as (chunk: string) => void,
+    );
+
+    entryDataListener('any_data_1\nany_data_2\nany_data_3\nany_dat');
+
+    expect(dataListener).toHaveBeenCalledTimes(3);
+    expect(dataListener.mock.calls[0][0]).toBe('any_data_1');
+    expect(dataListener.mock.calls[1][0]).toBe('any_data_2');
+    expect(dataListener.mock.calls[2][0]).toBe('any_data_3');
+  });
 });
