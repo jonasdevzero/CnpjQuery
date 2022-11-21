@@ -1,6 +1,6 @@
 import http from 'node:http';
 import https from 'node:https';
-import unzipper from 'unzipper';
+import unzipper, { Entry } from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { DownloaderAdapter } from './DownloaderAdapter';
 
@@ -31,6 +31,12 @@ const makeFakeResponse = (): http.IncomingMessage => {
     pipe: jest.fn(),
     on: jest.fn(),
   } as unknown as http.IncomingMessage;
+};
+
+const makeFakeEntry = (): Entry => {
+  return {
+    on: jest.fn(),
+  } as unknown as Entry;
 };
 
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
@@ -211,6 +217,35 @@ describe('DownloaderAdapter Util', () => {
     const [event, listener] = responseOnSpy.mock.calls[2];
 
     expect(event).toBe('end');
+    expect(typeof listener).toBe('function');
+  });
+
+  test('Should handle entry data listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const entryListener = jest.fn(
+      responseOnSpy.mock.calls[0][1] as (entry: Entry) => void,
+    );
+
+    entryListener(makeFakeEntry());
+
+    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
+
+    const [event, listener] = entryOnSpy.mock.calls[0];
+
+    expect(event).toBe('data');
     expect(typeof listener).toBe('function');
   });
 });
