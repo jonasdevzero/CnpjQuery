@@ -30,9 +30,12 @@ export class DownloaderAdapter implements Downloader {
 
       response.pipe(file);
 
-      response.on('error', async () => {
+      response.on('error', (error: Error) => {
         file.close();
-        throw new Error();
+
+        if (typeof callback === 'function') {
+          callback(error, null);
+        }
       });
 
       response.on('end', () => {
@@ -45,14 +48,19 @@ export class DownloaderAdapter implements Downloader {
         file.close();
       });
 
-      file.on('error', async () => {
+      file.on('error', (error) => {
         file.close();
-        throw new Error();
+
+        if (typeof callback === 'function') {
+          callback(error, null);
+        }
       });
     });
 
-    request.on('error', async (error) => {
-      throw error;
+    request.on('error', (error) => {
+      if (typeof callback === 'function') {
+        callback(error, null);
+      }
     });
 
     request.on('finish', () => {});
