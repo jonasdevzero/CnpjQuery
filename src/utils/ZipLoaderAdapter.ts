@@ -49,7 +49,7 @@ export class ZipLoaderAdapter implements ZipLoader {
       response.on('end', () => event.emit('end'));
     });
 
-    request.on('error', (error) => {});
+    request.on('error', (error) => event.emit('error', error));
 
     request.end();
 
