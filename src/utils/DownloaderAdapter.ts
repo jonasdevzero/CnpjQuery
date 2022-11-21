@@ -21,14 +21,16 @@ export class DownloaderAdapter implements Downloader {
     }
 
     const [urlProtocol] = /(http[s]?)/g.exec(url);
-    const urlPath = /http[s]?:\/\/(.+)/g.exec(url)[1];
 
     const http: typeof Http = await import(`node:${urlProtocol}`);
 
     const request = http.request(url);
 
     request.on('response', (response) => {
-      const destFilePath = path.join(destDir, urlPath);
+      const splittedUrl = url.split('/');
+      const lastUrlPath = splittedUrl[splittedUrl.length - 1];
+      const destFilePath = path.join(destDir, lastUrlPath);
+
       const file = fs.createWriteStream(destFilePath);
 
       response.pipe(file);
