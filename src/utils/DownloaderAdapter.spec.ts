@@ -1,5 +1,6 @@
 import http from 'node:http';
 import https from 'node:https';
+import unzipper from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { DownloaderAdapter } from './DownloaderAdapter';
 
@@ -20,6 +21,14 @@ jest.mock('node:https', () => ({
     };
   },
 }));
+
+jest.mock('unzipper', () => ({
+  Parse: jest.fn(() => 'any_stream'),
+}));
+
+const makeFakeResponse = (): http.IncomingMessage => {
+  return { pipe: jest.fn() } as unknown as http.IncomingMessage;
+};
 
 const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
 
@@ -108,5 +117,31 @@ describe('DownloaderAdapter Util', () => {
 
     expect(event).toBe('error');
     expect(typeof listener).toBe('function');
+  });
+
+  test('Should call response pipe with correct param', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.download('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const unzipperParseSpy = jest.spyOn(unzipper, 'Parse');
+    const responsePipeSpy = jest.spyOn(
+      responseListener.mock.calls[0][0],
+      'pipe',
+    );
+
+    const unzipperParseCallResult = unzipperParseSpy.mock.results[0].value;
+
+    expect(responsePipeSpy).toHaveBeenCalledTimes(1);
+    expect(responsePipeSpy).toHaveBeenCalledWith(unzipperParseCallResult);
   });
 });
