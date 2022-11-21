@@ -1,5 +1,6 @@
 import Http from 'node:http';
 import Event from 'events';
+import unzipper from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import {
   Downloader,
@@ -21,7 +22,9 @@ export class DownloaderAdapter implements Downloader {
 
     const request = http.request(url);
 
-    request.on('response', (response) => {});
+    request.on('response', (response) => {
+      response.pipe(unzipper.Parse());
+    });
 
     request.on('error', (error) => {});
 
