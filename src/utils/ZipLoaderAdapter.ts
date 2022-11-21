@@ -5,7 +5,7 @@ import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import {
   ZipLoader,
   ZipLoaderStream,
-} from '../presentation/protocols/zipLoader';
+} from '../presentation/protocols/ZipLoader';
 
 export class ZipLoaderAdapter implements ZipLoader {
   private readonly event = new Event();

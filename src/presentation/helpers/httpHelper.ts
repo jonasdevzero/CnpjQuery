@@ -1,5 +1,5 @@
 import { ServerError } from '../errors/ServerError';
-import { HttpResponse } from '../protocols/http';
+import { HttpResponse } from '../protocols/Http';
 
 export const ok = (data?: any): HttpResponse => {
   return {
