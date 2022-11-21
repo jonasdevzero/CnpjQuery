@@ -1,7 +1,10 @@
-import { QueryCnpj } from '../../domain/useCases/QueryCnpj';
 import { ok, serverError } from '../helpers/httpHelper';
-import { Controller } from '../protocols/Controller';
-import { HttpRequest, HttpResponse } from '../protocols/Http';
+import {
+  Controller,
+  HttpRequest,
+  HttpResponse,
+  QueryCnpj,
+} from './queryCnpjProtocols';
 
 export class QueryCnpjController implements Controller {
   private readonly queryCnpj: QueryCnpj;
