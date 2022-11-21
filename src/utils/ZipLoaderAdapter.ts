@@ -46,7 +46,7 @@ export class ZipLoaderAdapter implements ZipLoader {
 
       response.on('error', (error) => event.emit('error', error));
 
-      response.on('end', () => {});
+      response.on('end', () => event.emit('end'));
     });
 
     request.on('error', (error) => {});
