@@ -3,12 +3,12 @@ import Event from 'events';
 import unzipper from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import {
-  Downloader,
-  DownloaderStream,
-} from '../presentation/protocols/downloader';
+  ZipLoader,
+  ZipLoaderStream,
+} from '../presentation/protocols/zipLoader';
 
-export class DownloaderAdapter implements Downloader {
-  async download(url: string): Promise<DownloaderStream> {
+export class ZipLoaderAdapter implements ZipLoader {
+  async load(url: string): Promise<ZipLoaderStream> {
     const isValidUrl = /http[s]?:\/\/.+\.(zip)/g.test(url);
 
     if (!isValidUrl) {

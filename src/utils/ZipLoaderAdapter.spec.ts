@@ -2,7 +2,7 @@ import http from 'node:http';
 import https from 'node:https';
 import unzipper, { Entry } from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import { DownloaderAdapter } from './DownloaderAdapter';
+import { ZipLoaderAdapter } from './ZipLoaderAdapter';
 
 jest.mock('node:http', () => ({
   request() {
@@ -39,9 +39,9 @@ const makeFakeEntry = (): Entry => {
   } as unknown as Entry;
 };
 
-const makeSut = (): DownloaderAdapter => new DownloaderAdapter();
+const makeSut = (): ZipLoaderAdapter => new ZipLoaderAdapter();
 
-describe('DownloaderAdapter Util', () => {
+describe('ZupLoaderAdapter Util', () => {
   afterEach(() => {
     jest.spyOn(http, 'request').mockClear();
   });
@@ -49,7 +49,7 @@ describe('DownloaderAdapter Util', () => {
   test('Should throw if an invalid url was given', async () => {
     const sut = makeSut();
 
-    await expect(sut.download('invalid_url')).rejects.toThrow(
+    await expect(sut.load('invalid_url')).rejects.toThrow(
       new InvalidParamError('url'),
     );
   });
@@ -59,7 +59,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(https, 'request');
 
-    await sut.download('https://any_url.zip');
+    await sut.load('https://any_url.zip');
 
     expect(requestSpy).toHaveBeenCalledWith('https://any_url.zip');
   });
@@ -73,7 +73,7 @@ describe('DownloaderAdapter Util', () => {
       throw new Error();
     });
 
-    await expect(sut.download('http://any_url.zip')).rejects.toThrow();
+    await expect(sut.load('http://any_url.zip')).rejects.toThrow();
   });
 
   test('Should call http.request with correct param', async () => {
@@ -81,7 +81,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     expect(requestSpy).toHaveBeenCalledWith('http://any_url.zip');
   });
@@ -91,7 +91,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const requestEndSpy = jest.spyOn(requestSpy.mock.results[0].value, 'end');
 
@@ -103,7 +103,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
@@ -118,7 +118,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
@@ -133,7 +133,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -159,7 +159,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -181,7 +181,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -203,7 +203,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -225,7 +225,7 @@ describe('DownloaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.download('http://any_url.zip');
+    await sut.load('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
