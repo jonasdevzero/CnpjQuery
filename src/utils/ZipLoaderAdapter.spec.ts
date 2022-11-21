@@ -285,4 +285,33 @@ describe('ZupLoaderAdapter Util', () => {
     expect(dataListener.mock.calls[1][0]).toBe('any_data_2');
     expect(dataListener.mock.calls[2][0]).toBe('any_data_3');
   });
+
+  test('Should emit error event if response error listener was called', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    const stream = await sut.load('http://any_url.zip');
+    const errorListener = jest.fn();
+
+    stream.on('error', errorListener);
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const responseErrorListener = jest.fn(
+      responseOnSpy.mock.calls[1][1] as (error: Error) => void,
+    );
+
+    const error = new Error('any_error');
+    responseErrorListener(error);
+
+    expect(errorListener).toHaveBeenCalledTimes(1);
+    expect(errorListener).toHaveBeenCalledWith(error);
+  });
 });
