@@ -28,7 +28,9 @@ jest.mock('unzipper', () => ({
 
 const makeFakeResponse = (): http.IncomingMessage => {
   return {
-    pipe: jest.fn(),
+    pipe: jest.fn(() => ({
+      on: jest.fn(),
+    })),
     on: jest.fn(),
   } as unknown as http.IncomingMessage;
 };
@@ -168,9 +170,17 @@ describe('ZipLoaderAdapter Util', () => {
 
     responseListener(makeFakeResponse());
 
-    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const responsePipeSpy = jest.spyOn(
+      responseListener.mock.calls[0][0],
+      'pipe',
+    );
 
-    const [event, listener] = responseOnSpy.mock.calls[0];
+    const responsePipeOnSpy = jest.spyOn(
+      responsePipeSpy.mock.results[0].value,
+      'on',
+    );
+
+    const [event, listener] = responsePipeOnSpy.mock.calls[0];
 
     expect(event).toBe('entry');
     expect(typeof listener).toBe('function');
@@ -192,7 +202,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
 
-    const [event, listener] = responseOnSpy.mock.calls[1];
+    const [event, listener] = responseOnSpy.mock.calls[0];
 
     expect(event).toBe('error');
     expect(typeof listener).toBe('function');
@@ -214,7 +224,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
 
-    const [event, listener] = responseOnSpy.mock.calls[2];
+    const [event, listener] = responseOnSpy.mock.calls[1];
 
     expect(event).toBe('end');
     expect(typeof listener).toBe('function');
@@ -234,9 +244,18 @@ describe('ZipLoaderAdapter Util', () => {
 
     responseListener(makeFakeResponse());
 
-    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const responsePipeSpy = jest.spyOn(
+      responseListener.mock.calls[0][0],
+      'pipe',
+    );
+
+    const responsePipeOnSpy = jest.spyOn(
+      responsePipeSpy.mock.results[0].value,
+      'on',
+    );
+
     const entryListener = jest.fn(
-      responseOnSpy.mock.calls[0][1] as (entry: Entry) => void,
+      responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {},
     );
 
     entryListener(makeFakeEntry());
@@ -266,9 +285,18 @@ describe('ZipLoaderAdapter Util', () => {
 
     responseListener(makeFakeResponse());
 
-    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const responsePipeSpy = jest.spyOn(
+      responseListener.mock.calls[0][0],
+      'pipe',
+    );
+
+    const responsePipeOnSpy = jest.spyOn(
+      responsePipeSpy.mock.results[0].value,
+      'on',
+    );
+
     const entryListener = jest.fn(
-      responseOnSpy.mock.calls[0][1] as (entry: Entry) => void,
+      responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {},
     );
 
     entryListener(makeFakeEntry());
@@ -305,7 +333,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
     const responseErrorListener = jest.fn(
-      responseOnSpy.mock.calls[1][1] as (error: Error) => void,
+      responseOnSpy.mock.calls[0][1] as (error: Error) => void,
     );
 
     const error = new Error('any_error');
@@ -334,7 +362,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
     const responseEndListener = jest.fn(
-      responseOnSpy.mock.calls[2][1] as () => void,
+      responseOnSpy.mock.calls[1][1] as () => void,
     );
 
     responseEndListener();

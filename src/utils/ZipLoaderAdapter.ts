@@ -38,8 +38,9 @@ export class ZipLoaderAdapter implements ZipLoader {
   }
 
   private handleResponse(response: Http.IncomingMessage) {
-    response.pipe(unzipper.Parse());
-    response.on('entry', this.handleUnzipperEntry.bind(this));
+    response
+      .pipe(unzipper.Parse())
+      .on('entry', this.handleUnzipperEntry.bind(this));
     response.on('error', this.handleError.bind(this));
     response.on('end', () => this.event.emit('end'));
   }
