@@ -100,4 +100,23 @@ describe('DbQueryCnpj UseCase', () => {
       expect(urls).toContain(zipLoaderSpy.mock.calls[index][0]);
     });
   });
+
+  test('Should handle stream data and error listeners of ZipLoaderStream', async () => {
+    const { sut, zipLoaderStub } = makeSut();
+
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+
+    await sut.query();
+
+    const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
+    const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
+
+    const [dataEvent, dataListener] = zipLoaderOnSpy.mock.calls[0];
+    const [errorEvent, errorListener] = zipLoaderOnSpy.mock.calls[1];
+
+    expect(dataEvent).toBe('data');
+    expect(errorEvent).toBe('error');
+    expect(typeof dataListener).toBe('function');
+    expect(typeof errorListener).toBe('function');
+  });
 });
