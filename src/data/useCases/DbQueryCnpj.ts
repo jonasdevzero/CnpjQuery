@@ -22,6 +22,9 @@ export class DbQueryCnpj implements QueryCnpj {
   }
 
   private async loadDataUrl(dataUrl: DataUrlModel) {
-    await this.zipLoader.load(dataUrl.url);
+    const stream = await this.zipLoader.load(dataUrl.url);
+
+    stream.on('data', () => {});
+    stream.on('error', () => {});
   }
 }
