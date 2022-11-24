@@ -63,4 +63,24 @@ describe('CnpjRawDataParserAdapter Util', () => {
       },
     });
   });
+
+  test('Should parse cnpj simples data correctly', () => {
+    const sut = new CnpjRawDataParserAdapter();
+
+    const simplesData = '"00000000";"N";"20070701";"20070701";"N";"20090701";"20090701"';
+
+    const result = sut.parse(simplesData, 'SIMPLES');
+
+    expect(result).toEqual({
+      baseCnpj: '00000000',
+
+      identification: false,
+      identificationDate: '20070701',
+      exclusionDate: '20070701',
+
+      meiIdentification: false,
+      meiIdentificationDate: '20090701',
+      meiExclusionDate: '20090701',
+    });
+  });
 });
