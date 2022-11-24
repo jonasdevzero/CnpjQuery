@@ -2,10 +2,7 @@ import Http from 'node:http';
 import Event from 'events';
 import unzipper from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import {
-  ZipLoader,
-  ZipLoaderStream,
-} from '../presentation/protocols/ZipLoader';
+import { ZipLoader, ZipLoaderStream } from '../presentation/protocols/ZipLoader';
 
 export class ZipLoaderAdapter implements ZipLoader {
   private readonly event = new Event();
@@ -32,15 +29,13 @@ export class ZipLoaderAdapter implements ZipLoader {
       throw new InvalidParamError('url');
     }
 
-    const [urlProtocol] = /(http[s]?)/g.exec(url);
+    const [urlProtocol] = /(http[s]?)/g.exec(url) as RegExpExecArray;
 
     return urlProtocol;
   }
 
   private handleResponse(response: Http.IncomingMessage) {
-    response
-      .pipe(unzipper.Parse())
-      .on('entry', this.handleUnzipperEntry.bind(this));
+    response.pipe(unzipper.Parse()).on('entry', this.handleUnzipperEntry.bind(this));
     response.on('error', this.handleError.bind(this));
     response.on('end', () => this.event.emit('end'));
   }

@@ -21,7 +21,8 @@
     "max-classes-per-file": "off",
     "operator-linebreak": "off",
     "object-curly-newline": "off",
-    "default-case": "off"
+    "default-case": "off",
+    "import/no-extraneous-dependencies": "off"
   },
   "settings": {
     "import/resolver": {
