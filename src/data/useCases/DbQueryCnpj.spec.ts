@@ -1,11 +1,10 @@
 import { UpsertCompanyModel } from '../../domain/models/Company';
 import { DataUrlModel } from '../../domain/models/DataUrl';
-import {
-  ZipLoader,
-  ZipLoaderStream,
-} from '../../presentation/protocols/ZipLoader';
+import { UpsertEstablishmentModel } from '../../domain/models/Establishment';
+import { ZipLoader, ZipLoaderStream } from '../../presentation/protocols/ZipLoader';
 import { ListDataUrlRepository } from '../protocols/ListDataUrlRepository';
 import { UpsertCompanyRepository } from '../protocols/UpsertCompanyRepository';
+import { UpsertEstablishmentRepository } from '../protocols/UpsertEstablishmentRepository';
 import { DbQueryCnpj } from './DbQueryCnpj';
 
 const makeFakeDataUrls = (): DataUrlModel[] => [
@@ -35,6 +34,16 @@ const makeFakeDataUrls = (): DataUrlModel[] => [
     type: 'PARTNER',
   },
 ];
+
+const makeUpsertEstablishmentRepository = (): UpsertEstablishmentRepository => {
+  class UpsertEstablishmentRepositoryStub implements UpsertEstablishmentRepository {
+    async upsert(data: UpsertEstablishmentModel) {
+      // ...
+    }
+  }
+
+  return new UpsertEstablishmentRepositoryStub();
+};
 
 const makeUpsertCompanyRepository = (): UpsertCompanyRepository => {
   class UpsertCompanyRepositoryStub implements UpsertCompanyRepository {
@@ -72,6 +81,7 @@ interface SutTypes {
   listDataUrlRepositoryStub: ListDataUrlRepository;
   zipLoaderStub: ZipLoader;
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
+  upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
   sut: DbQueryCnpj;
 }
 
@@ -79,11 +89,13 @@ const makeSut = (): SutTypes => {
   const listDataUrlRepositoryStub = makeListDataUrlRepository();
   const zipLoaderStub = makeZipLoader();
   const upsertCompanyRepositoryStub = makeUpsertCompanyRepository();
+  const upsertEstablishmentRepositoryStub = makeUpsertEstablishmentRepository();
 
   const sut = new DbQueryCnpj(
     listDataUrlRepositoryStub,
     zipLoaderStub,
     upsertCompanyRepositoryStub,
+    upsertEstablishmentRepositoryStub,
   );
 
   return {
@@ -91,6 +103,7 @@ const makeSut = (): SutTypes => {
     listDataUrlRepositoryStub,
     zipLoaderStub,
     upsertCompanyRepositoryStub,
+    upsertEstablishmentRepositoryStub,
   };
 };
 
@@ -140,18 +153,12 @@ describe('DbQueryCnpj UseCase', () => {
   });
 
   test('Should call UpsertCompanyRepository with correct values', async () => {
-    const {
-      sut,
-      listDataUrlRepositoryStub,
-      zipLoaderStub,
-      upsertCompanyRepositoryStub,
-    } = makeSut();
+    const { sut, listDataUrlRepositoryStub, zipLoaderStub, upsertCompanyRepositoryStub } =
+      makeSut();
 
-    jest
-      .spyOn(listDataUrlRepositoryStub, 'list')
-      .mockImplementationOnce(async () => {
-        return [{ id: 'any_id', url: 'http://any_url.zip', type: 'COMPANY' }];
-      });
+    jest.spyOn(listDataUrlRepositoryStub, 'list').mockImplementationOnce(async () => {
+      return [{ id: 'any_id', url: 'http://any_url.zip', type: 'COMPANY' }];
+    });
 
     const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
     const upsertSpy = jest.spyOn(upsertCompanyRepositoryStub, 'upsert');
@@ -161,9 +168,7 @@ describe('DbQueryCnpj UseCase', () => {
     const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
     const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
 
-    const dataListener = jest.fn(
-      zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {},
-    );
+    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
 
     dataListener(
       '"any_base_cnpj";"any_corporate_name";"any_legal_nature";"any_qualification";"any_capital";"any_size";"any_federative_entity"',
@@ -177,6 +182,66 @@ describe('DbQueryCnpj UseCase', () => {
       capital: 'any_capital',
       size: 'any_size',
       federativeEntity: 'any_federative_entity',
+    });
+
+    upsertSpy.mockClear();
+  });
+
+  test('Should call UpsertEstablishmentRepository with correct values', async () => {
+    const { sut, listDataUrlRepositoryStub, zipLoaderStub, upsertEstablishmentRepositoryStub } =
+      makeSut();
+
+    jest.spyOn(listDataUrlRepositoryStub, 'list').mockImplementationOnce(async () => {
+      return [{ id: 'any_id', url: 'http://any_url.zip', type: 'ESTABLISHMENT' }];
+    });
+
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const upsertSpy = jest.spyOn(upsertEstablishmentRepositoryStub, 'upsert');
+
+    await sut.query();
+
+    const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
+    const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
+
+    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
+
+    dataListener(
+      '"00000000";"0001";"00";"cnpj_identifier";"any_corporate_name";"any_cadaster_status";"any_cadaster_status_date";"00";"";"";"20170919";"4729699";"";"AVENIDA";"LEONARDO ANTONIO SCHIAVINATTO";"35";"";"JARDIM PARAISO I (NOVA VENEZA)";"13179335";"SP";"7149";"19";"89501000";"19";"89501001";"19";"89501002";"any_mail@mail.com";"";""',
+    );
+
+    expect(upsertSpy).toHaveBeenCalledWith({
+      baseCnpj: '00000000',
+      cnpj: '00.000.000/0001-00',
+      corporateName: 'any_corporate_name',
+      cadasterStatus: 'any_cadaster_status',
+      cadasterStatusDate: 'any_cadaster_status_date',
+      cadasterStatusReason: '00',
+
+      activityStartAt: '20170919',
+
+      mainCnae: '4729699',
+      secondaryCnae: '',
+
+      specialStatus: '',
+      specialStatusDate: '',
+
+      telephone1: '(19) 89501000',
+      telephone2: '(19) 89501001',
+      fax: '19 89501002',
+      email: 'any_mail@mail.com',
+
+      address: {
+        cityAbroad: '',
+        countryCode: '',
+        streetDescription: 'AVENIDA',
+        street: 'LEONARDO ANTONIO SCHIAVINATTO',
+        number: '35',
+        complement: '',
+        district: 'JARDIM PARAISO I (NOVA VENEZA)',
+        cep: '13179335',
+        uf: 'SP',
+        city: '7149',
+      },
     });
   });
 });
