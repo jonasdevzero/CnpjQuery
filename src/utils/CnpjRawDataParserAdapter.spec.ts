@@ -83,4 +83,27 @@ describe('CnpjRawDataParserAdapter Util', () => {
       meiExclusionDate: '20090701',
     });
   });
+
+  test('Should parse cnpj partner data correctly', () => {
+    const sut = new CnpjRawDataParserAdapter();
+
+    const partnerData =
+      '"any_base_cnpj";"any_identifier";"any_partner_name";"any_registration";"any_qualification";"start_at";"any_country";"legal_representative_cpf";"legal_representative_name";"legal_representative_qualification";"any_age_group"';
+
+    const result = sut.parse(partnerData, 'PARTNER');
+
+    expect(result).toEqual({
+      baseCnpj: 'any_base_cnpj',
+      identifier: 'any_identifier',
+      name: 'any_partner_name',
+      registration: 'any_registration',
+      qualification: 'any_qualification',
+      countryCode: 'any_country',
+      legalRepresentativeCpf: 'legal_representative_cpf',
+      legalRepresentativeName: 'legal_representative_name',
+      legalRepresentativeQualification: 'legal_representative_qualification',
+      ageGroup: 'any_age_group',
+      entryDate: 'start_at',
+    });
+  });
 });
