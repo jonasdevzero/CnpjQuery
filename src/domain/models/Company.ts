@@ -1,5 +1,4 @@
-export interface CompanyModel {
-  id: string;
+export interface UpsertCompanyModel {
   baseCnpj: string;
   corporateName: string;
   legalNature: string;
@@ -8,5 +7,3 @@ export interface CompanyModel {
   size: string;
   federativeEntity?: string;
 }
-
-export type UpsertCompanyModel = Omit<CompanyModel, 'id'>;

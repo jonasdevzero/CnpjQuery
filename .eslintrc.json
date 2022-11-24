@@ -18,7 +18,10 @@
     "class-methods-use-this": "off",
     "arrow-body-style": "off",
     "lines-between-class-members": "off",
-    "max-classes-per-file": "off"
+    "max-classes-per-file": "off",
+    "operator-linebreak": "off",
+    "object-curly-newline": "off",
+    "default-case": "off"
   },
   "settings": {
     "import/resolver": {
