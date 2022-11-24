@@ -1,10 +1,12 @@
 import { UpsertCompanyModel } from '../../domain/models/Company';
 import { DataUrlModel } from '../../domain/models/DataUrl';
 import { UpsertEstablishmentModel } from '../../domain/models/Establishment';
+import { UpsertSimplesModel } from '../../domain/models/Simples';
 import { ZipLoader, ZipLoaderStream } from '../../presentation/protocols/ZipLoader';
 import { ListDataUrlRepository } from '../protocols/ListDataUrlRepository';
 import { UpsertCompanyRepository } from '../protocols/UpsertCompanyRepository';
 import { UpsertEstablishmentRepository } from '../protocols/UpsertEstablishmentRepository';
+import { UpsertSimplesRepository } from '../protocols/UpsertSimplesRepository';
 import { DbQueryCnpj } from './DbQueryCnpj';
 
 const makeFakeDataUrls = (): DataUrlModel[] => [
@@ -34,6 +36,16 @@ const makeFakeDataUrls = (): DataUrlModel[] => [
     type: 'PARTNER',
   },
 ];
+
+const makeUpsertSimplesRepository = (): UpsertSimplesRepository => {
+  class UpsertSimplesRepositoryStub implements UpsertSimplesRepository {
+    async upsert(data: UpsertSimplesModel) {
+      // ...
+    }
+  }
+
+  return new UpsertSimplesRepositoryStub();
+};
 
 const makeUpsertEstablishmentRepository = (): UpsertEstablishmentRepository => {
   class UpsertEstablishmentRepositoryStub implements UpsertEstablishmentRepository {
@@ -82,6 +94,7 @@ interface SutTypes {
   zipLoaderStub: ZipLoader;
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
   upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
+  upsertSimplesRepositoryStub: UpsertSimplesRepository;
   sut: DbQueryCnpj;
 }
 
@@ -90,12 +103,14 @@ const makeSut = (): SutTypes => {
   const zipLoaderStub = makeZipLoader();
   const upsertCompanyRepositoryStub = makeUpsertCompanyRepository();
   const upsertEstablishmentRepositoryStub = makeUpsertEstablishmentRepository();
+  const upsertSimplesRepositoryStub = makeUpsertSimplesRepository();
 
   const sut = new DbQueryCnpj(
     listDataUrlRepositoryStub,
     zipLoaderStub,
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
+    upsertSimplesRepositoryStub,
   );
 
   return {
@@ -104,6 +119,7 @@ const makeSut = (): SutTypes => {
     zipLoaderStub,
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
+    upsertSimplesRepositoryStub,
   };
 };
 
@@ -242,6 +258,39 @@ describe('DbQueryCnpj UseCase', () => {
         uf: 'SP',
         city: '7149',
       },
+    });
+  });
+
+  test('Should call UpsertSimplesRepository with correct values', async () => {
+    const { sut, listDataUrlRepositoryStub, zipLoaderStub, upsertSimplesRepositoryStub } =
+      makeSut();
+
+    jest.spyOn(listDataUrlRepositoryStub, 'list').mockImplementationOnce(async () => {
+      return [{ id: 'any_id', url: 'http://any_url.zip', type: 'SIMPLES' }];
+    });
+
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const upsertSpy = jest.spyOn(upsertSimplesRepositoryStub, 'upsert');
+
+    await sut.query();
+
+    const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
+    const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
+
+    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
+
+    dataListener('"00000000";"N";"20070701";"20070701";"N";"20090701";"20090701"');
+
+    expect(upsertSpy).toHaveBeenCalledWith({
+      baseCnpj: '00000000',
+
+      identification: false,
+      identificationDate: '20070701',
+      exclusionDate: '20070701',
+
+      meiIdentification: false,
+      meiIdentificationDate: '20090701',
+      meiExclusionDate: '20090701',
     });
   });
 });
