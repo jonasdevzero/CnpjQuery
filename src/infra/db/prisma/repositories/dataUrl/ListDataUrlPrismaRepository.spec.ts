@@ -1,5 +1,5 @@
 import { DataUrlType } from '@prisma/client';
-import { prismaMock } from '../clientMock';
+import { prismaMock } from '../../clientMock';
 import { ListDataUrlPrismaRepository } from './ListDataUrlPrismaRepository';
 
 const makeSut = (): ListDataUrlPrismaRepository => {
