@@ -2,9 +2,13 @@ import { DataUrlType } from '@prisma/client';
 import { prismaMock } from '../client-mock';
 import { ListDataUrlPrismaRepository } from './ListDataUrlPrismaRepository';
 
+const makeSut = (): ListDataUrlPrismaRepository => {
+  return new ListDataUrlPrismaRepository();
+};
+
 describe('ListDataUrlPrismaRepository', () => {
   test('Should return data urls on success', async () => {
-    const sut = new ListDataUrlPrismaRepository();
+    const sut = makeSut();
 
     const date = new Date();
     const dataUrl = {
@@ -20,5 +24,15 @@ describe('ListDataUrlPrismaRepository', () => {
     const urls = await sut.list();
 
     expect(urls).toEqual([dataUrl]);
+  });
+
+  test('Should throw if prisma throws', async () => {
+    const sut = makeSut();
+
+    prismaMock.dataUrl.findMany.mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    await expect(sut.list()).rejects.toThrow(new Error());
   });
 });
