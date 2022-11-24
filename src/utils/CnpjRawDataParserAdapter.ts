@@ -6,6 +6,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     COMPANY: this.parseCompanyData,
     ESTABLISHMENT: this.parseEstablishmentData,
     SIMPLES: this.parseSimplesData.bind(this),
+    PARTNER: this.parsePartnerData,
   } as { [key in DataUrlType]: (data: string[]) => Object };
 
   parse(data: string, dataType: DataUrlType): Object {
@@ -131,5 +132,35 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
 
   private parseDataToBoolean(data: string): boolean {
     return data === 'S';
+  }
+
+  private parsePartnerData(data: string[]): Object {
+    const [
+      baseCnpj,
+      identifier,
+      name,
+      registration,
+      qualification,
+      entryDate,
+      countryCode,
+      legalRepresentativeCpf,
+      legalRepresentativeName,
+      legalRepresentativeQualification,
+      ageGroup,
+    ] = data;
+
+    return {
+      baseCnpj,
+      identifier,
+      name,
+      registration,
+      qualification,
+      entryDate,
+      countryCode,
+      legalRepresentativeCpf,
+      legalRepresentativeName,
+      legalRepresentativeQualification,
+      ageGroup,
+    };
   }
 }
