@@ -1,33 +1,39 @@
 import { UpsertCompanyModel } from '../../domain/models/Company';
 import { DataUrlModel, DataUrlType } from '../../domain/models/DataUrl';
 import { UpsertEstablishmentModel } from '../../domain/models/Establishment';
+import { UpsertSimplesModel } from '../../domain/models/Simples';
 import { QueryCnpj } from '../../domain/useCases/QueryCnpj';
 import { ZipLoader } from '../../presentation/protocols/ZipLoader';
 import { ListDataUrlRepository } from '../protocols/ListDataUrlRepository';
 import { UpsertCompanyRepository } from '../protocols/UpsertCompanyRepository';
 import { UpsertEstablishmentRepository } from '../protocols/UpsertEstablishmentRepository';
+import { UpsertSimplesRepository } from '../protocols/UpsertSimplesRepository';
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;
   private readonly zipLoader: ZipLoader;
   private readonly upsertCompanyRepository: UpsertCompanyRepository;
   private readonly upsertEstablishmentRepository: UpsertEstablishmentRepository;
+  private readonly upsertSimplesRepository: UpsertSimplesRepository;
 
   constructor(
     listDataUrlRepository: ListDataUrlRepository,
     zipLoader: ZipLoader,
     upsertCompanyRepository: UpsertCompanyRepository,
     upsertEstablishmentRepository: UpsertEstablishmentRepository,
+    upsertSimplesRepositoryStub: UpsertSimplesRepository,
   ) {
     this.listDataUrlRepository = listDataUrlRepository;
     this.zipLoader = zipLoader;
     this.upsertCompanyRepository = upsertCompanyRepository;
     this.upsertEstablishmentRepository = upsertEstablishmentRepository;
+    this.upsertSimplesRepository = upsertSimplesRepositoryStub;
   }
 
   private readonly parsers = {
     COMPANY: this.parseCompanyData,
     ESTABLISHMENT: this.parseEstablishmentData,
+    SIMPLES: this.parseSimplesData.bind(this),
   } as {
     [key in DataUrlType]: (data: string[]) => any;
   };
@@ -53,6 +59,9 @@ export class DbQueryCnpj implements QueryCnpj {
           break;
         case 'ESTABLISHMENT':
           this.upsertEstablishmentRepository.upsert(parsedData);
+          break;
+        case 'SIMPLES':
+          this.upsertSimplesRepository.upsert(parsedData);
           break;
       }
     });
@@ -149,5 +158,34 @@ export class DbQueryCnpj implements QueryCnpj {
         city,
       },
     };
+  }
+
+  private parseSimplesData(data: string[]): UpsertSimplesModel {
+    const [
+      baseCnpj,
+      identification,
+      identificationDate,
+      exclusionDate,
+      meiIdentification,
+      meiIdentificationDate,
+      meiExclusionDate,
+    ] = data;
+
+    const a = this.parseDataToBoolean(identification);
+    const b = this.parseDataToBoolean(meiIdentification);
+
+    return {
+      baseCnpj,
+      identification: a,
+      identificationDate,
+      exclusionDate,
+      meiIdentification: b,
+      meiIdentificationDate,
+      meiExclusionDate,
+    };
+  }
+
+  private parseDataToBoolean(data: string): boolean {
+    return data === 'S';
   }
 }
