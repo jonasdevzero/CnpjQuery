@@ -1,10 +1,5 @@
 import { ok, serverError } from '../helpers/httpHelper';
-import {
-  Controller,
-  HttpRequest,
-  HttpResponse,
-  QueryCnpj,
-} from './queryCnpjProtocols';
+import { Controller, HttpRequest, HttpResponse, QueryCnpj } from './QueryCnpj.protocols';
 
 export class QueryCnpjController implements Controller {
   private readonly queryCnpj: QueryCnpj;

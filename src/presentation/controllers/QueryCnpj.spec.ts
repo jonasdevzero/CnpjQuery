@@ -1,4 +1,4 @@
-import { QueryCnpj } from './queryCnpjProtocols';
+import { QueryCnpj } from './QueryCnpj.protocols';
 import { serverError } from '../helpers/httpHelper';
 import { QueryCnpjController } from './QueryCnpj';
 
