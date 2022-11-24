@@ -1,3 +1,4 @@
+import { DataUrlType } from '../../domain/models/DataUrl';
 import { DbQueryCnpj } from './DbQueryCnpj';
 import {
   ListDataUrlRepository,
@@ -10,6 +11,7 @@ import {
   UpsertCompanyModel,
   UpsertEstablishmentModel,
   UpsertSimplesModel,
+  CnpjRawDataParser,
 } from './DBQueryCnpj.protocols';
 
 const makeFakeDataUrls = (): DataUrlModel[] => [
@@ -39,6 +41,16 @@ const makeFakeDataUrls = (): DataUrlModel[] => [
     type: 'PARTNER',
   },
 ];
+
+const makeCnpjRawDataParser = (): CnpjRawDataParser => {
+  class CnpjRawDataParserStub implements CnpjRawDataParser {
+    parse(data: string, dataType: DataUrlType): Object {
+      return {};
+    }
+  }
+
+  return new CnpjRawDataParserStub();
+};
 
 const makeUpsertSimplesRepository = (): UpsertSimplesRepository => {
   class UpsertSimplesRepositoryStub implements UpsertSimplesRepository {
@@ -98,6 +110,7 @@ interface SutTypes {
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
   upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
   upsertSimplesRepositoryStub: UpsertSimplesRepository;
+  cnpjRawDataParser: CnpjRawDataParser;
   sut: DbQueryCnpj;
 }
 
@@ -107,6 +120,7 @@ const makeSut = (): SutTypes => {
   const upsertCompanyRepositoryStub = makeUpsertCompanyRepository();
   const upsertEstablishmentRepositoryStub = makeUpsertEstablishmentRepository();
   const upsertSimplesRepositoryStub = makeUpsertSimplesRepository();
+  const cnpjRawDataParser = makeCnpjRawDataParser();
 
   const sut = new DbQueryCnpj(
     listDataUrlRepositoryStub,
@@ -114,6 +128,7 @@ const makeSut = (): SutTypes => {
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
+    cnpjRawDataParser,
   );
 
   return {
@@ -123,6 +138,7 @@ const makeSut = (): SutTypes => {
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
+    cnpjRawDataParser,
   };
 };
 
@@ -172,11 +188,30 @@ describe('DbQueryCnpj UseCase', () => {
   });
 
   test('Should call UpsertCompanyRepository with correct values', async () => {
-    const { sut, listDataUrlRepositoryStub, zipLoaderStub, upsertCompanyRepositoryStub } =
-      makeSut();
+    const {
+      sut,
+      listDataUrlRepositoryStub,
+      zipLoaderStub,
+      upsertCompanyRepositoryStub,
+      cnpjRawDataParser,
+    } = makeSut();
 
     jest.spyOn(listDataUrlRepositoryStub, 'list').mockImplementationOnce(async () => {
       return [{ id: 'any_id', url: 'http://any_url.zip', type: 'COMPANY' }];
+    });
+
+    const companyData = {
+      baseCnpj: 'any_base_cnpj',
+      corporateName: 'any_corporate_name',
+      legalNature: 'any_legal_nature',
+      qualification: 'any_qualification',
+      capital: 'any_capital',
+      size: 'any_size',
+      federativeEntity: 'any_federative_entity',
+    };
+
+    jest.spyOn(cnpjRawDataParser, 'parse').mockImplementationOnce(() => {
+      return companyData;
     });
 
     const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
@@ -188,47 +223,27 @@ describe('DbQueryCnpj UseCase', () => {
     const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
 
     const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
+    dataListener('any_data');
 
-    dataListener(
-      '"any_base_cnpj";"any_corporate_name";"any_legal_nature";"any_qualification";"any_capital";"any_size";"any_federative_entity"',
-    );
-
-    expect(upsertSpy).toHaveBeenCalledWith({
-      baseCnpj: 'any_base_cnpj',
-      corporateName: 'any_corporate_name',
-      legalNature: 'any_legal_nature',
-      qualification: 'any_qualification',
-      capital: 'any_capital',
-      size: 'any_size',
-      federativeEntity: 'any_federative_entity',
-    });
+    expect(upsertSpy).toHaveBeenCalledWith(companyData);
 
     upsertSpy.mockClear();
   });
 
   test('Should call UpsertEstablishmentRepository with correct values', async () => {
-    const { sut, listDataUrlRepositoryStub, zipLoaderStub, upsertEstablishmentRepositoryStub } =
-      makeSut();
+    const {
+      sut,
+      listDataUrlRepositoryStub,
+      zipLoaderStub,
+      upsertEstablishmentRepositoryStub,
+      cnpjRawDataParser,
+    } = makeSut();
 
     jest.spyOn(listDataUrlRepositoryStub, 'list').mockImplementationOnce(async () => {
       return [{ id: 'any_id', url: 'http://any_url.zip', type: 'ESTABLISHMENT' }];
     });
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
-    const upsertSpy = jest.spyOn(upsertEstablishmentRepositoryStub, 'upsert');
-
-    await sut.query();
-
-    const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
-    const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
-
-    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
-
-    dataListener(
-      '"00000000";"0001";"00";"cnpj_identifier";"any_corporate_name";"any_cadaster_status";"any_cadaster_status_date";"00";"";"";"20170919";"4729699";"";"AVENIDA";"LEONARDO ANTONIO SCHIAVINATTO";"35";"";"JARDIM PARAISO I (NOVA VENEZA)";"13179335";"SP";"7149";"19";"89501000";"19";"89501001";"19";"89501002";"any_mail@mail.com";"";""',
-    );
-
-    expect(upsertSpy).toHaveBeenCalledWith({
+    const establishmentData = {
       baseCnpj: '00000000',
       cnpj: '00.000.000/0001-00',
       corporateName: 'any_corporate_name',
@@ -261,15 +276,54 @@ describe('DbQueryCnpj UseCase', () => {
         uf: 'SP',
         city: '7149',
       },
+    };
+
+    jest.spyOn(cnpjRawDataParser, 'parse').mockImplementationOnce(() => {
+      return establishmentData;
     });
+
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const upsertSpy = jest.spyOn(upsertEstablishmentRepositoryStub, 'upsert');
+
+    await sut.query();
+
+    const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
+    const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
+
+    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
+
+    dataListener('any_data');
+
+    expect(upsertSpy).toHaveBeenCalledWith(establishmentData);
   });
 
   test('Should call UpsertSimplesRepository with correct values', async () => {
-    const { sut, listDataUrlRepositoryStub, zipLoaderStub, upsertSimplesRepositoryStub } =
-      makeSut();
+    const {
+      sut,
+      listDataUrlRepositoryStub,
+      zipLoaderStub,
+      upsertSimplesRepositoryStub,
+      cnpjRawDataParser,
+    } = makeSut();
 
     jest.spyOn(listDataUrlRepositoryStub, 'list').mockImplementationOnce(async () => {
       return [{ id: 'any_id', url: 'http://any_url.zip', type: 'SIMPLES' }];
+    });
+
+    const simplesData = {
+      baseCnpj: '00000000',
+
+      identification: false,
+      identificationDate: '20070701',
+      exclusionDate: '20070701',
+
+      meiIdentification: false,
+      meiIdentificationDate: '20090701',
+      meiExclusionDate: '20090701',
+    };
+
+    jest.spyOn(cnpjRawDataParser, 'parse').mockImplementationOnce(() => {
+      return simplesData;
     });
 
     const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
@@ -282,18 +336,8 @@ describe('DbQueryCnpj UseCase', () => {
 
     const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
 
-    dataListener('"00000000";"N";"20070701";"20070701";"N";"20090701";"20090701"');
+    dataListener('any_data');
 
-    expect(upsertSpy).toHaveBeenCalledWith({
-      baseCnpj: '00000000',
-
-      identification: false,
-      identificationDate: '20070701',
-      exclusionDate: '20070701',
-
-      meiIdentification: false,
-      meiIdentificationDate: '20090701',
-      meiExclusionDate: '20090701',
-    });
+    expect(upsertSpy).toHaveBeenCalledWith(simplesData);
   });
 });
