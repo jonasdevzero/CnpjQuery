@@ -1,13 +1,16 @@
-import { UpsertCompanyModel } from '../../domain/models/Company';
-import { DataUrlModel, DataUrlType } from '../../domain/models/DataUrl';
-import { UpsertEstablishmentModel } from '../../domain/models/Establishment';
-import { UpsertSimplesModel } from '../../domain/models/Simples';
-import { QueryCnpj } from '../../domain/useCases/QueryCnpj';
-import { ZipLoader } from '../../presentation/protocols/ZipLoader';
-import { ListDataUrlRepository } from '../protocols/ListDataUrlRepository';
-import { UpsertCompanyRepository } from '../protocols/UpsertCompanyRepository';
-import { UpsertEstablishmentRepository } from '../protocols/UpsertEstablishmentRepository';
-import { UpsertSimplesRepository } from '../protocols/UpsertSimplesRepository';
+import {
+  QueryCnpj,
+  ListDataUrlRepository,
+  DataUrlModel,
+  DataUrlType,
+  ZipLoader,
+  UpsertCompanyRepository,
+  UpsertEstablishmentRepository,
+  UpsertSimplesRepository,
+  UpsertCompanyModel,
+  UpsertEstablishmentModel,
+  UpsertSimplesModel,
+} from './DBQueryCnpj.protocols';
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;

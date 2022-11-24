@@ -1,13 +1,16 @@
-import { UpsertCompanyModel } from '../../domain/models/Company';
-import { DataUrlModel } from '../../domain/models/DataUrl';
-import { UpsertEstablishmentModel } from '../../domain/models/Establishment';
-import { UpsertSimplesModel } from '../../domain/models/Simples';
-import { ZipLoader, ZipLoaderStream } from '../../presentation/protocols/ZipLoader';
-import { ListDataUrlRepository } from '../protocols/ListDataUrlRepository';
-import { UpsertCompanyRepository } from '../protocols/UpsertCompanyRepository';
-import { UpsertEstablishmentRepository } from '../protocols/UpsertEstablishmentRepository';
-import { UpsertSimplesRepository } from '../protocols/UpsertSimplesRepository';
 import { DbQueryCnpj } from './DbQueryCnpj';
+import {
+  ListDataUrlRepository,
+  DataUrlModel,
+  ZipLoader,
+  ZipLoaderStream,
+  UpsertCompanyRepository,
+  UpsertEstablishmentRepository,
+  UpsertSimplesRepository,
+  UpsertCompanyModel,
+  UpsertEstablishmentModel,
+  UpsertSimplesModel,
+} from './DBQueryCnpj.protocols';
 
 const makeFakeDataUrls = (): DataUrlModel[] => [
   {
