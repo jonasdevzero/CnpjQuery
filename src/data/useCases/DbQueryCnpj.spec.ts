@@ -12,7 +12,7 @@ import {
   UpsertEstablishmentModel,
   UpsertSimplesModel,
   CnpjRawDataParser,
-} from './DBQueryCnpj.protocols';
+} from './DbQueryCnpj.protocols';
 
 const makeFakeDataUrls = (): DataUrlModel[] => [
   {

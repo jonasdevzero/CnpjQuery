@@ -8,7 +8,7 @@ import {
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
   CnpjRawDataParser,
-} from './DBQueryCnpj.protocols';
+} from './DbQueryCnpj.protocols';
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;
