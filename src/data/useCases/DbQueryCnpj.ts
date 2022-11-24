@@ -47,12 +47,12 @@ export class DbQueryCnpj implements QueryCnpj {
       const parser = this.parsers[dataUrl.type];
       const parsedData = parser(dataToParse);
 
-      this.upsertEstablishmentRepository.upsert(parsedData);
       switch (dataUrl.type) {
         case 'COMPANY':
           this.upsertCompanyRepository.upsert(parsedData);
           break;
         case 'ESTABLISHMENT':
+          this.upsertEstablishmentRepository.upsert(parsedData);
           break;
       }
     });
