@@ -1,5 +1,3 @@
-import fastify from 'fastify';
+import app from './config/app';
 
-const app = fastify();
-
-app.listen(4000, () => console.log('Server running at http://localhost:4000'));
+app.listen({ port: 4000 }, () => console.log('Server running at http://localhost:4000'));
