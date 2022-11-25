@@ -4,8 +4,16 @@ import prisma from '../../client';
 
 export class UpsertCompanyPrismaRepository implements UpsertCompanyRepository {
   async upsert(data: UpsertCompanyModel): Promise<void> {
+    const { baseCnpj } = data;
+
+    await prisma.cnpj.upsert({
+      where: { baseCnpj },
+      update: {},
+      create: { baseCnpj },
+    });
+
     await prisma.cnpjCompany.upsert({
-      where: { baseCnpj: data.baseCnpj },
+      where: { baseCnpj },
       update: data,
       create: data,
     });
