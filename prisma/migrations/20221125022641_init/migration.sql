@@ -15,7 +15,7 @@ CREATE TABLE "dataUrl" (
 -- CreateTable
 CREATE TABLE "cnpj" (
     "baseCnpj" TEXT NOT NULL,
-    "cnpj" TEXT NOT NULL,
+    "cnpj" TEXT,
 
     CONSTRAINT "cnpj_pkey" PRIMARY KEY ("baseCnpj")
 );
@@ -36,7 +36,7 @@ CREATE TABLE "cnpjCompany" (
 -- CreateTable
 CREATE TABLE "cnpjEstablishment" (
     "baseCnpj" TEXT NOT NULL,
-    "corporateName" TEXT NOT NULL,
+    "corporateName" TEXT,
     "cadasterStatus" TEXT NOT NULL,
     "cadasterStatusDate" TEXT NOT NULL,
     "cadasterStatusReason" TEXT NOT NULL,

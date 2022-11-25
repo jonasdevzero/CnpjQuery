@@ -10,13 +10,13 @@ export interface UpsertEstablishmentModel {
   activityStartAt: string;
 
   mainCnae: string;
-  secondaryCnae: string;
+  secondaryCnae?: string;
 
   specialStatus: string;
   specialStatusDate: string;
 
   telephone1: string;
-  telephone2: string;
+  telephone2?: string;
   fax?: string;
   email: string;
 
