@@ -28,7 +28,7 @@ CREATE TABLE "cnpjCompany" (
     "qualification" TEXT NOT NULL,
     "capital" TEXT NOT NULL,
     "size" TEXT NOT NULL,
-    "federativeEntity" TEXT NOT NULL,
+    "federativeEntity" TEXT,
 
     CONSTRAINT "cnpjCompany_pkey" PRIMARY KEY ("baseCnpj")
 );

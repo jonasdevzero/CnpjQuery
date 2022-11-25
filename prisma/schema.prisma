@@ -49,7 +49,7 @@ model CnpjCompany {
   qualification    String
   capital          String
   size             String
-  federativeEntity String
+  federativeEntity String?
 
   cnpj Cnpj @relation(fields: [baseCnpj], references: [baseCnpj], onUpdate: Cascade, onDelete: Cascade)
 
