@@ -36,7 +36,7 @@ model Cnpj {
 
   company       CnpjCompany?
   establishment CnpjEstablishment?
-  partners      CnpjPartner[]
+  partners      CnpjSimples[]
 
   @@map("cnpj")
 }
@@ -104,7 +104,7 @@ model CnpjEstablishmentAddress {
   @@map("cnpjEstablishmentAddress")
 }
 
-model CnpjPartner {
+model CnpjSimples {
   id String @id @default(uuid())
 
   baseCnpj String @unique
@@ -119,5 +119,5 @@ model CnpjPartner {
 
   cnpj Cnpj @relation(fields: [baseCnpj], references: [baseCnpj], onUpdate: Cascade, onDelete: Cascade)
 
-  @@map("cnpjPartner")
+  @@map("cnpjSimples")
 }

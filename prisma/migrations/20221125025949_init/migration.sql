@@ -72,7 +72,7 @@ CREATE TABLE "cnpjEstablishmentAddress" (
 );
 
 -- CreateTable
-CREATE TABLE "cnpjPartner" (
+CREATE TABLE "cnpjSimples" (
     "id" TEXT NOT NULL,
     "baseCnpj" TEXT NOT NULL,
     "identification" BOOLEAN NOT NULL,
@@ -82,7 +82,7 @@ CREATE TABLE "cnpjPartner" (
     "meiIdentificationDate" TEXT,
     "meiExclusionDate" TEXT,
 
-    CONSTRAINT "cnpjPartner_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "cnpjSimples_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -95,7 +95,7 @@ CREATE UNIQUE INDEX "cnpj_cnpj_key" ON "cnpj"("cnpj");
 CREATE UNIQUE INDEX "cnpjEstablishmentAddress_baseCnpj_key" ON "cnpjEstablishmentAddress"("baseCnpj");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "cnpjPartner_baseCnpj_key" ON "cnpjPartner"("baseCnpj");
+CREATE UNIQUE INDEX "cnpjSimples_baseCnpj_key" ON "cnpjSimples"("baseCnpj");
 
 -- AddForeignKey
 ALTER TABLE "cnpjCompany" ADD CONSTRAINT "cnpjCompany_baseCnpj_fkey" FOREIGN KEY ("baseCnpj") REFERENCES "cnpj"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -107,4 +107,4 @@ ALTER TABLE "cnpjEstablishment" ADD CONSTRAINT "cnpjEstablishment_baseCnpj_fkey"
 ALTER TABLE "cnpjEstablishmentAddress" ADD CONSTRAINT "cnpjEstablishmentAddress_baseCnpj_fkey" FOREIGN KEY ("baseCnpj") REFERENCES "cnpjEstablishment"("baseCnpj") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "cnpjPartner" ADD CONSTRAINT "cnpjPartner_baseCnpj_fkey" FOREIGN KEY ("baseCnpj") REFERENCES "cnpj"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "cnpjSimples" ADD CONSTRAINT "cnpjSimples_baseCnpj_fkey" FOREIGN KEY ("baseCnpj") REFERENCES "cnpj"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE;
