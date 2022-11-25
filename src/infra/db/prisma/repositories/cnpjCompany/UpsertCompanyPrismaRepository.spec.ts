@@ -8,7 +8,7 @@ const makeFakeCompanyData = (): UpsertCompanyModel => {
     corporateName: 'any_corporate_name',
     legalNature: 'any_legal_nature',
     qualification: 'any_qualification',
-    capital: '',
+    capital: 'any_capital',
     size: 'any_size',
     federativeEntity: 'any_federative_entity',
   };
@@ -26,6 +26,11 @@ describe('UpsertCompanyPrismaRepository', () => {
 
     await sut.upsert(companyData);
 
+    expect(prismaMock.cnpj.upsert).toHaveBeenCalledWith({
+      where: { baseCnpj: 'any_base_cnpj' },
+      create: { baseCnpj: 'any_base_cnpj' },
+      update: {},
+    });
     expect(prismaMock.cnpjCompany.upsert).toHaveBeenCalledWith({
       where: { baseCnpj: 'any_base_cnpj' },
       create: companyData,
