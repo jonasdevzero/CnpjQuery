@@ -1,19 +1,28 @@
 import { prismaMock } from '../../clientMock';
 import { UpsertSimplesPrismaRepository } from './UpsertSimplesPrismaRepository';
 
+const makeFakeSimplesData = () => {
+  const simplesData = {
+    baseCnpj: 'any_base_cnpj',
+    identification: false,
+    identificationDate: 'any_date',
+    exclusionDate: 'any_data',
+    meiIdentification: false,
+    meiIdentificationDate: 'any_date',
+    meiExclusionDate: 'any_date',
+  };
+  return simplesData;
+};
+
+const makeSut = (): UpsertSimplesPrismaRepository => {
+  return new UpsertSimplesPrismaRepository();
+};
+
 describe('UpsertSimplesPrismaRepository', () => {
   test('Should call prisma upsert with correct values', async () => {
-    const sut = new UpsertSimplesPrismaRepository();
+    const sut = makeSut();
 
-    const simplesData = {
-      baseCnpj: 'any_base_cnpj',
-      identification: false,
-      identificationDate: 'any_date',
-      exclusionDate: 'any_data',
-      meiIdentification: false,
-      meiIdentificationDate: 'any_date',
-      meiExclusionDate: 'any_date',
-    };
+    const simplesData = makeFakeSimplesData();
 
     await sut.upsert(simplesData);
 
@@ -27,5 +36,15 @@ describe('UpsertSimplesPrismaRepository', () => {
       create: simplesData,
       update: simplesData,
     });
+  });
+
+  test('Should throw if prisma upsert throws', async () => {
+    const sut = makeSut();
+
+    prismaMock.cnpjSimples.upsert.mockImplementationOnce(() => {
+      throw new Error();
+    });
+
+    await expect(sut.upsert(makeFakeSimplesData())).rejects.toThrow();
   });
 });
