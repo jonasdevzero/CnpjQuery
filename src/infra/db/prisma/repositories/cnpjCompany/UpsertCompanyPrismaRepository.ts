@@ -8,7 +8,7 @@ export class UpsertCompanyPrismaRepository implements UpsertCompanyRepository {
 
     await prisma.cnpj.upsert({
       where: { baseCnpj },
-      update: {},
+      update: { baseCnpj },
       create: { baseCnpj },
     });
 

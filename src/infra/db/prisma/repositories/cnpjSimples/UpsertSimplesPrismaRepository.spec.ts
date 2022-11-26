@@ -29,7 +29,7 @@ describe('UpsertSimplesPrismaRepository', () => {
     expect(prismaMock.cnpj.upsert).toHaveBeenCalledWith({
       where: { baseCnpj: 'any_base_cnpj' },
       create: { baseCnpj: 'any_base_cnpj' },
-      update: {},
+      update: { baseCnpj: 'any_base_cnpj' },
     });
     expect(prismaMock.cnpjSimples.upsert).toHaveBeenCalledWith({
       where: { baseCnpj: 'any_base_cnpj' },

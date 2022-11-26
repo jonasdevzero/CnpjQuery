@@ -9,7 +9,7 @@ export class UpsertSimplesPrismaRepository implements UpsertSimplesRepository {
     await prisma.cnpj.upsert({
       where: { baseCnpj },
       create: { baseCnpj },
-      update: {},
+      update: { baseCnpj },
     });
 
     await prisma.cnpjSimples.upsert({
