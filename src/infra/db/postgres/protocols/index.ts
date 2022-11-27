@@ -1,2 +1,2 @@
-export * from './Migrations';
+export * from './Migration';
 export * from './PgSql';
