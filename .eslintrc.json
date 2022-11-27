@@ -22,7 +22,8 @@
     "operator-linebreak": "off",
     "object-curly-newline": "off",
     "default-case": "off",
-    "import/no-extraneous-dependencies": "off"
+    "import/no-extraneous-dependencies": "off",
+    "no-unused-expressions": "off"
   },
   "settings": {
     "import/resolver": {

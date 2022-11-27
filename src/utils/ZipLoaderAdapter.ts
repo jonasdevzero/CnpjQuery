@@ -39,11 +39,7 @@ export class ZipLoaderAdapter implements ZipLoader {
 
   private handleResponse(response: Http.IncomingMessage, event: Event) {
     const interval = setInterval(() => {
-      if (response.isPaused()) {
-        response.resume();
-      } else {
-        response.pause();
-      }
+      response.isPaused() ? response.resume() : response.pause();
     }, 1000);
 
     response.pipe(unzipper.Parse()).on('entry', (entry: unzipper.Entry) => {
