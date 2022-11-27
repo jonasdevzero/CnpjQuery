@@ -411,4 +411,32 @@ describe('ZipLoaderAdapter Util', () => {
     expect(resumeSpy).toHaveBeenCalledTimes(1);
     expect(pauseSpy).toHaveBeenCalledTimes(0);
   });
+
+  test('Should call clearInterval on response end', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+    const setIntervalSpy = jest.spyOn(global, 'setInterval');
+
+    await sut.load('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const setIntervalResult = setIntervalSpy.mock.results[0].value;
+
+    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
+    const responseEndListener = jest.fn(responseOnSpy.mock.calls[1][1] as () => void);
+
+    const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
+
+    responseEndListener();
+
+    expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
+    expect(clearIntervalSpy).toHaveBeenCalledWith(expect.any(Object));
+  });
 });
