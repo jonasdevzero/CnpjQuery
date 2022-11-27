@@ -386,4 +386,29 @@ describe('ZipLoaderAdapter Util', () => {
     expect(pauseSpy).toHaveBeenCalledTimes(1);
     expect(resumeSpy).toHaveBeenCalledTimes(0);
   });
+
+  test('Should resume response if is not resumed', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.load('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    jest.spyOn(responseListener.mock.calls[0][0], 'isPaused').mockImplementationOnce(() => true);
+
+    const resumeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'resume');
+    const pauseSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pause');
+
+    jest.runOnlyPendingTimers();
+
+    expect(resumeSpy).toHaveBeenCalledTimes(1);
+    expect(pauseSpy).toHaveBeenCalledTimes(0);
+  });
 });
