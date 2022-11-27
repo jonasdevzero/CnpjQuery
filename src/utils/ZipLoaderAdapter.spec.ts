@@ -362,6 +362,25 @@ describe('ZipLoaderAdapter Util', () => {
     expect(errorListener).toHaveBeenCalledWith(error);
   });
 
+  test('Should call setInterval on response', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+    const intervalSpy = jest.spyOn(global, 'setInterval');
+
+    await sut.load('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    expect(intervalSpy).toHaveBeenCalledTimes(1);
+    expect(intervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+  });
+
   test('Should pause response if is not paused', async () => {
     const sut = makeSut();
 
