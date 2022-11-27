@@ -1,7 +1,6 @@
-/* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
-import fs from 'node:fs';
 import { join } from 'node:path';
+import { FilesFinderAdapter } from '../../../../utils/FilesFinderAdapter';
 import sql from '../db';
 
 const validArguments = ['--up', '--down'];
@@ -12,25 +11,19 @@ if (!validArguments.includes(argument)) {
 }
 
 const command = argument.split('--')[1] as 'up' | 'down';
+
 const rootPath = process.cwd();
 const migrationsDirectory = join(rootPath, 'src', 'infra', 'db', 'postgres', 'migrations');
+const filesFinderAdapter = new FilesFinderAdapter();
 
-function getMigrations(dir: string): string[] {
-  const files: string[] = [];
+const migrations = filesFinderAdapter
+  .find('src/infra/db/postgres/migrations', /([0-9]+).+(\.ts)$/g)
+  .sort((a, b) => {
+    const aParsed = Number(a.split(`${migrationsDirectory}\\`)[1].split('_')[0]);
+    const bParsed = Number(b.split(`${migrationsDirectory}\\`)[1].split('_')[0]);
 
-  fs.readdirSync(dir).forEach((file) => {
-    if (/([0-9]+).+(\.ts)$/g.test(file)) files.push(join(dir, file));
+    return aParsed > bParsed ? 1 : -1;
   });
-
-  return files;
-}
-
-const migrations = getMigrations(migrationsDirectory).sort((a, b) => {
-  const aParsed = Number(a.split(`${migrationsDirectory}\\`)[1].split('_')[0]);
-  const bParsed = Number(b.split(`${migrationsDirectory}\\`)[1].split('_')[0]);
-
-  return aParsed > bParsed ? 1 : -1;
-});
 
 async function runMigrations() {
   for (const migrationPath of migrations) {

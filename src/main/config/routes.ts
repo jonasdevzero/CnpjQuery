@@ -1,8 +1,9 @@
 import { FastifyInstance } from 'fastify';
-import { GetRoutesFiles } from '../helpers/GetRoutesFiles';
+import { FilesFinderAdapter } from '../../utils/FilesFinderAdapter';
 
 export default async (app: FastifyInstance) => {
-  const files = GetRoutesFiles.get();
+  const filesFinderAdapter = new FilesFinderAdapter();
+  const files = filesFinderAdapter.find('src/main/routes', '*.routes.ts');
 
   await Promise.all(
     files.map(async (file) => {
