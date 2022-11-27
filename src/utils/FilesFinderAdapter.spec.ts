@@ -23,15 +23,29 @@ describe('FilesFinderAdapter Util', () => {
     expect(readdirPath.endsWith('any_dir'));
   });
 
-  test('Should return files on success', () => {
+  test('Should with string matcher return files on success', () => {
     const sut = makeSut();
 
     jest.spyOn(fs, 'readdirSync').mockImplementationOnce(() => {
-      const mockedFiles = ['any_file.routes.ts', 'any_file.ts'];
+      const mockedFiles = ['any_file.routes.ts', 'any_file.ts', 'any_folder'];
       return mockedFiles as any;
     });
 
     const files = sut.find('any_dir', '*.routes.ts');
+
+    expect(files.length).toBe(1);
+    expect(files[0].endsWith('any_dir\\any_file.routes.ts')).toBeTruthy();
+  });
+
+  test('Should with RegExp matcher return files on success', () => {
+    const sut = makeSut();
+
+    jest.spyOn(fs, 'readdirSync').mockImplementationOnce(() => {
+      const mockedFiles = ['any_file.routes.ts', 'any_file.ts', 'any_folder'];
+      return mockedFiles as any;
+    });
+
+    const files = sut.find('any_dir', /(.+)\.routes\.ts/g);
 
     expect(files.length).toBe(1);
     expect(files[0].endsWith('any_dir\\any_file.routes.ts')).toBeTruthy();
