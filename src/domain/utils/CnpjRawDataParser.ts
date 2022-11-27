@@ -1,4 +1,4 @@
-import { DataUrlType } from '../../domain/models/DataUrl';
+import { DataUrlType } from '../models/DataUrl';
 
 export interface CnpjRawDataParser {
   parse(data: string, dataType: DataUrlType): Object;

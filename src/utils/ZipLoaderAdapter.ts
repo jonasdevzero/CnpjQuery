@@ -2,7 +2,7 @@ import Http from 'node:http';
 import Event from 'events';
 import unzipper from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import { ZipLoader, ZipLoaderStream } from '../presentation/protocols/ZipLoader';
+import { ZipLoader, ZipLoaderStream } from '../domain/utils';
 
 export class ZipLoaderAdapter implements ZipLoader {
   private readonly lineBreak = '\n';

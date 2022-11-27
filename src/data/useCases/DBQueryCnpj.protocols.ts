@@ -8,5 +8,4 @@ export * from '../../domain/models/DataUrl';
 export * from '../../domain/models/Establishment';
 export * from '../../domain/models/Simples';
 
-export * from '../../presentation/protocols/ZipLoader';
-export * from '../../presentation/protocols/CnpjRawDataParser';
+export * from '../../domain/utils';

@@ -1,5 +1,5 @@
 import { DataUrlType } from '../domain/models/DataUrl';
-import { CnpjRawDataParser } from '../presentation/protocols/CnpjRawDataParser';
+import { CnpjRawDataParser } from '../domain/utils';
 
 export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   private readonly parsers = {
