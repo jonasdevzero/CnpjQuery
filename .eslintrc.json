@@ -23,7 +23,8 @@
     "object-curly-newline": "off",
     "default-case": "off",
     "import/no-extraneous-dependencies": "off",
-    "no-unused-expressions": "off"
+    "no-unused-expressions": "off",
+    "no-restricted-syntax": "off"
   },
   "settings": {
     "import/resolver": {
