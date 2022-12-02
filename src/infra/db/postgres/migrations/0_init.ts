@@ -9,7 +9,7 @@ export default class InitMigration implements Migration {
         DO $$
           BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE pg_type.typname = 'DataUrlType') THEN
-                CREATE TYPE "DataUrlType" AS ENUM ('COMPANY', 'ESTABLISHMENT', 'SIMPLES', 'PARTNER', 'GENERAL');
+                CREATE TYPE "DataUrlType" AS ENUM ('COMPANY', 'ESTABLISHMENT', 'SIMPLES', 'PARTNER', CNAE', COUNTRIES', QUALIFICATIONS', 'NATURES', 'CITIES', 'REASONS');
             END IF;
           END
         $$;
@@ -18,58 +18,42 @@ export default class InitMigration implements Migration {
       await transactionSql`
         CREATE TABLE IF NOT EXISTS "dataUrl" (
           "id" uuid DEFAULT uuid_generate_v4 (),
-          "url" TEXT NOT NULL,
+          "url" TEXT UNIQUE NOT NULL,
           "type" "DataUrlType" NOT NULL,
           PRIMARY KEY ("id")
         );
       `;
 
       await transactionSql`
-        CREATE TABLE IF NOT EXISTS "cnpj" (
-          "baseCnpj" VARCHAR(20) NOT NULL,
-          "cnpj" VARCHAR(20),
-          PRIMARY KEY ("baseCnpj")
-        );    
-      `;
-
-      await transactionSql`
         CREATE TABLE IF NOT EXISTS "cnpjCompany" (
-          "baseCnpj" VARCHAR(20) NOT NULL,
+          "baseCnpj" TEXT NOT NULL,
           "corporateName" TEXT NOT NULL,
           "legalNature" TEXT NOT NULL,
           "qualification" TEXT NOT NULL,
           "capital" TEXT NOT NULL,
           "size" TEXT NOT NULL,
           "federativeEntity" TEXT,
-          PRIMARY KEY ("baseCnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES cnpj("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
+          PRIMARY KEY ("baseCnpj")
         );
       `;
 
       await transactionSql`
         CREATE TABLE IF NOT EXISTS "cnpjEstablishment" (
-          "baseCnpj" VARCHAR(20) NOT NULL,
+          "cnpj" TEXT NOT NULL,
+          "baseCnpj" TEXT NOT NULL,
           "corporateName" TEXT,
           "cadasterStatus" VARCHAR(10) NOT NULL,
           "cadasterStatusDate" TEXT NOT NULL,
           "cadasterStatusReason" TEXT,
           "activityStartAt" TEXT,
-          "mainCnae" VARCHAR(20),
-          "secondaryCnae" VARCHAR(20),
+          "mainCnae" TEXT,
+          "secondaryCnae" TEXT,
           "specialStatus" TEXT,
           "specialStatusDate" TEXT,
           "telephone1" VARCHAR(30),
           "telephone2" VARCHAR(30),
           "fax" VARCHAR(30),
           "email" TEXT,
-          PRIMARY KEY ("baseCnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES cnpj("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
-        );
-      `;
-
-      await transactionSql`
-        CREATE TABLE IF NOT EXISTS "cnpjEstablishmentAddress" (
-          "baseCnpj" VARCHAR(20) NOT NULL,
           "cityAbroad" TEXT,
           "countryCode" TEXT,
           "streetDescription" TEXT,
@@ -80,14 +64,14 @@ export default class InitMigration implements Migration {
           "cep" TEXT,
           "uf" TEXT,
           "city" TEXT,
-          PRIMARY KEY ("baseCnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES cnpj("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
+          PRIMARY KEY ("cnpj"),
+          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
         );
       `;
 
       await transactionSql`
         CREATE TABLE IF NOT EXISTS "cnpjSimples" (
-          "baseCnpj" VARCHAR(20) NOT NULL,
+          "baseCnpj" TEXT NOT NULL,
           "identification" BIT NOT NULL,
           "identificationDate" TEXT,
           "exclusionDate" TEXT,
@@ -95,17 +79,16 @@ export default class InitMigration implements Migration {
           "meiIdentificationDate" TEXT,
           "meiExclusionDate" TEXT,
           PRIMARY KEY ("baseCnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES cnpj("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
+          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
         );
       `;
 
       await transactionSql`
           CREATE TABLE IF NOT EXISTS "cnpjPartner" (
-            "id" uuid DEFAULT uuid_generate_v4 (),
-            "baseCnpj" VARCHAR(20) NOT NULL,
+            "baseCnpj" TEXT NOT NULL,
             "identifier" TEXT,
             "name" TEXT,
-            "registration" TEXT UNIQUE,
+            "cpf" TEXT,
             "qualification" TEXT,
             "countryCode" TEXT,
             "legalRepresentativeCpf" TEXT,
@@ -113,20 +96,30 @@ export default class InitMigration implements Migration {
             "legalRepresentativeQualification" TEXT,
             "ageGroup" TEXT,
             "entryDate" TEXT,
-            PRIMARY KEY ("id"),
-            FOREIGN KEY ("baseCnpj") REFERENCES cnpj("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
+            PRIMARY KEY ("baseCnpj", "cpf"),
+            FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
           );
       `;
+
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "dataUrl_url_key" ON "dataUrl"("url");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjCompany_baseCnpj_key" ON "cnpjCompany"("baseCnpj");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjEstablishment_cnpj_key" ON "cnpjEstablishment"("cnpj");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjSimples_baseCnpj_key" ON "cnpjSimples"("baseCnpj");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjPartner_baseCnpj_cpf_key" ON "cnpjPartner"("baseCnpj", "cpf");`;
     });
   }
 
   async down(sql: PgSql): Promise<void> {
+    await sql`DROP INDEX IF EXISTS "dataUrl_url_key";`;
+    await sql`DROP INDEX IF EXISTS "cnpjCompany_baseCnpj_key";`;
+    await sql`DROP INDEX IF EXISTS "cnpjEstablishment_cnpj_key";`;
+    await sql`DROP INDEX IF EXISTS "cnpjSimples_baseCnpj_key";`;
+    await sql`DROP INDEX IF EXISTS "cnpjPartner_baseCnpj_cpf_key";`;
+
     await sql`DROP TABLE IF EXISTS "cnpjPartner";`;
     await sql`DROP TABLE IF EXISTS "cnpjSimples";`;
-    await sql`DROP TABLE IF EXISTS "cnpjEstablishmentAddress";`;
     await sql`DROP TABLE IF EXISTS "cnpjEstablishment";`;
     await sql`DROP TABLE IF EXISTS "cnpjCompany";`;
-    await sql`DROP TABLE IF EXISTS "cnpj";`;
     await sql`DROP TABLE IF EXISTS "dataUrl";`;
     await sql`DROP TYPE IF EXISTS "DataUrlType";`;
     await sql`DROP EXTENSION IF EXISTS "uuid-ossp";`;
