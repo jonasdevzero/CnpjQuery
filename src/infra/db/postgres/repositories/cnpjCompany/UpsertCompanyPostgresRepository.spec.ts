@@ -29,4 +29,18 @@ describe('UpsertCompanyPostgresRepository', () => {
 
     await expect(sut.upsert(makeFakeCompanyData())).rejects.toThrow();
   });
+
+  test('Should call select with correct value', async () => {
+    const sut = makeSut();
+
+    dbMock.mockImplementationOnce(() => {
+      return [];
+    });
+
+    const companyData = makeFakeCompanyData();
+
+    await sut.upsert(companyData);
+
+    expect(dbMock.mock.calls[0][1]).toBe(companyData.baseCnpj);
+  });
 });
