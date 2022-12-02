@@ -71,4 +71,36 @@ describe('UpsertCompanyPostgresRepository', () => {
 
     expect(query).toMatch(/^[UPDATE].+/g);
   });
+
+  test('Should call insert with federativeEntity as an empty string if it was undefined', async () => {
+    const sut = makeSut();
+
+    const companyData = {
+      baseCnpj: 'any_base_cnpj',
+      corporateName: 'any_corporate_name',
+      legalNature: 'any_legal_nature',
+      qualification: 'any_qualification',
+      capital: 'any_capital',
+      size: 'any_size',
+      federativeEntity: undefined,
+    };
+
+    dbMock.mockImplementationOnce(() => {
+      return [];
+    });
+
+    await sut.upsert(companyData);
+
+    const query: string = dbMock.mock.calls[1].join('').trim();
+
+    const insertFields = (/INSERT INTO.+\((.+)\)(.+)?/g.exec(query) as RegExpExecArray)[1];
+    const federativeEntityPosition = insertFields
+      .replace(/"/g, '')
+      .split(', ')
+      .indexOf('federativeEntity');
+
+    const federativeEntity = dbMock.mock.calls[1].slice(1)[federativeEntityPosition];
+
+    expect(federativeEntity).toBe('');
+  });
 });
