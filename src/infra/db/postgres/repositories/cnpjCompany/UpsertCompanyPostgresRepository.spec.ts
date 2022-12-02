@@ -43,4 +43,18 @@ describe('UpsertCompanyPostgresRepository', () => {
 
     expect(dbMock.mock.calls[0][1]).toBe(companyData.baseCnpj);
   });
+
+  test('Should insert data if company was not found', async () => {
+    const sut = makeSut();
+
+    dbMock.mockImplementationOnce(() => {
+      return [];
+    });
+
+    await sut.upsert(makeFakeCompanyData());
+
+    const query = dbMock.mock.calls[1][0].join('').trim();
+
+    expect(query).toMatch(/^[INSERT INTO].+/g);
+  });
 });
