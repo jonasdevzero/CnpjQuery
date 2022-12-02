@@ -137,4 +137,21 @@ describe('UpsertCompanyPostgresRepository', () => {
 
     expect(federativeEntity).toBe('');
   });
+
+  test('should call update with correct where value', async () => {
+    const sut = makeSut();
+
+    dbMock.mockImplementationOnce(() => {
+      return ['any_company'];
+    });
+
+    const companyData = makeFakeCompanyData();
+
+    await sut.upsert(companyData);
+
+    const queryParams = dbMock.mock.calls[1].slice(1);
+    const baseCnpj = queryParams[queryParams.length - 1];
+
+    expect(baseCnpj).toBe(companyData.baseCnpj);
+  });
 });
