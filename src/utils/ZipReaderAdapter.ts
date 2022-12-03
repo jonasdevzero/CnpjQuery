@@ -20,6 +20,8 @@ export class ZipReaderAdapter implements ZipReader {
 
     request.on('error', (error: Error) => this.handleError(error, event));
 
+    process.on('uncaughtException', () => {});
+
     request.end();
 
     return event;
