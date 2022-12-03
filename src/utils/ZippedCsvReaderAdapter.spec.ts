@@ -34,15 +34,15 @@ const makeFakeResponse = (): http.IncomingMessage => {
       on: jest.fn(),
     })),
     on: jest.fn(),
-    isPaused: jest.fn(),
-    pause: jest.fn(),
-    resume: jest.fn(),
   } as unknown as http.IncomingMessage;
 };
 
 const makeFakeEntry = (): Entry => {
   return {
     on: jest.fn(),
+    isPaused: jest.fn(),
+    pause: jest.fn(),
+    resume: jest.fn(),
   } as unknown as Entry;
 };
 
@@ -384,7 +384,7 @@ describe('ZipLoaderAdapter Util', () => {
     expect(errorListener).toHaveBeenCalledWith(error);
   });
 
-  test('Should call setInterval on response', async () => {
+  test('Should call setInterval on entry', async () => {
     const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
@@ -399,11 +399,20 @@ describe('ZipLoaderAdapter Util', () => {
 
     responseListener(makeFakeResponse());
 
+    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
+    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
+
+    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => void);
+
+    entryListener(makeFakeEntry());
+
+    jest.runOnlyPendingTimers();
+
     expect(intervalSpy).toHaveBeenCalledTimes(1);
     expect(intervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
   });
 
-  test('Should pause response if is not paused', async () => {
+  test('Should pause entry if is not paused', async () => {
     const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
@@ -417,10 +426,17 @@ describe('ZipLoaderAdapter Util', () => {
 
     responseListener(makeFakeResponse());
 
-    jest.spyOn(responseListener.mock.calls[0][0], 'isPaused').mockImplementationOnce(() => false);
+    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
+    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
 
-    const pauseSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pause');
-    const resumeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'resume');
+    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => void);
+
+    entryListener(makeFakeEntry());
+
+    jest.spyOn(entryListener.mock.calls[0][0], 'isPaused').mockImplementationOnce(() => false);
+
+    const pauseSpy = jest.spyOn(entryListener.mock.calls[0][0], 'pause');
+    const resumeSpy = jest.spyOn(entryListener.mock.calls[0][0], 'resume');
 
     jest.runOnlyPendingTimers();
 
@@ -428,7 +444,7 @@ describe('ZipLoaderAdapter Util', () => {
     expect(resumeSpy).toHaveBeenCalledTimes(0);
   });
 
-  test('Should resume response if is not resumed', async () => {
+  test('Should resume entry if is not resumed', async () => {
     const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
@@ -442,43 +458,22 @@ describe('ZipLoaderAdapter Util', () => {
 
     responseListener(makeFakeResponse());
 
-    jest.spyOn(responseListener.mock.calls[0][0], 'isPaused').mockImplementationOnce(() => true);
+    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
+    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
 
-    const resumeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'resume');
-    const pauseSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pause');
+    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => void);
+
+    entryListener(makeFakeEntry());
+
+    jest.spyOn(entryListener.mock.calls[0][0], 'isPaused').mockImplementationOnce(() => true);
+
+    const pauseSpy = jest.spyOn(entryListener.mock.calls[0][0], 'pause');
+    const resumeSpy = jest.spyOn(entryListener.mock.calls[0][0], 'resume');
 
     jest.runOnlyPendingTimers();
 
     expect(resumeSpy).toHaveBeenCalledTimes(1);
     expect(pauseSpy).toHaveBeenCalledTimes(0);
-  });
-
-  test('Should call clearInterval on response end', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-    const setIntervalSpy = jest.spyOn(global, 'setInterval');
-
-    await sut.read('http://any_url.zip');
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const setIntervalResult = setIntervalSpy.mock.results[0].value;
-
-    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
-    const responseEndListener = jest.fn(responseOnSpy.mock.calls[1][1] as () => void);
-
-    const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
-
-    responseEndListener();
-
-    expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
-    expect(clearIntervalSpy).toHaveBeenCalledWith(expect.any(Object));
   });
 
   test('Should handle process uncaught exception listener', async () => {

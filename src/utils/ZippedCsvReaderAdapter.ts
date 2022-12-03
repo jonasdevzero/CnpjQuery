@@ -46,24 +46,19 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
 
   private makeResponseHandler(event: Event) {
     return (response: Http.IncomingMessage) => {
-      const interval = setInterval(() => {
-        response.isPaused() ? response.resume() : response.pause();
-      }, 1000);
+      const stream = response.pipe(unzipper.Parse());
 
-      response.pipe(unzipper.Parse()).on('entry', this.makeEntryHandler(event));
-
+      stream.on('entry', this.makeEntryHandler(event));
       response.on('error', this.makeErrorHandler(event));
-
-      response.on('end', () => {
-        event.emit('end');
-        clearInterval(interval);
-      });
+      response.on('end', () => event.emit('end'));
     };
   }
 
   private makeEntryHandler(event: Event) {
     return (entry: unzipper.Entry) => {
       let pendingData = '';
+
+      setInterval(this.makeEntryStatusToggler(entry), 1000);
 
       entry.on('data', (chunk) => {
         pendingData += chunk;
@@ -79,5 +74,9 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
         }
       });
     };
+  }
+
+  private makeEntryStatusToggler(entry: unzipper.Entry) {
+    return () => (entry.isPaused() ? entry.resume() : entry.pause());
   }
 }
