@@ -49,8 +49,13 @@ const makeFakeEntry = (): Entry => {
 const makeSut = (): ZipReaderAdapter => new ZipReaderAdapter();
 
 describe('ZipLoaderAdapter Util', () => {
+  beforeEach(() => {
+    jest.spyOn(process, 'on').mockImplementation(jest.fn());
+  });
+
   afterEach(() => {
     jest.spyOn(http, 'request').mockClear();
+    jest.spyOn(process, 'on').mockClear();
   });
 
   test('Should throw if an invalid url was given', async () => {
@@ -470,5 +475,24 @@ describe('ZipLoaderAdapter Util', () => {
 
     expect(event).toBe('uncaughtException');
     expect(typeof listener).toBe('function');
+  });
+
+  test('Should emit an error event if uncaught exception was handled', async () => {
+    const sut = makeSut();
+
+    const processOnSpy = jest.spyOn(process, 'on');
+
+    const stream = await sut.read('http://any_url.zip');
+    const errorListener = jest.fn();
+
+    stream.on('error', errorListener);
+
+    const uncaughtExceptionListener = processOnSpy.mock.calls[0][1] as (error: Error) => void;
+
+    const error = new Error('uncaught_exception');
+    uncaughtExceptionListener(error);
+
+    expect(errorListener).toHaveBeenCalledTimes(1);
+    expect(errorListener).toHaveBeenCalledWith(error);
   });
 });
