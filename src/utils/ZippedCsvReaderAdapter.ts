@@ -58,7 +58,7 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
     return (entry: unzipper.Entry) => {
       let pendingData = '';
 
-      setInterval(this.makeEntryStatusToggler(entry), 1000);
+      const interval = setInterval(this.makeEntryStatusToggler(entry), 1000);
 
       entry.on('data', (chunk) => {
         pendingData += chunk;
@@ -74,7 +74,7 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
         }
       });
 
-      entry.on('end', () => {});
+      entry.on('end', () => clearInterval(interval));
     };
   }
 
