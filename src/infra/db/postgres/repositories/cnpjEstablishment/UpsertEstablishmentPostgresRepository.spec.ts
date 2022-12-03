@@ -127,4 +127,41 @@ describe('UpsertEstablishmentPostgresRepository', () => {
     expect(insertedValues[telephone2Position]).toBe('');
     expect(insertedValues[faxPosition]).toBe('');
   });
+
+  test('Should replace undefined values to a valid value on update', async () => {
+    const sut = makeSut();
+
+    const establishmentData = makeFakeEstablishment();
+    Object.assign(establishmentData, {
+      corporateName: undefined,
+      secondaryCnae: undefined,
+      telephone2: undefined,
+      fax: undefined,
+    });
+
+    dbMock.mockImplementationOnce(() => {
+      return ['any_establishment'];
+    });
+
+    await sut.upsert(establishmentData);
+
+    const query: string = dbMock.mock.calls[1][0].join('').trim();
+
+    const updateFields = (/UPDATE .+ SET (.+) WHERE .+[;]$/gs.exec(query) as RegExpExecArray)[1]
+      .replace(/[";\n ]/g, '')
+      .replace(/([ = ,, ]+|[ = ,])/g, ',')
+      .split(',');
+
+    const insertedValues: unknown[] = dbMock.mock.calls[1].slice(1);
+
+    const corporateNamePosition = updateFields.indexOf('corporateName');
+    const secondaryCnaePosition = updateFields.indexOf('secondaryCnae');
+    const telephone2Position = updateFields.indexOf('telephone2');
+    const faxPosition = updateFields.indexOf('fax');
+
+    expect(insertedValues[corporateNamePosition]).toBe('');
+    expect(insertedValues[secondaryCnaePosition]).toBe('');
+    expect(insertedValues[telephone2Position]).toBe('');
+    expect(insertedValues[faxPosition]).toBe('');
+  });
 });
