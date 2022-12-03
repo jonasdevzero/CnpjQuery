@@ -2,7 +2,7 @@ import http from 'node:http';
 import https from 'node:https';
 import unzipper, { Entry } from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import { ZipReaderAdapter } from './ZipReaderAdapter';
+import { ZippedCsvReaderAdapter } from './ZippedCsvReaderAdapter';
 
 jest.mock('node:http', () => ({
   request() {
@@ -46,7 +46,7 @@ const makeFakeEntry = (): Entry => {
   } as unknown as Entry;
 };
 
-const makeSut = (): ZipReaderAdapter => new ZipReaderAdapter();
+const makeSut = (): ZippedCsvReaderAdapter => new ZippedCsvReaderAdapter();
 
 describe('ZipLoaderAdapter Util', () => {
   beforeEach(() => {

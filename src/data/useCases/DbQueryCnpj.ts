@@ -3,7 +3,7 @@ import {
   ListDataUrlRepository,
   DataUrlModel,
   DataUrlType,
-  ZipReader,
+  ZippedCsvReader,
   UpsertCompanyRepository,
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
@@ -12,7 +12,7 @@ import {
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;
-  private readonly zipLoader: ZipReader;
+  private readonly zipLoader: ZippedCsvReader;
   private readonly upsertCompanyRepository: UpsertCompanyRepository;
   private readonly upsertEstablishmentRepository: UpsertEstablishmentRepository;
   private readonly upsertSimplesRepository: UpsertSimplesRepository;
@@ -20,7 +20,7 @@ export class DbQueryCnpj implements QueryCnpj {
 
   constructor(
     listDataUrlRepository: ListDataUrlRepository,
-    zipLoader: ZipReader,
+    zipLoader: ZippedCsvReader,
     upsertCompanyRepository: UpsertCompanyRepository,
     upsertEstablishmentRepository: UpsertEstablishmentRepository,
     upsertSimplesRepositoryStub: UpsertSimplesRepository,

@@ -3,8 +3,8 @@ import { DbQueryCnpj } from './DbQueryCnpj';
 import {
   ListDataUrlRepository,
   DataUrlModel,
-  ZipReader,
-  ZipReaderStream,
+  ZippedCsvReader,
+  ZippedCsvReaderEvent,
   UpsertCompanyRepository,
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
@@ -82,9 +82,9 @@ const makeUpsertCompanyRepository = (): UpsertCompanyRepository => {
   return new UpsertCompanyRepositoryStub();
 };
 
-const makeZipLoader = (): ZipReader => {
-  class ZipLoaderStub implements ZipReader {
-    async read(url: string): Promise<ZipReaderStream> {
+const makeZipLoader = (): ZippedCsvReader => {
+  class ZipLoaderStub implements ZippedCsvReader {
+    async read(url: string): Promise<ZippedCsvReaderEvent> {
       return {
         on: jest.fn(),
       };
@@ -106,7 +106,7 @@ const makeListDataUrlRepository = (): ListDataUrlRepository => {
 
 interface SutTypes {
   listDataUrlRepositoryStub: ListDataUrlRepository;
-  zipLoaderStub: ZipReader;
+  zipLoaderStub: ZippedCsvReader;
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
   upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
   upsertSimplesRepositoryStub: UpsertSimplesRepository;
