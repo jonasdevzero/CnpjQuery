@@ -73,6 +73,8 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
           rowIndex = pendingData.indexOf(this.EOL);
         }
       });
+
+      entry.on('end', () => {});
     };
   }
 
