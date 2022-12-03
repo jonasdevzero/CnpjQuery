@@ -138,6 +138,21 @@ describe('ZipLoaderAdapter Util', () => {
     expect(typeof listener).toBe('function');
   });
 
+  test('Should handle request finish listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.read('http://any_url.zip');
+
+    const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+
+    const [event, listener] = onSpy.mock.calls[2];
+
+    expect(event).toBe('finish');
+    expect(typeof listener).toBe('function');
+  });
+
   test('Should call response pipe with correct param', async () => {
     const sut = makeSut();
 
