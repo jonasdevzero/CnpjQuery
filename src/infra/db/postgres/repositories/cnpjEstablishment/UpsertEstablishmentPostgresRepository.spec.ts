@@ -63,4 +63,18 @@ describe('UpsertEstablishmentPostgresRepository', () => {
 
     expect(dbMock.mock.calls[0][1]).toBe(establishmentData.cnpj);
   });
+
+  test('Should insert data if establishment was not found', async () => {
+    const sut = makeSut();
+
+    dbMock.mockImplementationOnce(() => {
+      return [];
+    });
+
+    await sut.upsert(makeFakeEstablishment());
+
+    const query = dbMock.mock.calls[1][0].join('').trim();
+
+    expect(query).toMatch(/^[INSERT INTO].+/g);
+  });
 });
