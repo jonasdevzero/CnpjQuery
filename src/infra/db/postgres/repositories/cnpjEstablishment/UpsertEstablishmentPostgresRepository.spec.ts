@@ -164,4 +164,21 @@ describe('UpsertEstablishmentPostgresRepository', () => {
     expect(insertedValues[telephone2Position]).toBe('');
     expect(insertedValues[faxPosition]).toBe('');
   });
+
+  test('should call update with correct where value', async () => {
+    const sut = makeSut();
+
+    dbMock.mockImplementationOnce(() => {
+      return ['any_company'];
+    });
+
+    const establishmentData = makeFakeEstablishment();
+
+    await sut.upsert(establishmentData);
+
+    const queryParams = dbMock.mock.calls[1].slice(1);
+    const baseCnpj = queryParams[queryParams.length - 1];
+
+    expect(baseCnpj).toBe(establishmentData.cnpj);
+  });
 });
