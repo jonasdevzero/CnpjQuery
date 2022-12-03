@@ -35,14 +35,32 @@ const makeFakeEstablishment = (): UpsertEstablishmentModel => {
   return establishmentData;
 };
 
+const makeSut = (): UpsertEstablishmentPostgresRepository => {
+  return new UpsertEstablishmentPostgresRepository();
+};
+
 describe('UpsertEstablishmentPostgresRepository', () => {
   test('Should throw if postgres throws', async () => {
-    const sut = new UpsertEstablishmentPostgresRepository();
+    const sut = makeSut();
 
     dbMock.mockImplementationOnce(() => {
       throw new Error();
     });
 
     await expect(sut.upsert(makeFakeEstablishment())).rejects.toThrow();
+  });
+
+  test('Should call select with correct value', async () => {
+    const sut = makeSut();
+
+    dbMock.mockImplementationOnce(() => {
+      return [];
+    });
+
+    const establishmentData = makeFakeEstablishment();
+
+    await sut.upsert(establishmentData);
+
+    expect(dbMock.mock.calls[0][1]).toBe(establishmentData.cnpj);
   });
 });
