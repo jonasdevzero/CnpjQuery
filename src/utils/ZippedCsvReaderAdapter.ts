@@ -5,76 +5,79 @@ import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { ZippedCsvReader, ZippedCsvReaderEvent } from '../domain/utils';
 
 export class ZippedCsvReaderAdapter implements ZippedCsvReader {
-  private readonly lineBreak = '\n';
+  private readonly EOL = '\n';
 
   async read(url: string): Promise<ZippedCsvReaderEvent> {
-    const urlProtocol = this.validateUrlAndReturnProtocol(url);
-    const http: typeof Http = await import(`node:${urlProtocol}`);
+    const urlProtocol = this.getUrlProtocol(url);
+    return this.init(url, urlProtocol);
+  }
 
+  private getUrlProtocol(url: string): 'http' | 'https' {
+    const match = /(http[s]?):\/\/.+\.zip/g.exec(url);
+    if (!match) throw new InvalidParamError('url');
+
+    return match[1] as 'http' | 'https';
+  }
+
+  private async init(url: string, protocol: 'http' | 'https') {
+    const http: typeof Http = await import(`node:${protocol}`);
     const request = http.request(url);
+    return this.handleRequest(request);
+  }
+
+  private handleRequest(request: Http.ClientRequest) {
     const event = new Event();
+    const errorHandler = this.makeErrorHandler(event);
 
-    request.on('response', (response) => this.handleResponse(response, event));
-    request.on('error', (error) => this.handleError(error, event));
-    request.on('finish', () => {
-      process.removeListener('uncaughtException', (error) => this.handleError(error, event));
-    });
+    process.on('uncaughtException', errorHandler);
 
-    process.on('uncaughtException', (error) => this.handleError(error, event));
+    request.on('response', this.makeResponseHandler(event));
+    request.on('error', errorHandler);
+    request.on('finish', () => process.removeListener('uncaughtException', errorHandler));
 
     request.end();
 
     return event;
   }
 
-  private validateUrlAndReturnProtocol(url: string) {
-    const isValidUrl = /http[s]?:\/\/.+\.(zip)/g.test(url);
-
-    if (!isValidUrl) {
-      throw new InvalidParamError('url');
-    }
-
-    const [urlProtocol] = /(http[s]?)/g.exec(url) as RegExpExecArray;
-
-    return urlProtocol;
+  private makeErrorHandler(event: Event) {
+    return (error: Error) => event.emit('error', error);
   }
 
-  private handleResponse(response: Http.IncomingMessage, event: Event) {
-    const interval = setInterval(() => {
-      response.isPaused() ? response.resume() : response.pause();
-    }, 1000);
+  private makeResponseHandler(event: Event) {
+    return (response: Http.IncomingMessage) => {
+      const interval = setInterval(() => {
+        response.isPaused() ? response.resume() : response.pause();
+      }, 1000);
 
-    response.pipe(unzipper.Parse()).on('entry', (entry: unzipper.Entry) => {
-      this.handleUnzipperEntry(entry, event);
-    });
+      response.pipe(unzipper.Parse()).on('entry', this.makeEntryHandler(event));
 
-    response.on('error', (error) => this.handleError(error, event));
+      response.on('error', this.makeErrorHandler(event));
 
-    response.on('end', () => {
-      event.emit('end');
-      clearInterval(interval);
-    });
+      response.on('end', () => {
+        event.emit('end');
+        clearInterval(interval);
+      });
+    };
   }
 
-  private handleUnzipperEntry(entry: unzipper.Entry, event: Event) {
-    let pendingData = '';
+  private makeEntryHandler(event: Event) {
+    return (entry: unzipper.Entry) => {
+      let pendingData = '';
 
-    entry.on('data', (chunk) => {
-      pendingData += chunk;
+      entry.on('data', (chunk) => {
+        pendingData += chunk;
 
-      let rowIndex = pendingData.indexOf(this.lineBreak);
+        let rowIndex = pendingData.indexOf(this.EOL);
 
-      while (rowIndex !== -1) {
-        const row = pendingData.slice(0, rowIndex);
-        event.emit('data', row);
+        while (rowIndex !== -1) {
+          const row = pendingData.slice(0, rowIndex);
+          event.emit('data', row);
 
-        pendingData = pendingData.slice(rowIndex + 1);
-        rowIndex = pendingData.indexOf(this.lineBreak);
-      }
-    });
-  }
-
-  private handleError(error: Error, event: Event) {
-    event.emit('error', error);
+          pendingData = pendingData.slice(rowIndex + 1);
+          rowIndex = pendingData.indexOf(this.EOL);
+        }
+      });
+    };
   }
 }
