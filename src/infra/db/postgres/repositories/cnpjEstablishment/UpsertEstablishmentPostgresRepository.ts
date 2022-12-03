@@ -34,10 +34,11 @@ export class UpsertEstablishmentPostgresRepository implements UpsertEstablishmen
       },
     } = data;
 
-    await sql`SELECT 1 FROM "cnpjEstablishment" WHERE "cnpj" = ${cnpj};`;
+    const hasEstablishment = await sql`SELECT 1 FROM "cnpjEstablishment" WHERE "cnpj" = ${cnpj};`;
 
-    await sql`
-      INSERT INTO "cnpjEstablishment" (
+    const promise = !hasEstablishment.length
+      ? sql`
+        INSERT INTO "cnpjEstablishment" (
           cnpj,
           "baseCnpj",
           "corporateName",
@@ -90,6 +91,35 @@ export class UpsertEstablishmentPostgresRepository implements UpsertEstablishmen
           ${uf},
           ${city}
         );
-    `;
+    `
+      : sql`
+        UPDATE "cnpjEstablishment"
+        SET "corporateName" = ${corporateName || ''},
+          "cadasterStatus" = ${cadasterStatus},
+          "cadasterStatusDate" = ${cadasterStatusDate},
+          "cadasterStatusReason" = ${cadasterStatusReason},
+          "activityStartAt" = ${activityStartAt},
+          "mainCnae" = ${mainCnae},
+          "secondaryCnae" = ${secondaryCnae || ''},
+          "specialStatus" = ${specialStatus},
+          "specialStatusDate" = ${specialStatusDate},
+          "telephone1" = ${telephone1},
+          "telephone2" = ${telephone2 || ''},
+          fax = ${fax || ''},
+          email = ${email},
+          "cityAbroad" = ${cityAbroad},
+          "countryCode" = ${countryCode},
+          "streetDescription" = ${streetDescription},
+          "street" = ${street},
+          "number" = ${number},
+          "complement" = ${complement},
+          "district" = ${district},
+          "cep" = ${cep},
+          "uf" = ${uf},
+          "city" = ${city}
+        WHERE cnpj = ${cnpj};
+      `;
+
+    await promise;
   }
 }
