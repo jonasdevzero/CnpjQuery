@@ -276,6 +276,36 @@ describe('ZipLoaderAdapter Util', () => {
     expect(typeof listener).toBe('function');
   });
 
+  test('Should handle entry end listener', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.read('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
+
+    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
+
+    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {});
+
+    entryListener(makeFakeEntry());
+
+    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
+
+    const [event, listener] = entryOnSpy.mock.calls[1];
+
+    expect(event).toBe('end');
+    expect(typeof listener).toBe('function');
+  });
+
   test('Should emit data event with correct values if entry data listener was called', async () => {
     const sut = makeSut();
 
