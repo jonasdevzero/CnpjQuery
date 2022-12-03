@@ -458,4 +458,17 @@ describe('ZipLoaderAdapter Util', () => {
     expect(clearIntervalSpy).toHaveBeenCalledTimes(1);
     expect(clearIntervalSpy).toHaveBeenCalledWith(expect.any(Object));
   });
+
+  test('Should handle process uncaught exception listener', async () => {
+    const sut = makeSut();
+
+    const processOnSpy = jest.spyOn(process, 'on');
+
+    await sut.read('http://any_url.zip');
+
+    const [event, listener] = processOnSpy.mock.calls[0];
+
+    expect(event).toBe('uncaughtException');
+    expect(typeof listener).toBe('function');
+  });
 });
