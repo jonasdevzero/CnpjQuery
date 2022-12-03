@@ -6,11 +6,11 @@ import { ListDataUrlPrismaRepository } from '../../infra/db/prisma/repositories/
 import { QueryCnpjController } from '../../presentation/controllers/QueryCnpj';
 import { Controller } from '../../presentation/protocols';
 import { CnpjRawDataParserAdapter } from '../../utils/CnpjRawDataParserAdapter';
-import { ZipLoaderAdapter } from '../../utils/ZipLoaderAdapter';
+import { ZipReaderAdapter } from '../../utils/ZipReaderAdapter';
 
 export const makeCnpjQueryController = (): Controller => {
   const listDataUrlRepository = new ListDataUrlPrismaRepository();
-  const zipLoaderAdapter = new ZipLoaderAdapter();
+  const zipLoaderAdapter = new ZipReaderAdapter();
   const upsertCompanyRepository = new UpsertCompanyPrismaRepository();
   const upsertEstablishmentRepository = new UpsertEstablishmentPrismaRepository();
   const upsertSimplesRepository = new UpsertSimplesPrismaRepository();

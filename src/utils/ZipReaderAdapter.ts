@@ -2,12 +2,12 @@ import Http from 'node:http';
 import Event from 'events';
 import unzipper from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import { ZipLoader, ZipLoaderStream } from '../domain/utils';
+import { ZipReader, ZipReaderStream } from '../domain/utils';
 
-export class ZipLoaderAdapter implements ZipLoader {
+export class ZipReaderAdapter implements ZipReader {
   private readonly lineBreak = '\n';
 
-  async load(url: string): Promise<ZipLoaderStream> {
+  async read(url: string): Promise<ZipReaderStream> {
     const urlProtocol = this.validateUrlAndReturnProtocol(url);
     const http: typeof Http = await import(`node:${urlProtocol}`);
 

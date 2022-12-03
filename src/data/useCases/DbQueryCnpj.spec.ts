@@ -3,8 +3,8 @@ import { DbQueryCnpj } from './DbQueryCnpj';
 import {
   ListDataUrlRepository,
   DataUrlModel,
-  ZipLoader,
-  ZipLoaderStream,
+  ZipReader,
+  ZipReaderStream,
   UpsertCompanyRepository,
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
@@ -82,9 +82,9 @@ const makeUpsertCompanyRepository = (): UpsertCompanyRepository => {
   return new UpsertCompanyRepositoryStub();
 };
 
-const makeZipLoader = (): ZipLoader => {
-  class ZipLoaderStub implements ZipLoader {
-    async load(url: string): Promise<ZipLoaderStream> {
+const makeZipLoader = (): ZipReader => {
+  class ZipLoaderStub implements ZipReader {
+    async read(url: string): Promise<ZipReaderStream> {
       return {
         on: jest.fn(),
       };
@@ -106,7 +106,7 @@ const makeListDataUrlRepository = (): ListDataUrlRepository => {
 
 interface SutTypes {
   listDataUrlRepositoryStub: ListDataUrlRepository;
-  zipLoaderStub: ZipLoader;
+  zipLoaderStub: ZipReader;
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
   upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
   upsertSimplesRepositoryStub: UpsertSimplesRepository;
@@ -157,7 +157,7 @@ describe('DbQueryCnpj UseCase', () => {
     const { sut, listDataUrlRepositoryStub, zipLoaderStub } = makeSut();
 
     const listSpy = jest.spyOn(listDataUrlRepositoryStub, 'list');
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
 
     await sut.query();
 
@@ -171,7 +171,7 @@ describe('DbQueryCnpj UseCase', () => {
   test('Should handle stream data and error listeners of ZipLoaderStream', async () => {
     const { sut, zipLoaderStub } = makeSut();
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
 
     await sut.query();
 
@@ -214,7 +214,7 @@ describe('DbQueryCnpj UseCase', () => {
       return companyData;
     });
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
     const upsertSpy = jest.spyOn(upsertCompanyRepositoryStub, 'upsert');
 
     await sut.query();
@@ -282,7 +282,7 @@ describe('DbQueryCnpj UseCase', () => {
       return establishmentData;
     });
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
     const upsertSpy = jest.spyOn(upsertEstablishmentRepositoryStub, 'upsert');
 
     await sut.query();
@@ -326,7 +326,7 @@ describe('DbQueryCnpj UseCase', () => {
       return simplesData;
     });
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'load');
+    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
     const upsertSpy = jest.spyOn(upsertSimplesRepositoryStub, 'upsert');
 
     await sut.query();

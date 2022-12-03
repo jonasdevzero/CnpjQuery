@@ -2,7 +2,7 @@ import http from 'node:http';
 import https from 'node:https';
 import unzipper, { Entry } from 'unzipper';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import { ZipLoaderAdapter } from './ZipLoaderAdapter';
+import { ZipReaderAdapter } from './ZipReaderAdapter';
 
 jest.mock('node:http', () => ({
   request() {
@@ -46,7 +46,7 @@ const makeFakeEntry = (): Entry => {
   } as unknown as Entry;
 };
 
-const makeSut = (): ZipLoaderAdapter => new ZipLoaderAdapter();
+const makeSut = (): ZipReaderAdapter => new ZipReaderAdapter();
 
 describe('ZipLoaderAdapter Util', () => {
   afterEach(() => {
@@ -56,7 +56,7 @@ describe('ZipLoaderAdapter Util', () => {
   test('Should throw if an invalid url was given', async () => {
     const sut = makeSut();
 
-    await expect(sut.load('invalid_url')).rejects.toThrow(new InvalidParamError('url'));
+    await expect(sut.read('invalid_url')).rejects.toThrow(new InvalidParamError('url'));
   });
 
   test('Should import correct url protocol', async () => {
@@ -64,7 +64,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(https, 'request');
 
-    await sut.load('https://any_url.zip');
+    await sut.read('https://any_url.zip');
 
     expect(requestSpy).toHaveBeenCalledWith('https://any_url.zip');
   });
@@ -78,7 +78,7 @@ describe('ZipLoaderAdapter Util', () => {
       throw new Error();
     });
 
-    await expect(sut.load('http://any_url.zip')).rejects.toThrow();
+    await expect(sut.read('http://any_url.zip')).rejects.toThrow();
   });
 
   test('Should call http.request with correct param', async () => {
@@ -86,7 +86,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     expect(requestSpy).toHaveBeenCalledWith('http://any_url.zip');
   });
@@ -96,7 +96,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestEndSpy = jest.spyOn(requestSpy.mock.results[0].value, 'end');
 
@@ -108,7 +108,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
@@ -123,7 +123,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
 
@@ -138,7 +138,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -161,7 +161,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -185,7 +185,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -207,7 +207,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -229,7 +229,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -259,7 +259,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    const stream = await sut.load('http://any_url.zip');
+    const stream = await sut.read('http://any_url.zip');
     const dataListener = jest.fn();
 
     stream.on('data', dataListener);
@@ -295,7 +295,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    const stream = await sut.load('http://any_url.zip');
+    const stream = await sut.read('http://any_url.zip');
     const errorListener = jest.fn();
 
     stream.on('error', errorListener);
@@ -322,7 +322,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    const stream = await sut.load('http://any_url.zip');
+    const stream = await sut.read('http://any_url.zip');
     const endListener = jest.fn();
 
     stream.on('end', endListener);
@@ -347,7 +347,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    const stream = await sut.load('http://any_url.zip');
+    const stream = await sut.read('http://any_url.zip');
     const errorListener = jest.fn();
 
     stream.on('error', errorListener);
@@ -368,7 +368,7 @@ describe('ZipLoaderAdapter Util', () => {
     const requestSpy = jest.spyOn(http, 'request');
     const intervalSpy = jest.spyOn(global, 'setInterval');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -386,7 +386,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -411,7 +411,7 @@ describe('ZipLoaderAdapter Util', () => {
 
     const requestSpy = jest.spyOn(http, 'request');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -437,7 +437,7 @@ describe('ZipLoaderAdapter Util', () => {
     const requestSpy = jest.spyOn(http, 'request');
     const setIntervalSpy = jest.spyOn(global, 'setInterval');
 
-    await sut.load('http://any_url.zip');
+    await sut.read('http://any_url.zip');
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(

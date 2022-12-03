@@ -3,7 +3,7 @@ import {
   ListDataUrlRepository,
   DataUrlModel,
   DataUrlType,
-  ZipLoader,
+  ZipReader,
   UpsertCompanyRepository,
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
@@ -12,7 +12,7 @@ import {
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;
-  private readonly zipLoader: ZipLoader;
+  private readonly zipLoader: ZipReader;
   private readonly upsertCompanyRepository: UpsertCompanyRepository;
   private readonly upsertEstablishmentRepository: UpsertEstablishmentRepository;
   private readonly upsertSimplesRepository: UpsertSimplesRepository;
@@ -20,7 +20,7 @@ export class DbQueryCnpj implements QueryCnpj {
 
   constructor(
     listDataUrlRepository: ListDataUrlRepository,
-    zipLoader: ZipLoader,
+    zipLoader: ZipReader,
     upsertCompanyRepository: UpsertCompanyRepository,
     upsertEstablishmentRepository: UpsertEstablishmentRepository,
     upsertSimplesRepositoryStub: UpsertSimplesRepository,
@@ -41,7 +41,7 @@ export class DbQueryCnpj implements QueryCnpj {
   }
 
   private async loadDataUrl(dataUrl: DataUrlModel) {
-    const stream = await this.zipLoader.load(dataUrl.url);
+    const stream = await this.zipLoader.read(dataUrl.url);
 
     stream.on('data', (data) => {
       const parsedData = this.cnpjRawDataParser.parse(data, dataUrl.type);
