@@ -14,13 +14,9 @@ export class ZipReaderAdapter implements ZipReader {
     const request = http.request(url);
     const event = new Event();
 
-    request.on('response', (response) => {
-      this.handleResponse(response, event);
-    });
-
-    request.on('error', (error: Error) => this.handleError(error, event));
-
-    process.on('uncaughtException', () => {});
+    request.on('response', (response) => this.handleResponse(response, event));
+    request.on('error', (error) => this.handleError(error, event));
+    process.on('uncaughtException', (error) => this.handleError(error, event));
 
     request.end();
 
