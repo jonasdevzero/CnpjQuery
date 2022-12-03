@@ -51,11 +51,13 @@ const makeSut = (): ZippedCsvReaderAdapter => new ZippedCsvReaderAdapter();
 describe('ZipLoaderAdapter Util', () => {
   beforeEach(() => {
     jest.spyOn(process, 'on').mockImplementation(jest.fn());
+    jest.spyOn(process, 'removeListener').mockImplementation(jest.fn());
   });
 
   afterEach(() => {
     jest.spyOn(http, 'request').mockClear();
     jest.spyOn(process, 'on').mockClear();
+    jest.spyOn(process, 'removeListener').mockClear();
   });
 
   test('Should throw if an invalid url was given', async () => {
@@ -509,5 +511,25 @@ describe('ZipLoaderAdapter Util', () => {
 
     expect(errorListener).toHaveBeenCalledTimes(1);
     expect(errorListener).toHaveBeenCalledWith(error);
+  });
+
+  test('Should remove process uncaughtException listener on request finish', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.read('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const finishListener = jest.fn(requestOnSpy.mock.calls[2][1] as () => void);
+
+    const processRemoveListenerSpy = jest.spyOn(process, 'removeListener');
+
+    finishListener();
+
+    const [event, listener] = processRemoveListenerSpy.mock.calls[0];
+
+    expect(event).toBe('uncaughtException');
+    expect(typeof listener).toBe('function');
   });
 });
