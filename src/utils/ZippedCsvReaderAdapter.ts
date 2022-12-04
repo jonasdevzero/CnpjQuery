@@ -69,10 +69,10 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
 
   private makeEntryDataHandler(event: Event) {
     let pendingData = '';
-    const rows = [] as string[];
 
     return (chunk: string) => {
       pendingData += chunk;
+      const rows = [] as string[];
 
       let rowIndex = pendingData.indexOf(this.EOL);
 
