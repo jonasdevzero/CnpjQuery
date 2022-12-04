@@ -82,8 +82,8 @@ const makeUpsertCompanyRepository = (): UpsertCompanyRepository => {
   return new UpsertCompanyRepositoryStub();
 };
 
-const makeZipLoader = (): ZippedCsvReader => {
-  class ZipLoaderStub implements ZippedCsvReader {
+const makeZippedCsvReader = (): ZippedCsvReader => {
+  class ZippedCsvReaderStub implements ZippedCsvReader {
     async read(url: string): Promise<ZippedCsvReaderEvent> {
       return {
         on: jest.fn(),
@@ -91,7 +91,7 @@ const makeZipLoader = (): ZippedCsvReader => {
     }
   }
 
-  return new ZipLoaderStub();
+  return new ZippedCsvReaderStub();
 };
 
 const makeListDataUrlRepository = (): ListDataUrlRepository => {
@@ -106,7 +106,7 @@ const makeListDataUrlRepository = (): ListDataUrlRepository => {
 
 interface SutTypes {
   listDataUrlRepositoryStub: ListDataUrlRepository;
-  zipLoaderStub: ZippedCsvReader;
+  zippedCsvReaderStub: ZippedCsvReader;
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
   upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
   upsertSimplesRepositoryStub: UpsertSimplesRepository;
@@ -116,7 +116,7 @@ interface SutTypes {
 
 const makeSut = (): SutTypes => {
   const listDataUrlRepositoryStub = makeListDataUrlRepository();
-  const zipLoaderStub = makeZipLoader();
+  const zippedCsvReaderStub = makeZippedCsvReader();
   const upsertCompanyRepositoryStub = makeUpsertCompanyRepository();
   const upsertEstablishmentRepositoryStub = makeUpsertEstablishmentRepository();
   const upsertSimplesRepositoryStub = makeUpsertSimplesRepository();
@@ -124,7 +124,7 @@ const makeSut = (): SutTypes => {
 
   const sut = new DbQueryCnpj(
     listDataUrlRepositoryStub,
-    zipLoaderStub,
+    zippedCsvReaderStub,
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
@@ -134,7 +134,7 @@ const makeSut = (): SutTypes => {
   return {
     sut,
     listDataUrlRepositoryStub,
-    zipLoaderStub,
+    zippedCsvReaderStub,
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
@@ -153,11 +153,11 @@ describe('DbQueryCnpj UseCase', () => {
     await expect(sut.query()).rejects.toThrow();
   });
 
-  test('Should call ZipLoader with correct value', async () => {
-    const { sut, listDataUrlRepositoryStub, zipLoaderStub } = makeSut();
+  test('Should call ZippedCsvReader with correct value', async () => {
+    const { sut, listDataUrlRepositoryStub, zippedCsvReaderStub } = makeSut();
 
     const listSpy = jest.spyOn(listDataUrlRepositoryStub, 'list');
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
+    const zipLoaderSpy = jest.spyOn(zippedCsvReaderStub, 'read');
 
     await sut.query();
 
@@ -168,10 +168,10 @@ describe('DbQueryCnpj UseCase', () => {
     });
   });
 
-  test('Should handle stream data and error listeners of ZipLoaderStream', async () => {
-    const { sut, zipLoaderStub } = makeSut();
+  test('Should handle stream rows and error listeners of ZipLoaderStream', async () => {
+    const { sut, zippedCsvReaderStub } = makeSut();
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
+    const zipLoaderSpy = jest.spyOn(zippedCsvReaderStub, 'read');
 
     await sut.query();
 
@@ -181,7 +181,7 @@ describe('DbQueryCnpj UseCase', () => {
     const [dataEvent, dataListener] = zipLoaderOnSpy.mock.calls[0];
     const [errorEvent, errorListener] = zipLoaderOnSpy.mock.calls[1];
 
-    expect(dataEvent).toBe('data');
+    expect(dataEvent).toBe('rows');
     expect(errorEvent).toBe('error');
     expect(typeof dataListener).toBe('function');
     expect(typeof errorListener).toBe('function');
@@ -191,7 +191,7 @@ describe('DbQueryCnpj UseCase', () => {
     const {
       sut,
       listDataUrlRepositoryStub,
-      zipLoaderStub,
+      zippedCsvReaderStub,
       upsertCompanyRepositoryStub,
       cnpjRawDataParser,
     } = makeSut();
@@ -214,7 +214,7 @@ describe('DbQueryCnpj UseCase', () => {
       return companyData;
     });
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
+    const zipLoaderSpy = jest.spyOn(zippedCsvReaderStub, 'read');
     const upsertSpy = jest.spyOn(upsertCompanyRepositoryStub, 'upsert');
 
     await sut.query();
@@ -222,8 +222,8 @@ describe('DbQueryCnpj UseCase', () => {
     const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
     const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
 
-    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
-    dataListener('any_data');
+    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string[]) => {});
+    dataListener(['any_data']);
 
     expect(upsertSpy).toHaveBeenCalledWith(companyData);
 
@@ -234,7 +234,7 @@ describe('DbQueryCnpj UseCase', () => {
     const {
       sut,
       listDataUrlRepositoryStub,
-      zipLoaderStub,
+      zippedCsvReaderStub,
       upsertEstablishmentRepositoryStub,
       cnpjRawDataParser,
     } = makeSut();
@@ -282,7 +282,7 @@ describe('DbQueryCnpj UseCase', () => {
       return establishmentData;
     });
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
+    const zipLoaderSpy = jest.spyOn(zippedCsvReaderStub, 'read');
     const upsertSpy = jest.spyOn(upsertEstablishmentRepositoryStub, 'upsert');
 
     await sut.query();
@@ -290,9 +290,9 @@ describe('DbQueryCnpj UseCase', () => {
     const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
     const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
 
-    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
+    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string[]) => {});
 
-    dataListener('any_data');
+    dataListener(['any_data']);
 
     expect(upsertSpy).toHaveBeenCalledWith(establishmentData);
   });
@@ -301,7 +301,7 @@ describe('DbQueryCnpj UseCase', () => {
     const {
       sut,
       listDataUrlRepositoryStub,
-      zipLoaderStub,
+      zippedCsvReaderStub,
       upsertSimplesRepositoryStub,
       cnpjRawDataParser,
     } = makeSut();
@@ -326,7 +326,7 @@ describe('DbQueryCnpj UseCase', () => {
       return simplesData;
     });
 
-    const zipLoaderSpy = jest.spyOn(zipLoaderStub, 'read');
+    const zipLoaderSpy = jest.spyOn(zippedCsvReaderStub, 'read');
     const upsertSpy = jest.spyOn(upsertSimplesRepositoryStub, 'upsert');
 
     await sut.query();
@@ -334,9 +334,9 @@ describe('DbQueryCnpj UseCase', () => {
     const zipLoaderResult = await zipLoaderSpy.mock.results[0].value;
     const zipLoaderOnSpy = jest.spyOn(zipLoaderResult, 'on');
 
-    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string) => {});
+    const dataListener = jest.fn(zipLoaderOnSpy.mock.calls[0][1] as (data: string[]) => {});
 
-    dataListener('any_data');
+    dataListener(['any_data']);
 
     expect(upsertSpy).toHaveBeenCalledWith(simplesData);
   });

@@ -306,7 +306,7 @@ describe('ZipLoaderAdapter Util', () => {
     expect(typeof listener).toBe('function');
   });
 
-  test('Should emit data event with correct values if entry data listener was called', async () => {
+  test('Should emit rows event with correct values if entry data listener was called', async () => {
     const sut = makeSut();
 
     const requestSpy = jest.spyOn(http, 'request');
@@ -314,7 +314,7 @@ describe('ZipLoaderAdapter Util', () => {
     const stream = await sut.read('http://any_url.zip');
     const dataListener = jest.fn();
 
-    stream.on('data', dataListener);
+    stream.on('rows', dataListener);
 
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const responseListener = jest.fn(
@@ -336,10 +336,8 @@ describe('ZipLoaderAdapter Util', () => {
 
     entryDataListener('any_data_1\nany_data_2\nany_data_3\nany_dat');
 
-    expect(dataListener).toHaveBeenCalledTimes(3);
-    expect(dataListener.mock.calls[0][0]).toBe('any_data_1');
-    expect(dataListener.mock.calls[1][0]).toBe('any_data_2');
-    expect(dataListener.mock.calls[2][0]).toBe('any_data_3');
+    expect(dataListener).toHaveBeenCalledTimes(1);
+    expect(dataListener.mock.calls[0][0]).toEqual(['any_data_1', 'any_data_2', 'any_data_3']);
   });
 
   test('Should emit error event if response error listener was called', async () => {

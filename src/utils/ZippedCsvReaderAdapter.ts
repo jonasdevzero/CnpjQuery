@@ -56,29 +56,35 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
 
   private makeEntryHandler(event: Event) {
     return (entry: unzipper.Entry) => {
-      let pendingData = '';
-
       const interval = setInterval(this.makeEntryStatusToggler(entry), 1000);
 
-      entry.on('data', (chunk) => {
-        pendingData += chunk;
-
-        let rowIndex = pendingData.indexOf(this.EOL);
-
-        while (rowIndex !== -1) {
-          const row = pendingData.slice(0, rowIndex);
-          event.emit('data', row);
-
-          pendingData = pendingData.slice(rowIndex + 1);
-          rowIndex = pendingData.indexOf(this.EOL);
-        }
-      });
-
+      entry.on('data', this.makeEntryDataHandler(event));
       entry.on('end', () => clearInterval(interval));
     };
   }
 
   private makeEntryStatusToggler(entry: unzipper.Entry) {
     return () => (entry.isPaused() ? entry.resume() : entry.pause());
+  }
+
+  private makeEntryDataHandler(event: Event) {
+    let pendingData = '';
+    const rows = [] as string[];
+
+    return (chunk: string) => {
+      pendingData += chunk;
+
+      let rowIndex = pendingData.indexOf(this.EOL);
+
+      while (rowIndex !== -1) {
+        const row = pendingData.slice(0, rowIndex);
+        rows.push(row);
+
+        pendingData = pendingData.slice(rowIndex + 1);
+        rowIndex = pendingData.indexOf(this.EOL);
+      }
+
+      event.emit('rows', rows);
+    };
   }
 }

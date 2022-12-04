@@ -42,12 +42,11 @@ export class DbQueryCnpj implements QueryCnpj {
 
   private async loadDataUrl(dataUrl: DataUrlModel) {
     const stream = await this.zipLoader.read(dataUrl.url);
+    const upsert = this.getUpsert(dataUrl.type);
 
-    stream.on('data', (data) => {
-      const parsedData = this.cnpjRawDataParser.parse(data, dataUrl.type);
-      const upsert = this.getUpsert(dataUrl.type);
-
-      upsert(parsedData);
+    stream.on('rows', (data) => {
+      const parsedData = data.map((d) => this.cnpjRawDataParser.parse(d, dataUrl.type));
+      parsedData.map((d) => upsert(d));
     });
 
     stream.on('error', () => {});
