@@ -7,21 +7,14 @@ export class UpsertCompanyPostgresRepository implements UpsertCompanyRepository 
     const { baseCnpj, corporateName, legalNature, qualification, capital, size, federativeEntity } =
       data;
 
-    const hasCompany = await sql`SELECT 1 FROM "cnpjCompany" WHERE "baseCnpj" = ${baseCnpj};`;
-
-    const promise = !hasCompany.length
-      ? sql`
-        INSERT INTO "cnpjCompany"  ("baseCnpj", "corporateName", "legalNature", qualification, capital, size, "federativeEntity")
-          VALUES (${baseCnpj}, ${corporateName}, ${legalNature}, ${qualification}, ${capital}, ${size},
-            ${federativeEntity || ''});
-        `
-      : sql`
-        UPDATE "cnpjCompany"
-        SET "corporateName" = ${corporateName}, "legalNature" = ${legalNature}, "qualification" = ${qualification},
-          capital = ${capital}, size = ${size}, "federativeEntity" = ${federativeEntity || ''}
-        WHERE "baseCnpj" = ${baseCnpj};
-      `;
-
-    await promise;
+    await sql`
+      INSERT INTO "cnpjCompany" ("baseCnpj", "corporateName", "legalNature", "qualification", "capital", "size", "federativeEntity")
+      VALUES (${baseCnpj}, ${corporateName}, ${legalNature}, ${qualification},
+        ${capital}, ${size}, ${federativeEntity || ''})
+      ON CONFLICT ("baseCnpj") DO
+      UPDATE SET "corporateName" = ${corporateName}, "legalNature" = ${legalNature}, "qualification" = ${qualification},
+        "capital" = ${capital}, "size" = ${size}, "federativeEntity" = ${federativeEntity || ''}
+      WHERE "cnpjCompany"."baseCnpj" = ${baseCnpj};
+    `;
   }
 }
