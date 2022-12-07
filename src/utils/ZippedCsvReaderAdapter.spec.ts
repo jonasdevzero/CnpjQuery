@@ -586,4 +586,19 @@ describe('ZipLoaderAdapter Util', () => {
     expect(event).toBe('uncaughtException');
     expect(typeof listener).toBe('function');
   });
+
+  test('Should reconnect the request if ECONNRESET exception throws', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.read('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const requestErrorListener = jest.fn(requestOnSpy.mock.calls[1][1] as (error: Error) => void);
+
+    requestErrorListener(new Error('ECONNRESET'));
+
+    expect(requestSpy).toHaveBeenCalledTimes(2);
+  });
 });
