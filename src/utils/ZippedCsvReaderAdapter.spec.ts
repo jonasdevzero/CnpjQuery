@@ -140,21 +140,6 @@ describe('ZipLoaderAdapter Util', () => {
     expect(typeof listener).toBe('function');
   });
 
-  test('Should handle request finish listener', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    await sut.read('http://any_url.zip');
-
-    const onSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-
-    const [event, listener] = onSpy.mock.calls[2];
-
-    expect(event).toBe('finish');
-    expect(typeof listener).toBe('function');
-  });
-
   test('Should call response pipe with correct param', async () => {
     const sut = makeSut();
 
@@ -533,58 +518,6 @@ describe('ZipLoaderAdapter Util', () => {
 
     expect(clearIntervalSpy).toBeCalledTimes(1);
     expect(clearIntervalSpy).toBeCalledWith(expect.any(Object));
-  });
-
-  test('Should handle process uncaught exception listener', async () => {
-    const sut = makeSut();
-
-    const processOnSpy = jest.spyOn(process, 'on');
-
-    await sut.read('http://any_url.zip');
-
-    const [event, listener] = processOnSpy.mock.calls[0];
-
-    expect(event).toBe('uncaughtException');
-    expect(typeof listener).toBe('function');
-  });
-
-  test('Should emit an error event if uncaught exception was handled', async () => {
-    const sut = makeSut();
-
-    const processOnSpy = jest.spyOn(process, 'on');
-
-    const stream = await sut.read('http://any_url.zip');
-    const errorListener = jest.fn();
-
-    stream.on('error', errorListener);
-
-    const uncaughtExceptionListener = processOnSpy.mock.calls[0][1] as (error: Error) => void;
-
-    const error = new Error('uncaught_exception');
-    uncaughtExceptionListener(error);
-
-    expect(errorListener).toHaveBeenCalledTimes(1);
-    expect(errorListener).toHaveBeenCalledWith(error);
-  });
-
-  test('Should remove process uncaughtException listener on request finish', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    await sut.read('http://any_url.zip');
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const finishListener = jest.fn(requestOnSpy.mock.calls[2][1] as () => void);
-
-    const processRemoveListenerSpy = jest.spyOn(process, 'removeListener');
-
-    finishListener();
-
-    const [event, listener] = processRemoveListenerSpy.mock.calls[0];
-
-    expect(event).toBe('uncaughtException');
-    expect(typeof listener).toBe('function');
   });
 
   test('Should reconnect the request if ECONNRESET exception throws', async () => {

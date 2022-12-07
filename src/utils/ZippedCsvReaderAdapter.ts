@@ -40,11 +40,8 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   private handleRequest(request: Http.ClientRequest, event: Event) {
     const errorHandler = this.makeErrorHandler(event);
 
-    process.on('uncaughtException', errorHandler);
-
     request.on('response', this.makeResponseHandler(event));
     request.on('error', errorHandler);
-    request.on('finish', () => process.removeListener('uncaughtException', errorHandler));
 
     request.end();
   }
