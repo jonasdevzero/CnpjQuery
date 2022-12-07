@@ -8,25 +8,36 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   private readonly EOL = '\n';
 
   async read(url: string): Promise<ZippedCsvReaderEvent> {
-    const urlProtocol = this.getUrlProtocol(url);
-    return this.init(url, urlProtocol);
+    const module = await this.getUrlProtocolModule(url);
+    return this.execute(url, module);
   }
 
-  private getUrlProtocol(url: string): 'http' | 'https' {
+  private async getUrlProtocolModule(url: string): Promise<typeof Http> {
     const match = /(http[s]?):\/\/.+\.zip/g.exec(url);
     if (!match) throw new InvalidParamError('url');
 
-    return match[1] as 'http' | 'https';
+    const protocol = match[1];
+    return import(`node:${protocol}`);
   }
 
-  private async init(url: string, protocol: 'http' | 'https') {
-    const http: typeof Http = await import(`node:${protocol}`);
-    const request = http.request(url);
-    return this.handleRequest(request);
-  }
-
-  private handleRequest(request: Http.ClientRequest) {
+  private execute(url: string, module: typeof Http) {
     const event = new Event();
+    const request = this.makeRequest(event, url, module);
+
+    request();
+    event.on('retry', request.bind(this));
+
+    return event;
+  }
+
+  private makeRequest(event: Event, url: string, module: typeof Http) {
+    return () => {
+      const request = module.request(url);
+      this.handleRequest(request, event);
+    };
+  }
+
+  private handleRequest(request: Http.ClientRequest, event: Event) {
     const errorHandler = this.makeErrorHandler(event);
 
     process.on('uncaughtException', errorHandler);
@@ -36,12 +47,17 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
     request.on('finish', () => process.removeListener('uncaughtException', errorHandler));
 
     request.end();
-
-    return event;
   }
 
   private makeErrorHandler(event: Event) {
-    return (error: Error) => event.emit('error', error);
+    return (error: Error) => {
+      if (error.message === 'ECONNRESET') {
+        event.emit('retry');
+        return;
+      }
+
+      event.emit('error', error);
+    };
   }
 
   private makeResponseHandler(event: Event) {
