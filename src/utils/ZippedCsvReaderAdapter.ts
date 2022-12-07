@@ -47,8 +47,8 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   }
 
   private makeErrorHandler(event: Event) {
-    return (error: Error) => {
-      if (error.message === 'ECONNRESET') {
+    return (error: Error & { code?: string }) => {
+      if (error.code === 'ECONNRESET') {
         event.emit('retry');
         return;
       }

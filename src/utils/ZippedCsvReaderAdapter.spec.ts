@@ -28,6 +28,15 @@ jest.mock('unzipper', () => ({
 
 jest.useFakeTimers();
 
+class SystemErrorStub extends Error {
+  code: string;
+
+  constructor(message: string, code: string) {
+    super(message);
+    this.code = code;
+  }
+}
+
 const makeFakeResponse = (): http.IncomingMessage => {
   return {
     pipe: jest.fn(() => ({
@@ -530,7 +539,7 @@ describe('ZipLoaderAdapter Util', () => {
     const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
     const requestErrorListener = jest.fn(requestOnSpy.mock.calls[1][1] as (error: Error) => void);
 
-    requestErrorListener(new Error('ECONNRESET'));
+    requestErrorListener(new SystemErrorStub('abort', 'ECONNRESET'));
 
     expect(requestSpy).toHaveBeenCalledTimes(2);
   });
