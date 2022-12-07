@@ -42,7 +42,7 @@ export default class InitMigration implements Migration {
           "cnpj" TEXT NOT NULL,
           "baseCnpj" TEXT NOT NULL,
           "corporateName" TEXT,
-          "cadasterStatus" VARCHAR(10) NOT NULL,
+          "cadasterStatus" TEXT NOT NULL,
           "cadasterStatusDate" TEXT NOT NULL,
           "cadasterStatusReason" TEXT,
           "activityStartAt" TEXT,
@@ -50,9 +50,9 @@ export default class InitMigration implements Migration {
           "secondaryCnae" TEXT,
           "specialStatus" TEXT,
           "specialStatusDate" TEXT,
-          "telephone1" VARCHAR(30),
-          "telephone2" VARCHAR(30),
-          "fax" VARCHAR(30),
+          "telephone1" TEXT,
+          "telephone2" TEXT,
+          "fax" TEXT,
           "email" TEXT,
           "cityAbroad" TEXT,
           "countryCode" TEXT,
@@ -65,7 +65,7 @@ export default class InitMigration implements Migration {
           "uf" TEXT,
           "city" TEXT,
           PRIMARY KEY ("cnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
+          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj")
         );
       `;
 
@@ -79,7 +79,7 @@ export default class InitMigration implements Migration {
           "meiIdentificationDate" TEXT,
           "meiExclusionDate" TEXT,
           PRIMARY KEY ("baseCnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
+          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj")
         );
       `;
 
@@ -97,7 +97,7 @@ export default class InitMigration implements Migration {
             "ageGroup" TEXT,
             "entryDate" TEXT,
             PRIMARY KEY ("baseCnpj", "cpf"),
-            FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj") ON DELETE CASCADE ON UPDATE CASCADE
+            FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj")
           );
       `;
 
