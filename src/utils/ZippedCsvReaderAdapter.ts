@@ -34,21 +34,19 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   private makeRequest(event: Event, url: string, module: typeof Http) {
     return () => {
       const request = module.request(url);
-      this.clearInternalEvents(event);
+      this.clearInternalListeners(event);
       this.handleRequest(request, event);
     };
   }
 
-  private clearInternalEvents(event: Event) {
+  private clearInternalListeners(event: Event) {
     event.removeAllListeners('rows:send');
+    event.removeAllListeners('rows:next');
   }
 
   private handleRequest(request: Http.ClientRequest, event: Event) {
-    const errorHandler = this.makeErrorHandler(event);
-
     request.on('response', this.makeResponseHandler(event));
-    request.on('error', errorHandler);
-
+    request.on('error', this.makeErrorHandler(event));
     request.end();
   }
 
@@ -76,17 +74,14 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
     return (entry: unzipper.Entry) => {
       event.on('rows:next', () => entry.resume());
       entry.on('data', this.makeEntryDataHandler(event, entry));
-      entry.on('end', () => {
-        event.emit('rows:send');
-        event.emit('end');
-      });
+      entry.on('end', this.makeEntryEndHandler(event));
     };
   }
 
   private makeEntryDataHandler(event: Event, entry: unzipper.Entry) {
     let pendingData = '';
     let rows = [] as string[];
-    let rowIndex = -1;
+    let rowEndIndex = -1;
 
     event.on('rows:send', () => {
       entry.pause();
@@ -96,17 +91,23 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
 
     return (chunk: string) => {
       pendingData += chunk;
-      rowIndex = pendingData.indexOf(this.EOL);
+      rowEndIndex = pendingData.indexOf(this.EOL);
 
-      while (rowIndex !== -1) {
-        const row = pendingData.slice(0, rowIndex);
-        rows.push(row);
+      while (rowEndIndex !== -1) {
+        rows.push(pendingData.slice(0, rowEndIndex));
 
-        pendingData = pendingData.slice(rowIndex + 1);
-        rowIndex = pendingData.indexOf(this.EOL);
+        pendingData = pendingData.slice(rowEndIndex + 1);
+        rowEndIndex = pendingData.indexOf(this.EOL);
       }
 
       rows.length >= this.MIN_ROWS_LENGTH ? event.emit('rows:send') : null;
+    };
+  }
+
+  private makeEntryEndHandler(event: Event) {
+    return () => {
+      event.emit('rows:send');
+      event.emit('end');
     };
   }
 }
