@@ -6,6 +6,7 @@ import { ZippedCsvReader, ZippedCsvReaderEvent } from '../domain/utils';
 
 export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   private readonly EOL = '\n';
+  readonly MIN_ROWS_LENGTH = 20000;
 
   async read(url: string): Promise<ZippedCsvReaderEvent> {
     const module = await this.getUrlProtocolModule(url);
@@ -75,10 +76,15 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
 
   private makeEntryDataHandler(event: Event) {
     let pendingData = '';
+    let rows = [] as string[];
+
+    event.on('rows:send', () => {
+      event.emit('rows', rows);
+      rows = [];
+    });
 
     return (chunk: string) => {
       pendingData += chunk;
-      const rows = [] as string[];
 
       let rowIndex = pendingData.indexOf(this.EOL);
 
@@ -90,7 +96,7 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
         rowIndex = pendingData.indexOf(this.EOL);
       }
 
-      event.emit('rows', rows);
+      rows.length >= this.MIN_ROWS_LENGTH ? event.emit('rows:send') : null;
     };
   }
 }
