@@ -388,6 +388,35 @@ describe('ZippedCsvReaderAdapter Util', () => {
     expect(rowsListener).toHaveBeenCalledTimes(1);
   });
 
+  test('Should pause entry stream if rows event was emitted', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    await sut.read('http://any_url.zip');
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
+    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
+
+    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {});
+    entryListener(makeFakeEntry());
+
+    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
+    const entryPauseSpy = jest.spyOn(entryListener.mock.calls[0][0], 'pause');
+
+    const entryDataListener = jest.fn(entryOnSpy.mock.calls[0][1]);
+    entryDataListener(new Array(sut.MIN_ROWS_LENGTH).fill('any_data\n').join(''));
+
+    expect(entryPauseSpy).toHaveBeenCalledTimes(1);
+  });
+
   test('Should reconnect the request if ECONNRESET exception throws', async () => {
     const sut = makeSut();
 
