@@ -19,20 +19,20 @@ export class UpsertSimplesPostgresRepository implements UpsertSimplesRepository 
       VALUES (
         ${baseCnpj},
         ${identification},
-        ${identificationDate || ''},
-        ${exclusionDate || ''},
+        ${identificationDate},
+        ${exclusionDate},
         ${meiIdentification},
-        ${meiIdentificationDate || ''},
-        ${meiExclusionDate || ''}
+        ${meiIdentificationDate},
+        ${meiExclusionDate}
       )
       ON CONFLICT ("baseCnpj") DO
       UPDATE SET
         "identification" = ${identification},
-        "identificationDate" = ${identificationDate || ''},
-        "exclusionDate" = ${exclusionDate || ''},
+        "identificationDate" = ${identificationDate},
+        "exclusionDate" = ${exclusionDate},
         "meiIdentification" = ${meiIdentification},
-        "meiIdentificationDate" = ${meiIdentificationDate || ''},
-        "meiExclusionDate" = ${meiExclusionDate || ''}
+        "meiIdentificationDate" = ${meiIdentificationDate},
+        "meiExclusionDate" = ${meiExclusionDate}
       WHERE "cnpjSimples"."baseCnpj" = ${baseCnpj};
     `;
   }

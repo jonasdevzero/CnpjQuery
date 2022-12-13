@@ -10,10 +10,10 @@ export class UpsertCompanyPostgresRepository implements UpsertCompanyRepository 
     await sql`
       INSERT INTO "cnpjCompany" ("baseCnpj", "corporateName", "legalNature", "qualification", "capital", "size", "federativeEntity")
       VALUES (${baseCnpj}, ${corporateName}, ${legalNature}, ${qualification},
-        ${capital}, ${size}, ${federativeEntity || ''})
+        ${capital}, ${size}, ${federativeEntity})
       ON CONFLICT ("baseCnpj") DO
       UPDATE SET "corporateName" = ${corporateName}, "legalNature" = ${legalNature}, "qualification" = ${qualification},
-        "capital" = ${capital}, "size" = ${size}, "federativeEntity" = ${federativeEntity || ''}
+        "capital" = ${capital}, "size" = ${size}, "federativeEntity" = ${federativeEntity}
       WHERE "cnpjCompany"."baseCnpj" = ${baseCnpj};
     `;
   }

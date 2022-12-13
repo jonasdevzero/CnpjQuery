@@ -2,10 +2,10 @@ export interface UpsertSimplesModel {
   baseCnpj: string;
 
   identification: boolean;
-  identificationDate?: string;
-  exclusionDate?: string;
+  identificationDate: string | null;
+  exclusionDate: string | null;
 
   meiIdentification: boolean;
-  meiIdentificationDate?: string;
-  meiExclusionDate?: string;
+  meiIdentificationDate: string | null;
+  meiExclusionDate: string | null;
 }

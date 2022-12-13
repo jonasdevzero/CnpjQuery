@@ -1,7 +1,7 @@
 export interface UpsertEstablishmentModel {
   baseCnpj: string;
   cnpj: string;
-  corporateName?: string;
+  corporateName: string | null;
 
   cadasterStatus: string;
   cadasterStatusDate: string;
@@ -10,14 +10,14 @@ export interface UpsertEstablishmentModel {
   activityStartAt: string;
 
   mainCnae: string;
-  secondaryCnae?: string;
+  secondaryCnae: string | null;
 
   specialStatus: string;
   specialStatusDate: string;
 
   telephone1: string;
-  telephone2?: string;
-  fax?: string;
+  telephone2: string | null;
+  fax: string | null;
   email: string;
 
   address: {

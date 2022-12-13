@@ -5,5 +5,5 @@ export interface UpsertCompanyModel {
   qualification: string;
   capital: string;
   size: string;
-  federativeEntity?: string;
+  federativeEntity: string | null;
 }
