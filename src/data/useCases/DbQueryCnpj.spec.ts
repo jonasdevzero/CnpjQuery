@@ -87,6 +87,7 @@ const makeZippedCsvReader = (): ZippedCsvReader => {
     async read(url: string): Promise<ZippedCsvReaderEvent> {
       return {
         on: jest.fn(),
+        emit: jest.fn(),
       };
     }
   }
