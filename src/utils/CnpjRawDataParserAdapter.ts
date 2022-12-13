@@ -10,11 +10,15 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   } as { [key in DataUrlType]: (data: string[]) => Object };
 
   parse(data: string, dataType: DataUrlType): Object {
-    const dataToParse = data.replace(/"/g, '').split(';');
+    const dataToParse = this.removeNonASCII(data).replace(/"/g, '').split(';');
     const parser = this.parsers[dataType];
     const parsedData = parser(dataToParse);
 
     return parsedData;
+  }
+
+  private removeNonASCII(input: string): string {
+    return input.replace(/[^\x20-\x7E]/g, '');
   }
 
   private parseCompanyData(data: string[]): Object {
@@ -66,11 +70,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
       specialStatusDate,
     ] = data;
 
-    const formattedBaseCnpj = baseCnpj.replace(
-      /^(\d{2})(\d{3})?(\d{3})?(\d{4})?(\d{2})?/,
-      '$1.$2.$3',
-    );
-    const cnpj = `${formattedBaseCnpj}/${orderCnpj}-${dvCnpj}`;
+    const cnpj = `${baseCnpj}${orderCnpj}${dvCnpj}`;
 
     const fullTelephone1 = `(${ddd1}) ${telephone1}`;
     const fullTelephone2 = !!ddd2 && !!telephone2 ? `(${ddd2}) ${telephone2}` : '';
