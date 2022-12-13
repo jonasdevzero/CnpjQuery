@@ -231,11 +231,9 @@ describe('ZippedCsvReaderAdapter Util', () => {
     responseListener(makeFakeResponse());
 
     const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
-
     const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
 
     const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {});
-
     entryListener(makeFakeEntry());
 
     const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
@@ -354,6 +352,40 @@ describe('ZippedCsvReaderAdapter Util', () => {
     entryEndListener();
 
     expect(endListener).toHaveBeenCalledTimes(1);
+  });
+
+  test('Should emit rows event if rows length is equal or more than MIN_ROWS_LENGTH', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    const event = await sut.read('http://any_url.zip');
+    const rowsListener = jest.fn();
+
+    event.on('rows', rowsListener);
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
+    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
+
+    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {});
+    entryListener(makeFakeEntry());
+
+    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
+
+    const entryDataListener = jest.fn(entryOnSpy.mock.calls[0][1]);
+
+    entryDataListener('any_data');
+    expect(rowsListener).toHaveBeenCalledTimes(0);
+
+    entryDataListener(new Array(sut.MIN_ROWS_LENGTH).fill('any_data\n').join(''));
+    expect(rowsListener).toHaveBeenCalledTimes(1);
   });
 
   test('Should reconnect the request if ECONNRESET exception throws', async () => {
