@@ -34,7 +34,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
 
     expect(result).toEqual({
       baseCnpj: '00000000',
-      cnpj: '00.000.000/0001-00',
+      cnpj: '00000000000100',
       corporateName: 'any_corporate_name',
       cadasterStatus: 'any_cadaster_status',
       cadasterStatusDate: 'any_cadaster_status_date',
