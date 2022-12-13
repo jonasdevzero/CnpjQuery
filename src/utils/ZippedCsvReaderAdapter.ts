@@ -34,8 +34,13 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   private makeRequest(event: Event, url: string, module: typeof Http) {
     return () => {
       const request = module.request(url);
+      this.clearInternalEvents(event);
       this.handleRequest(request, event);
     };
+  }
+
+  private clearInternalEvents(event: Event) {
+    event.removeAllListeners('rows:send');
   }
 
   private handleRequest(request: Http.ClientRequest, event: Event) {
@@ -77,6 +82,7 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   private makeEntryDataHandler(event: Event) {
     let pendingData = '';
     let rows = [] as string[];
+    let rowIndex = -1;
 
     event.on('rows:send', () => {
       event.emit('rows', rows);
@@ -85,8 +91,7 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
 
     return (chunk: string) => {
       pendingData += chunk;
-
-      let rowIndex = pendingData.indexOf(this.EOL);
+      rowIndex = pendingData.indexOf(this.EOL);
 
       while (rowIndex !== -1) {
         const row = pendingData.slice(0, rowIndex);
