@@ -63,21 +63,14 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
 
       stream.on('entry', this.makeEntryHandler(event));
       response.on('error', this.makeErrorHandler(event));
-      response.on('end', () => event.emit('end'));
     };
   }
 
   private makeEntryHandler(event: Event) {
     return (entry: unzipper.Entry) => {
-      const interval = setInterval(this.makeEntryStatusToggler(entry), 1000);
-
       entry.on('data', this.makeEntryDataHandler(event));
-      entry.on('end', () => clearInterval(interval));
+      entry.on('end', () => {});
     };
-  }
-
-  private makeEntryStatusToggler(entry: unzipper.Entry) {
-    return () => (entry.isPaused() ? entry.resume() : entry.pause());
   }
 
   private makeEntryDataHandler(event: Event) {

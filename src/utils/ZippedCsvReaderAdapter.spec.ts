@@ -26,8 +26,6 @@ jest.mock('unzipper', () => ({
   Parse: jest.fn(() => 'any_stream'),
 }));
 
-jest.useFakeTimers();
-
 class SystemErrorStub extends Error {
   code: string;
 
@@ -57,7 +55,7 @@ const makeFakeEntry = (): Entry => {
 
 const makeSut = (): ZippedCsvReaderAdapter => new ZippedCsvReaderAdapter();
 
-describe('ZipLoaderAdapter Util', () => {
+describe('ZippedCsvReaderAdapter Util', () => {
   beforeEach(() => {
     jest.spyOn(process, 'on').mockImplementation(jest.fn());
     jest.spyOn(process, 'removeListener').mockImplementation(jest.fn());
@@ -218,28 +216,6 @@ describe('ZipLoaderAdapter Util', () => {
     expect(typeof listener).toBe('function');
   });
 
-  test('Should handle response end listener', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    await sut.read('http://any_url.zip');
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
-
-    const [event, listener] = responseOnSpy.mock.calls[1];
-
-    expect(event).toBe('end');
-    expect(typeof listener).toBe('function');
-  });
-
   test('Should handle entry data listener', async () => {
     const sut = makeSut();
 
@@ -300,40 +276,6 @@ describe('ZipLoaderAdapter Util', () => {
     expect(typeof listener).toBe('function');
   });
 
-  test('Should emit rows event with correct values if entry data listener was called', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    const stream = await sut.read('http://any_url.zip');
-    const dataListener = jest.fn();
-
-    stream.on('rows', dataListener);
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
-
-    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
-
-    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {});
-
-    entryListener(makeFakeEntry());
-
-    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
-    const entryDataListener = jest.fn(entryOnSpy.mock.calls[0][1] as (chunk: string) => void);
-
-    entryDataListener('any_data_1\nany_data_2\nany_data_3\nany_dat');
-
-    expect(dataListener).toHaveBeenCalledTimes(1);
-    expect(dataListener.mock.calls[0][0]).toEqual(['any_data_1', 'any_data_2', 'any_data_3']);
-  });
-
   test('Should emit error event if response error listener was called', async () => {
     const sut = makeSut();
 
@@ -361,31 +303,6 @@ describe('ZipLoaderAdapter Util', () => {
     expect(errorListener).toHaveBeenCalledWith(error);
   });
 
-  test('Should emit end event if response end listener was called', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    const stream = await sut.read('http://any_url.zip');
-    const endListener = jest.fn();
-
-    stream.on('end', endListener);
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const responseOnSpy = jest.spyOn(responseListener.mock.calls[0][0], 'on');
-    const responseEndListener = jest.fn(responseOnSpy.mock.calls[1][1] as () => void);
-
-    responseEndListener();
-
-    expect(endListener).toHaveBeenCalledTimes(1);
-  });
-
   test('Should emit error event if request error listener was called', async () => {
     const sut = makeSut();
 
@@ -404,129 +321,6 @@ describe('ZipLoaderAdapter Util', () => {
 
     expect(errorListener).toHaveBeenCalledTimes(1);
     expect(errorListener).toHaveBeenCalledWith(error);
-  });
-
-  test('Should call setInterval on entry', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-    const intervalSpy = jest.spyOn(global, 'setInterval');
-
-    await sut.read('http://any_url.zip');
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
-    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
-
-    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => void);
-
-    entryListener(makeFakeEntry());
-
-    jest.runOnlyPendingTimers();
-
-    expect(intervalSpy).toHaveBeenCalledTimes(1);
-    expect(intervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
-  });
-
-  test('Should pause entry if is not paused', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    await sut.read('http://any_url.zip');
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
-    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
-
-    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => void);
-
-    entryListener(makeFakeEntry());
-
-    jest.spyOn(entryListener.mock.calls[0][0], 'isPaused').mockImplementationOnce(() => false);
-
-    const pauseSpy = jest.spyOn(entryListener.mock.calls[0][0], 'pause');
-    const resumeSpy = jest.spyOn(entryListener.mock.calls[0][0], 'resume');
-
-    jest.runOnlyPendingTimers();
-
-    expect(pauseSpy).toHaveBeenCalledTimes(1);
-    expect(resumeSpy).toHaveBeenCalledTimes(0);
-  });
-
-  test('Should resume entry if is not resumed', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-
-    await sut.read('http://any_url.zip');
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
-    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
-
-    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => void);
-
-    entryListener(makeFakeEntry());
-
-    jest.spyOn(entryListener.mock.calls[0][0], 'isPaused').mockImplementationOnce(() => true);
-
-    const pauseSpy = jest.spyOn(entryListener.mock.calls[0][0], 'pause');
-    const resumeSpy = jest.spyOn(entryListener.mock.calls[0][0], 'resume');
-
-    jest.runOnlyPendingTimers();
-
-    expect(resumeSpy).toHaveBeenCalledTimes(1);
-    expect(pauseSpy).toHaveBeenCalledTimes(0);
-  });
-
-  test('Should clear interval on entry end', async () => {
-    const sut = makeSut();
-
-    const requestSpy = jest.spyOn(http, 'request');
-    const clearIntervalSpy = jest.spyOn(global, 'clearInterval');
-
-    await sut.read('http://any_url.zip');
-
-    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
-    const responseListener = jest.fn(
-      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
-    );
-
-    responseListener(makeFakeResponse());
-
-    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
-    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
-
-    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => void);
-
-    entryListener(makeFakeEntry());
-
-    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
-    const entryEndListener = entryOnSpy.mock.calls[1][1];
-
-    entryEndListener();
-
-    expect(clearIntervalSpy).toBeCalledTimes(1);
-    expect(clearIntervalSpy).toBeCalledWith(expect.any(Object));
   });
 
   test('Should reconnect the request if ECONNRESET exception throws', async () => {
