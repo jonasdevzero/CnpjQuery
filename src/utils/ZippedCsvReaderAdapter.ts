@@ -69,7 +69,7 @@ export class ZippedCsvReaderAdapter implements ZippedCsvReader {
   private makeEntryHandler(event: Event) {
     return (entry: unzipper.Entry) => {
       entry.on('data', this.makeEntryDataHandler(event));
-      entry.on('end', () => {});
+      entry.on('end', () => event.emit('end'));
     };
   }
 
