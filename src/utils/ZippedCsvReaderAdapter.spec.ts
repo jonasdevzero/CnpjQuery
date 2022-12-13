@@ -323,6 +323,39 @@ describe('ZippedCsvReaderAdapter Util', () => {
     expect(errorListener).toHaveBeenCalledWith(error);
   });
 
+  test('Should emit end event if entry end listener was called', async () => {
+    const sut = makeSut();
+
+    const requestSpy = jest.spyOn(http, 'request');
+
+    const event = await sut.read('http://any_url.zip');
+    const endListener = jest.fn();
+
+    event.on('end', endListener);
+
+    const requestOnSpy = jest.spyOn(requestSpy.mock.results[0].value, 'on');
+    const responseListener = jest.fn(
+      requestOnSpy.mock.calls[0][1] as (response: http.IncomingMessage) => void,
+    );
+
+    responseListener(makeFakeResponse());
+
+    const responsePipeSpy = jest.spyOn(responseListener.mock.calls[0][0], 'pipe');
+
+    const responsePipeOnSpy = jest.spyOn(responsePipeSpy.mock.results[0].value, 'on');
+
+    const entryListener = jest.fn(responsePipeOnSpy.mock.calls[0][1] as (entry: Entry) => {});
+
+    entryListener(makeFakeEntry());
+
+    const entryOnSpy = jest.spyOn(entryListener.mock.calls[0][0], 'on');
+    const entryEndListener = jest.fn(entryOnSpy.mock.calls[1][1]);
+
+    entryEndListener();
+
+    expect(endListener).toHaveBeenCalledTimes(1);
+  });
+
   test('Should reconnect the request if ECONNRESET exception throws', async () => {
     const sut = makeSut();
 
