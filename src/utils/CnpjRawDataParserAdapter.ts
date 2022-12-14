@@ -9,10 +9,10 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     PARTNER: this.parsePartnerData,
     COUNTRIES: this.parseCountryData,
     CITIES: this.parseCityData,
-    CNAE: this.parseCnaeData,
-    REASONS: this.parseReasonData,
-    NATURES: this.parseNatureData,
-    QUALIFICATIONS: this.parseQualificationData,
+    CNAE: this.parseGeneralData,
+    REASONS: this.parseGeneralData,
+    NATURES: this.parseGeneralData,
+    QUALIFICATIONS: this.parseGeneralData,
   } as { [key in DataUrlType]: (data: string[]) => Object };
 
   parse(data: string, dataType: DataUrlType): Object {
@@ -180,22 +180,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     return { code, name };
   }
 
-  private parseCnaeData(data: string[]): Object {
-    const [code, description] = data;
-    return { code, description };
-  }
-
-  private parseReasonData(data: string[]): Object {
-    const [code, description] = data;
-    return { code, description };
-  }
-
-  private parseNatureData(data: string[]): Object {
-    const [code, description] = data;
-    return { code, description };
-  }
-
-  private parseQualificationData(data: string[]): Object {
+  private parseGeneralData(data: string[]): Object {
     const [code, description] = data;
     return { code, description };
   }
