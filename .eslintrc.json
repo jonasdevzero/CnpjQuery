@@ -25,7 +25,8 @@
     "import/no-extraneous-dependencies": "off",
     "no-unused-expressions": "off",
     "no-restricted-syntax": "off",
-    "no-await-in-loop": "off"
+    "no-await-in-loop": "off",
+    "no-async-promise-executor": "off"
   },
   "settings": {
     "import/resolver": {

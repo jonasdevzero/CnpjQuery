@@ -40,21 +40,32 @@ export class DbQueryCnpj implements QueryCnpj {
   }
 
   private async execute(dataUrls: DataUrlModel[]) {
-    for (const dataUrl of dataUrls) {
-      await this.loadDataUrl(dataUrl);
+    try {
+      for (const dataUrl of dataUrls) {
+        await this.queryDataUrl(dataUrl);
+      }
+    } catch (error) {
+      // TODO: add error log
     }
   }
 
-  private async loadDataUrl(dataUrl: DataUrlModel) {
-    const event = await this.zippedCsvReader.read(dataUrl.url);
-    const upsert = this.getUpsert(dataUrl.type);
+  private async queryDataUrl(dataUrl: DataUrlModel) {
+    const { url, type } = dataUrl;
 
-    event.on('rows', (data) => {
-      const parsedData = data.map((d) => this.cnpjRawDataParser.parse(d, dataUrl.type));
-      parsedData.map((d) => upsert(d));
+    const event = await this.zippedCsvReader.read(url);
+    const upsert = this.getUpsert(type);
+
+    return new Promise<void>(async (resolve, reject) => {
+      event.on('rows', async (data) => {
+        const parsedData = data.map((d) => this.cnpjRawDataParser.parse(d, type));
+        await Promise.all(parsedData.map(upsert));
+
+        event.emit('rows:next');
+      });
+
+      event.on('error', (error) => reject(error));
+      event.on('end', () => resolve());
     });
-
-    event.on('error', () => {});
   }
 
   private getUpsert(dataType: DataUrlType) {
