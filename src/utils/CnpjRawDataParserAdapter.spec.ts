@@ -140,4 +140,14 @@ describe('CnpjRawDataParserAdapter Util', () => {
 
     expect(result).toEqual({ code: 'any_code', description: 'any_description' });
   });
+
+  test('Should parse reason data correctly', () => {
+    const sut = makeSut();
+
+    const reasonData = '"any_code";"any_description"';
+
+    const result = sut.parse(reasonData, 'REASONS');
+
+    expect(result).toEqual({ code: 'any_code', description: 'any_description' });
+  });
 });
