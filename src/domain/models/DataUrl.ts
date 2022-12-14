@@ -3,7 +3,12 @@ export type DataUrlType =
   | 'ESTABLISHMENT'
   | 'SIMPLES'
   | 'PARTNER'
-  | 'GENERAL';
+  | 'COUNTRIES'
+  | 'CITIES'
+  | 'CNAE'
+  | 'REASONS'
+  | 'NATURES'
+  | 'QUALIFICATIONS';
 
 export interface DataUrlModel {
   id: string;
