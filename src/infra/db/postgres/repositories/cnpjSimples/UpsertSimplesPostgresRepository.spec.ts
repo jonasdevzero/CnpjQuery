@@ -1,3 +1,4 @@
+import { PostgresError } from 'postgres';
 import { UpsertSimplesPostgresRepository } from './UpsertSimplesPostgresRepository';
 import { dbMock } from '../../dbMock';
 import { UpsertSimplesModel } from '../../../../../domain/models/Simples';
@@ -16,13 +17,16 @@ const makeFakeSimples = (): UpsertSimplesModel => {
 };
 
 describe('UpsertSimplesPostgresRepository', () => {
-  test('Should throw if postgres throws', async () => {
+  test('Should not throw if postgres throws violates foreign key constraint', async () => {
     const sut = new UpsertSimplesPostgresRepository();
 
+    const errorMessage =
+      'insert or update on table "cnpjSimples" violates foreign key constraint "cnpjSimples_baseCnpj_fkey"';
+
     dbMock.mockImplementationOnce(() => {
-      throw new Error();
+      throw new PostgresError(errorMessage);
     });
 
-    await expect(sut.upsert(makeFakeSimples())).rejects.toThrow();
+    await sut.upsert(makeFakeSimples());
   });
 });
