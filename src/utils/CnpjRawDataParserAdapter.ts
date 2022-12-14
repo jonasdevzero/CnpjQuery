@@ -11,6 +11,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     CITIES: this.parseCityData,
     CNAE: this.parseCnaeData,
     REASONS: this.parseReasonData,
+    NATURES: this.parseNatureData,
   } as { [key in DataUrlType]: (data: string[]) => Object };
 
   parse(data: string, dataType: DataUrlType): Object {
@@ -184,6 +185,11 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   }
 
   private parseReasonData(data: string[]): Object {
+    const [code, description] = data;
+    return { code, description };
+  }
+
+  private parseNatureData(data: string[]): Object {
     const [code, description] = data;
     return { code, description };
   }
