@@ -130,4 +130,14 @@ describe('CnpjRawDataParserAdapter Util', () => {
 
     expect(result).toEqual({ code: 'any_code', name: 'any_name' });
   });
+
+  test('Should parse cnae data correctly', () => {
+    const sut = makeSut();
+
+    const cnaeData = '"any_code";"any_description"';
+
+    const result = sut.parse(cnaeData, 'CNAE');
+
+    expect(result).toEqual({ code: 'any_code', description: 'any_description' });
+  });
 });
