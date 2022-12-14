@@ -36,8 +36,13 @@ export class DbQueryCnpj implements QueryCnpj {
 
   async query(): Promise<void> {
     const dataUrls = await this.listDataUrlRepository.list();
+    await this.execute(dataUrls);
+  }
 
-    await Promise.all(dataUrls.map((dataUrl) => this.loadDataUrl(dataUrl)));
+  private async execute(dataUrls: DataUrlModel[]) {
+    for (const dataUrl of dataUrls) {
+      await this.loadDataUrl(dataUrl);
+    }
   }
 
   private async loadDataUrl(dataUrl: DataUrlModel) {
