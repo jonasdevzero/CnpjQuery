@@ -120,4 +120,14 @@ describe('CnpjRawDataParserAdapter Util', () => {
 
     expect(result).toEqual({ code: 'any_code', name: 'any_name' });
   });
+
+  test('Should parse city data correctly', () => {
+    const sut = makeSut();
+
+    const citiesData = '"any_code";"any_name"';
+
+    const result = sut.parse(citiesData, 'CITIES');
+
+    expect(result).toEqual({ code: 'any_code', name: 'any_name' });
+  });
 });
