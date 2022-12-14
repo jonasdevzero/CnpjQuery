@@ -9,6 +9,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     PARTNER: this.parsePartnerData,
     COUNTRIES: this.parseCountryData,
     CITIES: this.parseCityData,
+    CNAE: this.parseCnaeData,
   } as { [key in DataUrlType]: (data: string[]) => Object };
 
   parse(data: string, dataType: DataUrlType): Object {
@@ -174,5 +175,10 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   private parseCityData(data: string[]): Object {
     const [code, name] = data;
     return { code, name };
+  }
+
+  private parseCnaeData(data: string[]): Object {
+    const [code, description] = data;
+    return { code, description };
   }
 }
