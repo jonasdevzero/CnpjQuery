@@ -28,15 +28,10 @@ const makeFakeDataUrls = (): DataUrlModel[] => [
   {
     id: 'any_id_3',
     url: 'http://200.152.38.155/CNPJ/Empresas0.zip',
-    type: 'GENERAL',
-  },
-  {
-    id: 'any_id_4',
-    url: 'http://200.152.38.155/CNPJ/Empresas0.zip',
     type: 'SIMPLES',
   },
   {
-    id: 'any_id_5',
+    id: 'any_id_4',
     url: 'http://200.152.38.155/CNPJ/Empresas0.zip',
     type: 'PARTNER',
   },

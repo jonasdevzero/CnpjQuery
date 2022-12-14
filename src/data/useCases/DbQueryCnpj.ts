@@ -12,7 +12,7 @@ import {
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;
-  private readonly zipLoader: ZippedCsvReader;
+  private readonly zippedCsvReader: ZippedCsvReader;
   private readonly upsertCompanyRepository: UpsertCompanyRepository;
   private readonly upsertEstablishmentRepository: UpsertEstablishmentRepository;
   private readonly upsertSimplesRepository: UpsertSimplesRepository;
@@ -27,7 +27,7 @@ export class DbQueryCnpj implements QueryCnpj {
     cnpjRawDataParser: CnpjRawDataParser,
   ) {
     this.listDataUrlRepository = listDataUrlRepository;
-    this.zipLoader = zipLoader;
+    this.zippedCsvReader = zipLoader;
     this.upsertCompanyRepository = upsertCompanyRepository;
     this.upsertEstablishmentRepository = upsertEstablishmentRepository;
     this.upsertSimplesRepository = upsertSimplesRepositoryStub;
@@ -41,15 +41,15 @@ export class DbQueryCnpj implements QueryCnpj {
   }
 
   private async loadDataUrl(dataUrl: DataUrlModel) {
-    const stream = await this.zipLoader.read(dataUrl.url);
+    const event = await this.zippedCsvReader.read(dataUrl.url);
     const upsert = this.getUpsert(dataUrl.type);
 
-    stream.on('rows', (data) => {
+    event.on('rows', (data) => {
       const parsedData = data.map((d) => this.cnpjRawDataParser.parse(d, dataUrl.type));
       parsedData.map((d) => upsert(d));
     });
 
-    stream.on('error', () => {});
+    event.on('error', () => {});
   }
 
   private getUpsert(dataType: DataUrlType) {
