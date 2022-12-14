@@ -100,7 +100,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
       baseCnpj: 'any_base_cnpj',
       identifier: 'any_identifier',
       name: 'any_partner_name',
-      registration: 'any_registration',
+      cpf: 'any_registration',
       qualification: 'any_qualification',
       countryCode: 'any_country',
       legalRepresentativeCpf: 'legal_representative_cpf',
