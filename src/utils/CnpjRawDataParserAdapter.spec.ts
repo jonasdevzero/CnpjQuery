@@ -110,4 +110,14 @@ describe('CnpjRawDataParserAdapter Util', () => {
       entryDate: 'start_at',
     });
   });
+
+  test('Should parse countries data correctly', () => {
+    const sut = makeSut();
+
+    const countriesData = '"any_code";"any_name"';
+
+    const result = sut.parse(countriesData, 'COUNTRIES');
+
+    expect(result).toEqual({ code: 'any_code', name: 'any_name' });
+  });
 });
