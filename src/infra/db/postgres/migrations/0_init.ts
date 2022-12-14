@@ -72,10 +72,10 @@ export default class InitMigration implements Migration {
       await transactionSql`
         CREATE TABLE IF NOT EXISTS "cnpjSimples" (
           "baseCnpj" TEXT NOT NULL,
-          "identification" BIT NOT NULL,
+          "identification" BOOLEAN NOT NULL,
           "identificationDate" TEXT,
           "exclusionDate" TEXT,
-          "meiIdentification" BIT NOT NULL,
+          "meiIdentification" BOOLEAN NOT NULL,
           "meiIdentificationDate" TEXT,
           "meiExclusionDate" TEXT,
           PRIMARY KEY ("baseCnpj"),
