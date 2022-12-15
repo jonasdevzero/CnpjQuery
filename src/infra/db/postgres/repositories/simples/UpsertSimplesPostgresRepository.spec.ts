@@ -5,12 +5,12 @@ import { UpsertSimplesModel } from '../../../../../domain/models/Simples';
 
 const makeFakeSimples = (): UpsertSimplesModel => {
   const simplesData = {
-    baseCnpj: 'any_base_cnpj',
-    identification: false,
-    identificationDate: 'any_date',
-    exclusionDate: 'any_data',
-    meiIdentification: false,
-    meiIdentificationDate: 'any_date',
+    baseCnpj: '00000000',
+    isSimples: false,
+    simplesSince: 'any_date',
+    simplesExclusionDate: 'any_data',
+    isMei: false,
+    meiSince: 'any_date',
     meiExclusionDate: 'any_date',
   };
   return simplesData;

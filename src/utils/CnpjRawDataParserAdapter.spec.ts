@@ -16,7 +16,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
     expect(result).toEqual({
       baseCnpj: 'any_base_cnpj',
       corporateName: 'any_corporate_name',
-      legalNature: 'any_legal_nature',
+      legalNatureCode: 'any_legal_nature',
       qualification: 'any_qualification',
       capital: 'any_capital',
       size: 'any_size',
@@ -35,7 +35,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
     expect(result).toEqual({
       baseCnpj: '00000000',
       cnpj: '00000000000100',
-      corporateName: 'any_corporate_name',
+      fantasyName: 'any_corporate_name',
       cadasterStatus: 'any_cadaster_status',
       cadasterStatusDate: 'any_cadaster_status_date',
       cadasterStatusReason: '00',
@@ -48,9 +48,9 @@ describe('CnpjRawDataParserAdapter Util', () => {
       specialStatus: '',
       specialStatusDate: '',
 
-      telephone1: '(19) 89501000',
-      telephone2: '(19) 89501001',
-      fax: '19 89501002',
+      telephone1: '1989501000',
+      telephone2: '1989501001',
+      fax: '1989501002',
       email: 'any_mail@mail.com',
 
       address: {
@@ -63,7 +63,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
         district: 'JARDIM PARAISO I (NOVA VENEZA)',
         cep: '13179335',
         uf: 'SP',
-        city: '7149',
+        cityCode: '7149',
       },
     });
   });
@@ -78,12 +78,12 @@ describe('CnpjRawDataParserAdapter Util', () => {
     expect(result).toEqual({
       baseCnpj: '00000000',
 
-      identification: false,
-      identificationDate: '20070701',
-      exclusionDate: '20070701',
+      isSimples: false,
+      simplesSince: '20070701',
+      simplesExclusionDate: '20070701',
 
-      meiIdentification: false,
-      meiIdentificationDate: '20090701',
+      isMei: false,
+      meiSince: '20090701',
       meiExclusionDate: '20090701',
     });
   });
@@ -101,7 +101,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
       identifier: 'any_identifier',
       name: 'any_partner_name',
       cpf: 'any_registration',
-      qualification: 'any_qualification',
+      qualificationCode: 'any_qualification',
       countryCode: 'any_country',
       legalRepresentativeCpf: 'legal_representative_cpf',
       legalRepresentativeName: 'legal_representative_name',

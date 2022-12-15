@@ -6,7 +6,7 @@ const makeFakeCompanyData = (): UpsertCompanyModel => {
   const companyData = {
     baseCnpj: 'any_base_cnpj',
     corporateName: 'any_corporate_name',
-    legalNature: 'any_legal_nature',
+    legalNatureCode: 'any_legal_nature',
     qualification: 'any_qualification',
     capital: 'any_capital',
     size: 'any_size',

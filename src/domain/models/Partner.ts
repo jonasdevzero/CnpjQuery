@@ -3,7 +3,7 @@ export interface UpsertPartnerModel {
   identifier: string;
   name: string;
   cpf: string;
-  qualification: string;
+  qualificationCode: string;
   entryDate: string;
   countryCode: string;
   legalRepresentativeCpf: string;

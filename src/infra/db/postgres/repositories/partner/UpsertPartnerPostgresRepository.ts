@@ -9,7 +9,7 @@ export class UpsertPartnerPostgresRepository implements UpsertPartnerRepository 
       identifier,
       name,
       cpf,
-      qualification,
+      qualificationCode,
       entryDate,
       countryCode,
       legalRepresentativeCpf,
@@ -19,18 +19,18 @@ export class UpsertPartnerPostgresRepository implements UpsertPartnerRepository 
     } = data;
 
     await sql`
-      INSERT INTO "cnpjPartner" ("baseCnpj", "identifier", "name", "cpf", "qualification",
+      INSERT INTO "partner" ("baseCnpj", "identifier", "name", "cpf", "qualificationCode",
       "countryCode", "legalRepresentativeCpf", "legalRepresentativeName", "legalRepresentativeQualification",
         "ageGroup", "entryDate")
-      VALUES (${baseCnpj}, ${identifier}, ${name}, ${cpf}, ${qualification},${countryCode},
+      VALUES (${baseCnpj}, ${identifier}, ${name}, ${cpf}, ${qualificationCode},${countryCode},
         ${legalRepresentativeCpf}, ${legalRepresentativeName}, ${legalRepresentativeQualification},
         ${ageGroup}, ${entryDate})
       ON CONFLICT ("baseCnpj", "cpf") DO
       UPDATE SET "identifier" = ${identifier}, "name" = ${name},
-      "qualification" = ${qualification}, "entryDate"= ${entryDate}, "countryCode" = ${countryCode},
-      "legalRepresentativeCpf" = ${legalRepresentativeCpf}, "legalRepresentativeName" = ${legalRepresentativeName},
-      "legalRepresentativeQualification" = ${legalRepresentativeQualification}, "ageGroup" = ${ageGroup}
-      WHERE "cnpjPartner"."baseCnpj" = ${baseCnpj} AND "cnpjPartner"."cpf" = ${cpf};
+        "qualificationCode" = ${qualificationCode}, "entryDate" = ${entryDate}, "countryCode" = ${countryCode},
+        "legalRepresentativeCpf" = ${legalRepresentativeCpf}, "legalRepresentativeName" = ${legalRepresentativeName},
+        "legalRepresentativeQualification" = ${legalRepresentativeQualification}, "ageGroup" = ${ageGroup}
+      WHERE "partner"."baseCnpj" = ${baseCnpj} AND "partner"."cpf" = ${cpf};
       `;
   }
 }

@@ -8,7 +8,7 @@ const makeFakePartnerData = (): UpsertPartnerModel => {
     identifier: 'any_identifier',
     name: 'any_name',
     cpf: 'any_registration',
-    qualification: 'any_qualification',
+    qualificationCode: 'any_qualification',
     entryDate: 'any_entryDate',
     countryCode: 'any_countryCode',
     legalRepresentativeCpf: 'any_legalRepresentativeCpf',

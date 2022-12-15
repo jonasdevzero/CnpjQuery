@@ -1,19 +1,19 @@
 import { DbQueryCnpj } from '../../data/useCases/DbQueryCnpj';
-import { UpsertCompanyPrismaRepository } from '../../infra/db/prisma/repositories/cnpjCompany/UpsertCompanyPrismaRepository';
-import { UpsertEstablishmentPrismaRepository } from '../../infra/db/prisma/repositories/cnpjEstablishment/UpsertEstablishmentPrismaRepository';
-import { UpsertSimplesPrismaRepository } from '../../infra/db/prisma/repositories/cnpjSimples/UpsertSimplesPrismaRepository';
-import { ListDataUrlPrismaRepository } from '../../infra/db/prisma/repositories/dataUrl/ListDataUrlPrismaRepository';
+import { ListDataUrlPostgresRepository } from '../../infra/db/postgres/repositories/dataUrl/ListDataUrlPostgresRepository';
+import { UpsertCompanyPostgresRepository } from '../../infra/db/postgres/repositories/company/UpsertCompanyPostgresRepository';
+import { UpsertEstablishmentPostgresRepository } from '../../infra/db/postgres/repositories/establishment/UpsertEstablishmentPostgresRepository';
+import { UpsertSimplesPostgresRepository } from '../../infra/db/postgres/repositories/simples/UpsertSimplesPostgresRepository';
 import { QueryCnpjController } from '../../presentation/controllers/QueryCnpj';
 import { Controller } from '../../presentation/protocols';
 import { CnpjRawDataParserAdapter } from '../../utils/CnpjRawDataParserAdapter';
 import { ZippedCsvReaderAdapter } from '../../utils/ZippedCsvReaderAdapter';
 
 export const makeCnpjQueryController = (): Controller => {
-  const listDataUrlRepository = new ListDataUrlPrismaRepository();
+  const listDataUrlRepository = new ListDataUrlPostgresRepository();
   const zipLoaderAdapter = new ZippedCsvReaderAdapter();
-  const upsertCompanyRepository = new UpsertCompanyPrismaRepository();
-  const upsertEstablishmentRepository = new UpsertEstablishmentPrismaRepository();
-  const upsertSimplesRepository = new UpsertSimplesPrismaRepository();
+  const upsertCompanyRepository = new UpsertCompanyPostgresRepository();
+  const upsertEstablishmentRepository = new UpsertEstablishmentPostgresRepository();
+  const upsertSimplesRepository = new UpsertSimplesPostgresRepository();
   const cnpjRawDataParserAdapter = new CnpjRawDataParserAdapter();
 
   const queryCnpj = new DbQueryCnpj(

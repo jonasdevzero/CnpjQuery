@@ -28,13 +28,20 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   }
 
   private parseCompanyData(data: string[]): Object {
-    const [baseCnpj, corporateName, legalNature, qualification, capital, size, federativeEntity] =
-      data;
+    const [
+      baseCnpj,
+      corporateName,
+      legalNatureCode,
+      qualification,
+      capital,
+      size,
+      federativeEntity,
+    ] = data;
 
     return {
       baseCnpj,
       corporateName,
-      legalNature,
+      legalNatureCode,
       qualification,
       capital,
       size,
@@ -48,7 +55,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
       orderCnpj,
       dvCnpj,
       _identifier,
-      corporateName,
+      fantasyName,
       cadasterStatus,
       cadasterStatusDate,
       cadasterStatusReason,
@@ -64,7 +71,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
       district,
       cep,
       uf,
-      city,
+      cityCode,
       ddd1,
       telephone1,
       ddd2,
@@ -77,15 +84,14 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     ] = data;
 
     const cnpj = `${baseCnpj}${orderCnpj}${dvCnpj}`;
-
-    const fullTelephone1 = `(${ddd1}) ${telephone1}`;
-    const fullTelephone2 = !!ddd2 && !!telephone2 ? `(${ddd2}) ${telephone2}` : '';
-    const fullFax = !!faxDdd && !!fax ? `${faxDdd} ${fax}` : '';
+    const fullTelephone1 = `${ddd1}${telephone1}`;
+    const fullTelephone2 = `${ddd2}${telephone2}`;
+    const fullFax = `${faxDdd}${fax}`;
 
     return {
       baseCnpj,
       cnpj,
-      corporateName,
+      fantasyName,
       cadasterStatus,
       cadasterStatusDate,
       cadasterStatusReason,
@@ -109,7 +115,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
         district,
         cep,
         uf,
-        city,
+        cityCode,
       },
     };
   }
@@ -117,21 +123,21 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   private parseSimplesData(data: string[]): Object {
     const [
       baseCnpj,
-      identification,
-      identificationDate,
-      exclusionDate,
-      meiIdentification,
-      meiIdentificationDate,
+      isSimples,
+      simplesSince,
+      simplesExclusionDate,
+      isMei,
+      meiSince,
       meiExclusionDate,
     ] = data;
 
     return {
       baseCnpj,
-      identification: this.parseDataToBoolean(identification),
-      identificationDate,
-      exclusionDate,
-      meiIdentification: this.parseDataToBoolean(meiIdentification),
-      meiIdentificationDate,
+      isSimples: this.parseDataToBoolean(isSimples),
+      simplesSince,
+      simplesExclusionDate,
+      isMei: this.parseDataToBoolean(isMei),
+      meiSince,
       meiExclusionDate,
     };
   }
@@ -146,7 +152,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
       identifier,
       name,
       cpf,
-      qualification,
+      qualificationCode,
       entryDate,
       countryCode,
       legalRepresentativeCpf,
@@ -160,7 +166,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
       identifier,
       name,
       cpf,
-      qualification,
+      qualificationCode,
       entryDate,
       countryCode,
       legalRepresentativeCpf,

@@ -1,7 +1,7 @@
 export interface UpsertEstablishmentModel {
   baseCnpj: string;
   cnpj: string;
-  corporateName: string | null;
+  fantasyName: string | null;
 
   cadasterStatus: string;
   cadasterStatusDate: string;
@@ -30,6 +30,6 @@ export interface UpsertEstablishmentModel {
     district: string;
     cep: string;
     uf: string;
-    city: string;
+    cityCode: string;
   };
 }

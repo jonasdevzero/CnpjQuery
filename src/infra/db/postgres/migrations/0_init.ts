@@ -9,7 +9,7 @@ export default class InitMigration implements Migration {
         DO $$
           BEGIN
             IF NOT EXISTS (SELECT 1 FROM pg_type WHERE pg_type.typname = 'DataUrlType') THEN
-                CREATE TYPE "DataUrlType" AS ENUM ('COMPANY', 'ESTABLISHMENT', 'SIMPLES', 'PARTNER', CNAE', COUNTRIES', QUALIFICATIONS', 'NATURES', 'CITIES', 'REASONS');
+                CREATE TYPE "DataUrlType" AS ENUM ('COMPANY', 'ESTABLISHMENT', 'SIMPLES', 'PARTNER', 'COUNTRIES', 'CITIES', 'CNAE', 'REASONS', 'NATURES', 'QUALIFICATIONS');
             END IF;
           END
         $$;
@@ -25,23 +25,64 @@ export default class InitMigration implements Migration {
       `;
 
       await transactionSql`
-        CREATE TABLE IF NOT EXISTS "cnpjCompany" (
-          "baseCnpj" TEXT NOT NULL,
-          "corporateName" TEXT NOT NULL,
-          "legalNature" TEXT NOT NULL,
-          "qualification" TEXT NOT NULL,
-          "capital" TEXT NOT NULL,
-          "size" TEXT NOT NULL,
-          "federativeEntity" TEXT,
-          PRIMARY KEY ("baseCnpj")
+        CREATE TABLE IF NOT EXISTS country (
+          code TEXT NOT NULL,
+          name TEXT NOT NULL,
+          PRIMARY KEY (code)
         );
       `;
 
       await transactionSql`
-        CREATE TABLE IF NOT EXISTS "cnpjEstablishment" (
+        CREATE TABLE IF NOT EXISTS city (
+          code TEXT NOT NULL,
+          name TEXT NOT NULL,
+          PRIMARY KEY (code)
+        );
+      `;
+
+      await transactionSql`
+        CREATE TABLE IF NOT EXISTS qualification (
+          code TEXT NOT NULL,
+          description TEXT NOT NULL,
+          PRIMARY KEY (code)
+        );
+      `;
+
+      await transactionSql`
+        CREATE TABLE IF NOT EXISTS "legalNature" (
+          code TEXT NOT NULL,
+          description TEXT NOT NULL,
+          PRIMARY KEY (code)
+        );
+      `;
+
+      await transactionSql`
+        CREATE TABLE IF NOT EXISTS cnae (
+          code TEXT NOT NULL,
+          description TEXT NOT NULL,
+          PRIMARY KEY (code)
+        );
+      `;
+
+      await transactionSql`
+        CREATE TABLE IF NOT EXISTS "company" (
+          "baseCnpj" TEXT NOT NULL,
+          "corporateName" TEXT NOT NULL,
+          "legalNatureCode" TEXT NOT NULL,
+          "qualification" TEXT NOT NULL,
+          "capital" TEXT NOT NULL,
+          "size" TEXT NOT NULL,
+          "federativeEntity" TEXT,
+          PRIMARY KEY ("baseCnpj"),
+          FOREIGN KEY ("legalNatureCode") REFERENCES "legalNature"("code")
+        );
+      `;
+
+      await transactionSql`
+        CREATE TABLE IF NOT EXISTS "establishment" (
           "cnpj" TEXT NOT NULL,
           "baseCnpj" TEXT NOT NULL,
-          "corporateName" TEXT,
+          "fantasyName" TEXT,
           "cadasterStatus" TEXT NOT NULL,
           "cadasterStatusDate" TEXT NOT NULL,
           "cadasterStatusReason" TEXT,
@@ -63,33 +104,36 @@ export default class InitMigration implements Migration {
           "district" TEXT,
           "cep" TEXT,
           "uf" TEXT,
-          "city" TEXT,
+          "cityCode" TEXT,
           PRIMARY KEY ("cnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj")
+          FOREIGN KEY ("baseCnpj") REFERENCES "company"("baseCnpj"),
+          FOREIGN KEY ("countryCode") REFERENCES "country"("code"),
+          FOREIGN KEY ("cityCode") REFERENCES "city"("code"),
+          FOREIGN KEY ("mainCnae") REFERENCES "cnae"("code")
         );
       `;
 
       await transactionSql`
-        CREATE TABLE IF NOT EXISTS "cnpjSimples" (
-          "baseCnpj" TEXT NOT NULL,
-          "identification" BOOLEAN NOT NULL,
-          "identificationDate" TEXT,
-          "exclusionDate" TEXT,
-          "meiIdentification" BOOLEAN NOT NULL,
-          "meiIdentificationDate" TEXT,
-          "meiExclusionDate" TEXT,
+        CREATE TABLE IF NOT EXISTS "simples" (
+          "baseCnpj" VARCHAR(8) NOT NULL,
+          "isSimples" BOOLEAN,
+          "simplesSince" VARCHAR(8),
+          "simplesExclusionDate" VARCHAR(8),
+          "isMei" BOOLEAN,
+          "meiSince" VARCHAR(8),
+          "meiExclusionDate" VARCHAR(8),
           PRIMARY KEY ("baseCnpj"),
-          FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj")
+          FOREIGN KEY ("baseCnpj") REFERENCES "company"("baseCnpj")
         );
       `;
 
       await transactionSql`
-          CREATE TABLE IF NOT EXISTS "cnpjPartner" (
+          CREATE TABLE IF NOT EXISTS "partner" (
             "baseCnpj" TEXT NOT NULL,
             "identifier" TEXT,
             "name" TEXT,
             "cpf" TEXT,
-            "qualification" TEXT,
+            "qualificationCode" TEXT,
             "countryCode" TEXT,
             "legalRepresentativeCpf" TEXT,
             "legalRepresentativeName" TEXT,
@@ -97,30 +141,51 @@ export default class InitMigration implements Migration {
             "ageGroup" TEXT,
             "entryDate" TEXT,
             PRIMARY KEY ("baseCnpj", "cpf"),
-            FOREIGN KEY ("baseCnpj") REFERENCES "cnpjCompany"("baseCnpj")
+            FOREIGN KEY ("baseCnpj") REFERENCES "company"("baseCnpj"),
+            FOREIGN KEY ("countryCode") REFERENCES "country"("code"),
+            FOREIGN KEY ("qualificationCode") REFERENCES "qualification"("code")
           );
       `;
 
       await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "dataUrl_url_key" ON "dataUrl"("url");`;
-      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjCompany_baseCnpj_key" ON "cnpjCompany"("baseCnpj");`;
-      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjEstablishment_cnpj_key" ON "cnpjEstablishment"("cnpj");`;
-      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjSimples_baseCnpj_key" ON "cnpjSimples"("baseCnpj");`;
-      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjPartner_baseCnpj_cpf_key" ON "cnpjPartner"("baseCnpj", "cpf");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "country_code_key" ON "country"("code");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "city_code_key" ON "city"("code");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "qualification_code_key" ON "qualification"("code");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "legalNature_code_key" ON "legalNature"("code");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnae_code_key" ON "cnae"("code");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjCompany_baseCnpj_key" ON "company"("baseCnpj");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjEstablishment_cnpj_key" ON "establishment"("cnpj");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjSimples_baseCnpj_key" ON "simples"("baseCnpj");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjPartner_baseCnpj_cpf_key" ON "partner"("baseCnpj", "cpf");`;
     });
   }
 
   async down(sql: PgSql): Promise<void> {
+    await sql`DROP TABLE IF EXISTS "dataUrl";`;
     await sql`DROP INDEX IF EXISTS "dataUrl_url_key";`;
+
+    await sql`DROP INDEX IF EXISTS "country_code_key";`;
+    await sql`DROP INDEX IF EXISTS "city_code_key";`;
+    await sql`DROP INDEX IF EXISTS "qualification_code_key";`;
+    await sql`DROP INDEX IF EXISTS "legalNature_code_key";`;
+    await sql`DROP INDEX IF EXISTS "cnae_code_key";`;
+
     await sql`DROP INDEX IF EXISTS "cnpjCompany_baseCnpj_key";`;
     await sql`DROP INDEX IF EXISTS "cnpjEstablishment_cnpj_key";`;
     await sql`DROP INDEX IF EXISTS "cnpjSimples_baseCnpj_key";`;
     await sql`DROP INDEX IF EXISTS "cnpjPartner_baseCnpj_cpf_key";`;
 
-    await sql`DROP TABLE IF EXISTS "cnpjPartner";`;
-    await sql`DROP TABLE IF EXISTS "cnpjSimples";`;
-    await sql`DROP TABLE IF EXISTS "cnpjEstablishment";`;
-    await sql`DROP TABLE IF EXISTS "cnpjCompany";`;
-    await sql`DROP TABLE IF EXISTS "dataUrl";`;
+    await sql`DROP TABLE IF EXISTS "partner";`;
+    await sql`DROP TABLE IF EXISTS "simples";`;
+    await sql`DROP TABLE IF EXISTS "establishment";`;
+    await sql`DROP TABLE IF EXISTS "company";`;
+
+    await sql`DROP TABLE IF EXISTS "cnae;"`;
+    await sql`DROP TABLE IF EXISTS "legalNature;"`;
+    await sql`DROP TABLE IF EXISTS "qualification";`;
+    await sql`DROP TABLE IF EXISTS "city;"`;
+    await sql`DROP TABLE IF EXISTS "country;"`;
+
     await sql`DROP TYPE IF EXISTS "DataUrlType";`;
     await sql`DROP EXTENSION IF EXISTS "uuid-ossp";`;
   }

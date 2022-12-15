@@ -7,7 +7,7 @@ export class UpsertEstablishmentPostgresRepository implements UpsertEstablishmen
     const {
       cnpj,
       baseCnpj,
-      corporateName,
+      fantasyName,
       cadasterStatus,
       cadasterStatusDate,
       cadasterStatusReason,
@@ -30,27 +30,27 @@ export class UpsertEstablishmentPostgresRepository implements UpsertEstablishmen
         district,
         cep,
         uf,
-        city,
+        cityCode,
       },
     } = data;
 
     await sql`
-      INSERT INTO "cnpjEstablishment" (
-        cnpj, "baseCnpj", "corporateName", "cadasterStatus", "cadasterStatusDate", "cadasterStatusReason",
+      INSERT INTO "establishment" (
+        cnpj, "baseCnpj", "fantasyName", "cadasterStatus", "cadasterStatusDate", "cadasterStatusReason",
         "activityStartAt", "mainCnae", "secondaryCnae", "specialStatus", "specialStatusDate",
         "telephone1", "telephone2", fax, email, "cityAbroad", "countryCode", "streetDescription",
-        "street", "number", "complement", "district", "cep", "uf", "city"
+        "street", "number", "complement", "district", "cep", "uf", "cityCode"
       ) VALUES (
-        ${cnpj}, ${baseCnpj}, ${corporateName}, ${cadasterStatus},
+        ${cnpj}, ${baseCnpj}, ${fantasyName}, ${cadasterStatus},
         ${cadasterStatusDate}, ${cadasterStatusReason},  ${activityStartAt},
         ${mainCnae}, ${secondaryCnae}, ${specialStatus},
         ${specialStatusDate}, ${telephone1}, ${telephone2},
         ${fax}, ${email}, ${cityAbroad},  ${countryCode},
         ${streetDescription}, ${street}, ${number}, ${complement},
-        ${district}, ${cep}, ${uf}, ${city}
+        ${district}, ${cep}, ${uf}, ${cityCode}
       )
       ON CONFLICT ("cnpj") DO
-      UPDATE SET "corporateName" = ${corporateName},
+      UPDATE SET "fantasyName" = ${fantasyName},
       "cadasterStatus" = ${cadasterStatus}, "cadasterStatusDate" = ${cadasterStatusDate},
         "cadasterStatusReason" = ${cadasterStatusReason}, "activityStartAt" = ${activityStartAt},
         "mainCnae" = ${mainCnae}, "secondaryCnae" = ${secondaryCnae},
@@ -59,8 +59,8 @@ export class UpsertEstablishmentPostgresRepository implements UpsertEstablishmen
         fax = ${fax}, email = ${email}, "cityAbroad" = ${cityAbroad},
         "countryCode" = ${countryCode}, "streetDescription" = ${streetDescription},
         "street" = ${street}, "number" = ${number}, "complement" = ${complement},
-        "district" = ${district}, "cep" = ${cep},  "uf" = ${uf}, "city" = ${city}
-      WHERE "cnpjEstablishment".cnpj = ${cnpj};
+        "district" = ${district}, "cep" = ${cep},  "uf" = ${uf}, "cityCode" = ${cityCode}
+      WHERE "establishment".cnpj = ${cnpj};
     `;
   }
 }

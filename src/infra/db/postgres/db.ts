@@ -1,7 +1,8 @@
 import postgres from 'postgres';
 
-const defaultConnection = 'postgresql://postgres:postgres@localhost:5432/pg-query-cnpj';
+const connection =
+  process.env.DB_CNPJ_URL || 'postgresql://postgres:postgres@localhost:5432/query-cnpj';
 
-const sql = postgres(defaultConnection);
+const sql = postgres(connection);
 
 export default sql;

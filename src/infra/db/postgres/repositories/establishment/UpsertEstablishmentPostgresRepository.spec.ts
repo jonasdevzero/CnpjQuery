@@ -6,7 +6,7 @@ const makeFakeEstablishment = (): UpsertEstablishmentModel => {
   const establishmentData = {
     baseCnpj: 'any_base_cnpj',
     cnpj: 'any_cnpj',
-    corporateName: 'any_corporate_name',
+    fantasyName: 'any_corporate_name',
     cadasterStatus: 'any_cadaster_status',
     cadasterStatusDate: 'any_cadaster_status',
     cadasterStatusReason: 'any_cadaster_status_reason',
@@ -29,7 +29,7 @@ const makeFakeEstablishment = (): UpsertEstablishmentModel => {
       district: 'any_district',
       cep: 'any_cep',
       uf: 'any_uf',
-      city: 'any_city',
+      cityCode: 'any_city',
     },
   };
   return establishmentData;
