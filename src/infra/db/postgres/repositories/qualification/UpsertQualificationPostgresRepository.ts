@@ -7,7 +7,7 @@ export class UpsertQualificationPostgresRepository implements UpsertQualificatio
     const { code, description } = data;
 
     await sql`
-      INSERT INTO city (code, description)
+      INSERT INTO qualification (code, description)
       VALUES (${code}, ${description})
       ON CONFLICT (code) DO
       UPDATE SET description = ${description};

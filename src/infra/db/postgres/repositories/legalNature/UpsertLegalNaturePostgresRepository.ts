@@ -7,7 +7,7 @@ export class UpsertLegalNaturePostgresRepository implements UpsertLegalNatureRep
     const { code, description } = data;
 
     await sql`
-      INSERT INTO city (code, description)
+      INSERT INTO "legalNature" (code, description)
       VALUES (${code}, ${description})
       ON CONFLICT (code) DO
       UPDATE SET description = ${description};
