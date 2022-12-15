@@ -1,6 +1,7 @@
-import { DataUrlType } from '../../domain/models/DataUrl';
 import { DbQueryCnpj } from './DbQueryCnpj';
 import {
+  DataUrlType,
+  UpsertPartnerModel,
   ListDataUrlRepository,
   DataUrlModel,
   ZippedCsvReader,
@@ -12,6 +13,17 @@ import {
   UpsertEstablishmentModel,
   UpsertSimplesModel,
   CnpjRawDataParser,
+  UpsertPartnerRepository,
+  UpsertCountryRepository,
+  UpsertCountryModel,
+  UpsertCityRepository,
+  UpsertCityModel,
+  UpsertQualificationRepository,
+  UpsertQualificationModel,
+  UpsertLegalNatureRepository,
+  UpsertLegalNatureModel,
+  UpsertCnaeRepository,
+  UpsertCnaeModel,
 } from './DbQueryCnpj.protocols';
 
 const makeFakeDataUrls = (): DataUrlModel[] => [
@@ -77,6 +89,66 @@ const makeUpsertCompanyRepository = (): UpsertCompanyRepository => {
   return new UpsertCompanyRepositoryStub();
 };
 
+const makeUpsertPartnerRepository = (): UpsertPartnerRepository => {
+  class UpsertPartnerRepositoryStub implements UpsertPartnerRepository {
+    async upsert(data: UpsertPartnerModel) {
+      // ...
+    }
+  }
+
+  return new UpsertPartnerRepositoryStub();
+};
+
+const makeUpsertCountryRepository = (): UpsertCountryRepository => {
+  class UpsertPartnerRepositoryStub implements UpsertCountryRepository {
+    async upsert(data: UpsertCountryModel) {
+      // ...
+    }
+  }
+
+  return new UpsertPartnerRepositoryStub();
+};
+
+const makeUpsertCityRepository = (): UpsertCityRepository => {
+  class UpsertCityRepositoryStub implements UpsertCityRepository {
+    async upsert(data: UpsertCityModel) {
+      // ...
+    }
+  }
+
+  return new UpsertCityRepositoryStub();
+};
+
+const makeUpsertQualificationRepository = (): UpsertQualificationRepository => {
+  class UpsertQualificationRepositoryStub implements UpsertQualificationRepository {
+    async upsert(data: UpsertQualificationModel) {
+      // ...
+    }
+  }
+
+  return new UpsertQualificationRepositoryStub();
+};
+
+const makeUpsertLegalNatureRepository = (): UpsertLegalNatureRepository => {
+  class UpsertLegalNatureRepositoryStub implements UpsertLegalNatureRepository {
+    async upsert(data: UpsertLegalNatureModel) {
+      // ...
+    }
+  }
+
+  return new UpsertLegalNatureRepositoryStub();
+};
+
+const makeUpsertCnaeRepository = (): UpsertCnaeRepository => {
+  class UpsertCnaeRepositoryStub implements UpsertCnaeRepository {
+    async upsert(data: UpsertCnaeModel) {
+      // ...
+    }
+  }
+
+  return new UpsertCnaeRepositoryStub();
+};
+
 const makeZippedCsvReader = (): ZippedCsvReader => {
   class ZippedCsvReaderStub implements ZippedCsvReader {
     async read(url: string): Promise<ZippedCsvReaderEvent> {
@@ -106,6 +178,12 @@ interface SutTypes {
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
   upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
   upsertSimplesRepositoryStub: UpsertSimplesRepository;
+  upsertPartnerRepositoryStub: UpsertPartnerRepository;
+  upsertCountryRepositoryStub: UpsertCountryRepository;
+  upsertCityRepositoryStub: UpsertCityRepository;
+  upsertQualificationRepositoryStub: UpsertQualificationRepository;
+  upsertLegalNatureRepositoryStub: UpsertLegalNatureRepository;
+  upsertCnaeRepositoryStub: UpsertCnaeRepository;
   cnpjRawDataParser: CnpjRawDataParser;
   sut: DbQueryCnpj;
 }
@@ -116,6 +194,12 @@ const makeSut = (): SutTypes => {
   const upsertCompanyRepositoryStub = makeUpsertCompanyRepository();
   const upsertEstablishmentRepositoryStub = makeUpsertEstablishmentRepository();
   const upsertSimplesRepositoryStub = makeUpsertSimplesRepository();
+  const upsertPartnerRepositoryStub = makeUpsertPartnerRepository();
+  const upsertCountryRepositoryStub = makeUpsertCountryRepository();
+  const upsertCityRepositoryStub = makeUpsertCityRepository();
+  const upsertQualificationRepositoryStub = makeUpsertQualificationRepository();
+  const upsertLegalNatureRepositoryStub = makeUpsertLegalNatureRepository();
+  const upsertCnaeRepositoryStub = makeUpsertCnaeRepository();
   const cnpjRawDataParser = makeCnpjRawDataParser();
 
   const sut = new DbQueryCnpj(
@@ -125,6 +209,12 @@ const makeSut = (): SutTypes => {
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
     cnpjRawDataParser,
+    upsertPartnerRepositoryStub,
+    upsertCountryRepositoryStub,
+    upsertCityRepositoryStub,
+    upsertQualificationRepositoryStub,
+    upsertLegalNatureRepositoryStub,
+    upsertCnaeRepositoryStub,
   );
 
   return {
@@ -135,6 +225,12 @@ const makeSut = (): SutTypes => {
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
     cnpjRawDataParser,
+    upsertPartnerRepositoryStub,
+    upsertCountryRepositoryStub,
+    upsertCityRepositoryStub,
+    upsertQualificationRepositoryStub,
+    upsertLegalNatureRepositoryStub,
+    upsertCnaeRepositoryStub,
   };
 };
 

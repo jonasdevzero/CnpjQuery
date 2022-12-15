@@ -8,15 +8,27 @@ import {
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
   CnpjRawDataParser,
+  UpsertPartnerRepository,
+  UpsertCountryRepository,
+  UpsertCityRepository,
+  UpsertQualificationRepository,
+  UpsertLegalNatureRepository,
+  UpsertCnaeRepository,
 } from './DbQueryCnpj.protocols';
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;
   private readonly zippedCsvReader: ZippedCsvReader;
+  private readonly cnpjRawDataParser: CnpjRawDataParser;
   private readonly upsertCompanyRepository: UpsertCompanyRepository;
   private readonly upsertEstablishmentRepository: UpsertEstablishmentRepository;
   private readonly upsertSimplesRepository: UpsertSimplesRepository;
-  private readonly cnpjRawDataParser: CnpjRawDataParser;
+  private readonly upsertPartnerRepository: UpsertPartnerRepository;
+  private readonly upsertCountryRepository: UpsertCountryRepository;
+  private readonly upsertCityRepository: UpsertCityRepository;
+  private readonly upsertQualificationRepository: UpsertQualificationRepository;
+  private readonly upsertLegalNatureRepository: UpsertLegalNatureRepository;
+  private readonly upsertCnaeRepository: UpsertCnaeRepository;
 
   constructor(
     listDataUrlRepository: ListDataUrlRepository,
@@ -25,6 +37,12 @@ export class DbQueryCnpj implements QueryCnpj {
     upsertEstablishmentRepository: UpsertEstablishmentRepository,
     upsertSimplesRepositoryStub: UpsertSimplesRepository,
     cnpjRawDataParser: CnpjRawDataParser,
+    upsertPartnerRepository: UpsertPartnerRepository,
+    upsertCountryRepository: UpsertCountryRepository,
+    upsertCityRepository: UpsertCityRepository,
+    upsertQualificationRepository: UpsertQualificationRepository,
+    upsertLegalNatureRepository: UpsertLegalNatureRepository,
+    upsertCnaeRepository: UpsertCnaeRepository,
   ) {
     this.listDataUrlRepository = listDataUrlRepository;
     this.zippedCsvReader = zipLoader;
@@ -32,6 +50,12 @@ export class DbQueryCnpj implements QueryCnpj {
     this.upsertEstablishmentRepository = upsertEstablishmentRepository;
     this.upsertSimplesRepository = upsertSimplesRepositoryStub;
     this.cnpjRawDataParser = cnpjRawDataParser;
+    this.upsertPartnerRepository = upsertPartnerRepository;
+    this.upsertCountryRepository = upsertCountryRepository;
+    this.upsertCityRepository = upsertCityRepository;
+    this.upsertQualificationRepository = upsertQualificationRepository;
+    this.upsertLegalNatureRepository = upsertLegalNatureRepository;
+    this.upsertCnaeRepository = upsertCnaeRepository;
   }
 
   async query(): Promise<void> {
@@ -73,6 +97,12 @@ export class DbQueryCnpj implements QueryCnpj {
       COMPANY: this.upsertCompanyRepository.upsert,
       ESTABLISHMENT: this.upsertEstablishmentRepository.upsert,
       SIMPLES: this.upsertSimplesRepository.upsert,
+      PARTNER: this.upsertPartnerRepository.upsert,
+      COUNTRIES: this.upsertCountryRepository.upsert,
+      CITIES: this.upsertCityRepository.upsert,
+      QUALIFICATIONS: this.upsertQualificationRepository.upsert,
+      NATURES: this.upsertLegalNatureRepository.upsert,
+      CNAE: this.upsertCnaeRepository.upsert,
     } as { [key in DataUrlType]: (data: Object) => Promise<void> };
 
     return upsert[dataType];
