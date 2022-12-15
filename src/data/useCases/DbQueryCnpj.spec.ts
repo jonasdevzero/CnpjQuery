@@ -24,6 +24,8 @@ import {
   UpsertLegalNatureModel,
   UpsertCnaeRepository,
   UpsertCnaeModel,
+  UpsertReasonRepository,
+  UpsertReasonModel,
 } from './DbQueryCnpj.protocols';
 
 const makeFakeDataUrls = (): DataUrlModel[] => [
@@ -149,6 +151,16 @@ const makeUpsertCnaeRepository = (): UpsertCnaeRepository => {
   return new UpsertCnaeRepositoryStub();
 };
 
+const makeUpsertReasonRepository = (): UpsertReasonRepository => {
+  class UpsertReasonRepositoryStub implements UpsertReasonRepository {
+    async upsert(data: UpsertReasonModel) {
+      // ...
+    }
+  }
+
+  return new UpsertReasonRepositoryStub();
+};
+
 const makeZippedCsvReader = (): ZippedCsvReader => {
   class ZippedCsvReaderStub implements ZippedCsvReader {
     async read(url: string): Promise<ZippedCsvReaderEvent> {
@@ -184,6 +196,7 @@ interface SutTypes {
   upsertQualificationRepositoryStub: UpsertQualificationRepository;
   upsertLegalNatureRepositoryStub: UpsertLegalNatureRepository;
   upsertCnaeRepositoryStub: UpsertCnaeRepository;
+  upsertReasonRepositoryStub: UpsertReasonRepository;
   cnpjRawDataParser: CnpjRawDataParser;
   sut: DbQueryCnpj;
 }
@@ -200,6 +213,7 @@ const makeSut = (): SutTypes => {
   const upsertQualificationRepositoryStub = makeUpsertQualificationRepository();
   const upsertLegalNatureRepositoryStub = makeUpsertLegalNatureRepository();
   const upsertCnaeRepositoryStub = makeUpsertCnaeRepository();
+  const upsertReasonRepositoryStub = makeUpsertReasonRepository();
   const cnpjRawDataParser = makeCnpjRawDataParser();
 
   const sut = new DbQueryCnpj(
@@ -215,6 +229,7 @@ const makeSut = (): SutTypes => {
     upsertQualificationRepositoryStub,
     upsertLegalNatureRepositoryStub,
     upsertCnaeRepositoryStub,
+    upsertReasonRepositoryStub,
   );
 
   return {
@@ -231,6 +246,7 @@ const makeSut = (): SutTypes => {
     upsertQualificationRepositoryStub,
     upsertLegalNatureRepositoryStub,
     upsertCnaeRepositoryStub,
+    upsertReasonRepositoryStub,
   };
 };
 

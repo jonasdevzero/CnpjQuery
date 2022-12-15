@@ -14,6 +14,7 @@ import {
   UpsertQualificationRepository,
   UpsertLegalNatureRepository,
   UpsertCnaeRepository,
+  UpsertReasonRepository,
 } from './DbQueryCnpj.protocols';
 
 export class DbQueryCnpj implements QueryCnpj {
@@ -29,6 +30,7 @@ export class DbQueryCnpj implements QueryCnpj {
   private readonly upsertQualificationRepository: UpsertQualificationRepository;
   private readonly upsertLegalNatureRepository: UpsertLegalNatureRepository;
   private readonly upsertCnaeRepository: UpsertCnaeRepository;
+  private readonly upsertReasonRepository: UpsertReasonRepository;
 
   constructor(
     listDataUrlRepository: ListDataUrlRepository,
@@ -43,6 +45,7 @@ export class DbQueryCnpj implements QueryCnpj {
     upsertQualificationRepository: UpsertQualificationRepository,
     upsertLegalNatureRepository: UpsertLegalNatureRepository,
     upsertCnaeRepository: UpsertCnaeRepository,
+    upsertReasonRepository: UpsertReasonRepository,
   ) {
     this.listDataUrlRepository = listDataUrlRepository;
     this.zippedCsvReader = zipLoader;
@@ -56,6 +59,7 @@ export class DbQueryCnpj implements QueryCnpj {
     this.upsertQualificationRepository = upsertQualificationRepository;
     this.upsertLegalNatureRepository = upsertLegalNatureRepository;
     this.upsertCnaeRepository = upsertCnaeRepository;
+    this.upsertReasonRepository = upsertReasonRepository;
   }
 
   async query(): Promise<void> {
@@ -103,6 +107,7 @@ export class DbQueryCnpj implements QueryCnpj {
       QUALIFICATIONS: this.upsertQualificationRepository.upsert,
       NATURES: this.upsertLegalNatureRepository.upsert,
       CNAE: this.upsertCnaeRepository.upsert,
+      REASONS: this.upsertReasonRepository.upsert,
     } as { [key in DataUrlType]: (data: Object) => Promise<void> };
 
     return upsert[dataType];

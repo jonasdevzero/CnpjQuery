@@ -9,6 +9,7 @@ export * from '../protocols/UpsertCityRepository';
 export * from '../protocols/UpsertQualificationRepository';
 export * from '../protocols/UpsertLegalNatureRepository';
 export * from '../protocols/UpsertCnaeRepository';
+export * from '../protocols/UpsertReasonRepository';
 
 export * from '../../domain/useCases/QueryCnpj';
 
@@ -22,6 +23,7 @@ export * from '../../domain/models/City';
 export * from '../../domain/models/Qualification';
 export * from '../../domain/models/LegalNature';
 export * from '../../domain/models/Cnae';
+export * from '../../domain/models/Reason';
 export * from '../../domain/models/DataUrl';
 
 export * from '../../domain/utils';

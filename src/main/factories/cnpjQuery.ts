@@ -13,6 +13,7 @@ import { UpsertCityPostgresRepository } from '../../infra/db/postgres/repositori
 import { UpsertQualificationPostgresRepository } from '../../infra/db/postgres/repositories/qualification/UpsertQualificationPostgresRepository';
 import { UpsertLegalNaturePostgresRepository } from '../../infra/db/postgres/repositories/legalNature/UpsertLegalNaturePostgresRepository';
 import { UpsertCnaePostgresRepository } from '../../infra/db/postgres/repositories/cnae/UpsertCnaePostgresRepository';
+import { UpsertReasonPostgresRepository } from '../../infra/db/postgres/repositories/reason/UpsertReasonPostgresRepository';
 
 export const makeCnpjQueryController = (): Controller => {
   const listDataUrlRepository = new ListDataUrlPostgresRepository();
@@ -27,6 +28,7 @@ export const makeCnpjQueryController = (): Controller => {
   const upsertQualificationRepository = new UpsertQualificationPostgresRepository();
   const upsertLegalNatureRepository = new UpsertLegalNaturePostgresRepository();
   const upsertCnaeRepository = new UpsertCnaePostgresRepository();
+  const upsertReasonRepository = new UpsertReasonPostgresRepository();
 
   const queryCnpj = new DbQueryCnpj(
     listDataUrlRepository,
@@ -41,6 +43,7 @@ export const makeCnpjQueryController = (): Controller => {
     upsertQualificationRepository,
     upsertLegalNatureRepository,
     upsertCnaeRepository,
+    upsertReasonRepository,
   );
 
   const signUpController = new QueryCnpjController(queryCnpj);
