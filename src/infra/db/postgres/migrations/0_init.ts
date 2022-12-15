@@ -49,6 +49,14 @@ export default class InitMigration implements Migration {
       `;
 
       await transactionSql`
+        CREATE TABLE IF NOT EXISTS reason (
+          code TEXT NOT NULL,
+          description TEXT NOT NULL,
+          PRIMARY KEY (code)
+        );
+      `;
+
+      await transactionSql`
         CREATE TABLE IF NOT EXISTS "legalNature" (
           code TEXT NOT NULL,
           description TEXT NOT NULL,
@@ -109,6 +117,7 @@ export default class InitMigration implements Migration {
           FOREIGN KEY ("baseCnpj") REFERENCES "company"("baseCnpj"),
           FOREIGN KEY ("countryCode") REFERENCES "country"("code"),
           FOREIGN KEY ("cityCode") REFERENCES "city"("code"),
+          FOREIGN KEY ("cadasterStatusReason") REFERENCES "reason"("code"),
           FOREIGN KEY ("mainCnae") REFERENCES "cnae"("code")
         );
       `;
@@ -151,6 +160,7 @@ export default class InitMigration implements Migration {
       await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "country_code_key" ON "country"("code");`;
       await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "city_code_key" ON "city"("code");`;
       await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "qualification_code_key" ON "qualification"("code");`;
+      await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "reason_code_key" ON "reason"("code");`;
       await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "legalNature_code_key" ON "legalNature"("code");`;
       await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnae_code_key" ON "cnae"("code");`;
       await transactionSql`CREATE UNIQUE INDEX IF NOT EXISTS "cnpjCompany_baseCnpj_key" ON "company"("baseCnpj");`;
@@ -180,11 +190,11 @@ export default class InitMigration implements Migration {
     await sql`DROP TABLE IF EXISTS "establishment";`;
     await sql`DROP TABLE IF EXISTS "company";`;
 
-    await sql`DROP TABLE IF EXISTS "cnae;"`;
-    await sql`DROP TABLE IF EXISTS "legalNature;"`;
+    await sql`DROP TABLE IF EXISTS "cnae";`;
+    await sql`DROP TABLE IF EXISTS "legalNature";`;
     await sql`DROP TABLE IF EXISTS "qualification";`;
-    await sql`DROP TABLE IF EXISTS "city;"`;
-    await sql`DROP TABLE IF EXISTS "country;"`;
+    await sql`DROP TABLE IF EXISTS "city";`;
+    await sql`DROP TABLE IF EXISTS "country";`;
 
     await sql`DROP TYPE IF EXISTS "DataUrlType";`;
     await sql`DROP EXTENSION IF EXISTS "uuid-ossp";`;
