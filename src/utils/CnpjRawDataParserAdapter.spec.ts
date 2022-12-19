@@ -28,7 +28,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
     const sut = makeSut();
 
     const establishmentData =
-      '00000000<->0001<->00<->cnpj_identifier<->any_corporate_name<->any_cadaster_status<->any_cadaster_status_date<->00<->20170919<->4729699<->AVENIDA<->LEONARDO ANTONIO SCHIAVINATTO<->35<->JARDIM PARAISO I (NOVA VENEZA)<->13179335<->SP<->7149<->19<->89501000<->19<->89501001<->19<->89501002<->any_mail@mail.com<->';
+      '00000000<->0001<->00<->cnpj_identifier<->any_corporate_name<->any_cadaster_status<->any_cadaster_status_date<->00<-><-><->20170919<->4729699<-><->AVENIDA<->LEONARDO ANTONIO SCHIAVINATTO<->35<-><->JARDIM PARAISO I (NOVA VENEZA)<->13179335<->SP<->7149<->19<->89501000<->19<->89501001<->19<->89501002<->any_mail@mail.com<-><->';
 
     const result = sut.parse(establishmentData, 'ESTABLISHMENT');
 
@@ -43,10 +43,10 @@ describe('CnpjRawDataParserAdapter Util', () => {
       activityStartAt: '20170919',
 
       mainCnae: '4729699',
-      secondaryCnae: '',
+      secondaryCnae: null,
 
-      specialStatus: '',
-      specialStatusDate: '',
+      specialStatus: null,
+      specialStatusDate: null,
 
       telephone1: '1989501000',
       telephone2: '1989501001',
@@ -54,12 +54,12 @@ describe('CnpjRawDataParserAdapter Util', () => {
       email: 'any_mail@mail.com',
 
       address: {
-        cityAbroad: '',
-        countryCode: '',
+        cityAbroad: null,
+        countryCode: null,
         streetDescription: 'AVENIDA',
         street: 'LEONARDO ANTONIO SCHIAVINATTO',
         number: '35',
-        complement: '',
+        complement: null,
         district: 'JARDIM PARAISO I (NOVA VENEZA)',
         cep: '13179335',
         uf: 'SP',
