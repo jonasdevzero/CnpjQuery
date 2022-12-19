@@ -5,7 +5,7 @@ import { FindCnpjRepository } from '../../protocols/FindCnpjRepository';
 const makeFakeFindCnpjRepository = (): FindCnpjRepository => {
   class FindCnpjRepositoryStub implements FindCnpjRepository {
     async find(cnpj: string): Promise<CnpjModel | null> {
-      throw new Error();
+      return {} as CnpjModel;
     }
   }
 
@@ -26,8 +26,20 @@ const makeSut = (): SutTypes => {
 
 describe('DbFindCnpj', () => {
   test('Should throw if FindCnpjRepository throws', async () => {
-    const { sut } = makeSut();
+    const { sut, findCnpjRepositoryStub } = makeSut();
+
+    jest.spyOn(findCnpjRepositoryStub, 'find').mockImplementationOnce(() => {
+      throw new Error();
+    });
 
     await expect(sut.find('any_cnpj')).rejects.toThrow();
+  });
+
+  test('Should return correct value if success', async () => {
+    const { sut } = makeSut();
+
+    const result = await sut.find('any_cnpj');
+
+    expect(result).toEqual({});
   });
 });
