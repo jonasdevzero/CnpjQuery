@@ -72,6 +72,16 @@ describe('FindCnpj Controller', () => {
     expect(httpResponse).toEqual(badRequest(new InvalidParamError('cnpj')));
   });
 
+  test('Should call CnpjValidator with correct param', async () => {
+    const { sut, cnpjValidator } = makeSut();
+
+    const cnpjValidatorSpy = jest.spyOn(cnpjValidator, 'isValid');
+
+    await sut.handle({ params: { cnpj: 'any_cnpj' } });
+
+    expect(cnpjValidatorSpy).toHaveBeenCalledWith('any_cnpj');
+  });
+
   test('Should return 500 if FindCnpj throws', async () => {
     const { sut } = makeSut();
 
