@@ -26,7 +26,8 @@
     "no-unused-expressions": "off",
     "no-restricted-syntax": "off",
     "no-await-in-loop": "off",
-    "no-async-promise-executor": "off"
+    "no-async-promise-executor": "off",
+    "no-control-regex": "off"
   },
   "settings": {
     "import/resolver": {

@@ -6,7 +6,6 @@ import { UpsertSimplesPostgresRepository } from '../../infra/db/postgres/reposit
 import { QueryCnpjController } from '../../presentation/controllers/QueryCnpj';
 import { Controller } from '../../presentation/protocols';
 import { CnpjRawDataParserAdapter } from '../../utils/CnpjRawDataParserAdapter';
-import { ZippedCsvReaderAdapter } from '../../utils/ZippedCsvReaderAdapter';
 import { UpsertPartnerPostgresRepository } from '../../infra/db/postgres/repositories/partner/UpsertPartnerPostgresRepository';
 import { UpsertCountryPostgresRepository } from '../../infra/db/postgres/repositories/country/UpsertCountryPostgresRepository';
 import { UpsertCityPostgresRepository } from '../../infra/db/postgres/repositories/city/UpsertCityPostgresRepository';
@@ -14,10 +13,11 @@ import { UpsertQualificationPostgresRepository } from '../../infra/db/postgres/r
 import { UpsertLegalNaturePostgresRepository } from '../../infra/db/postgres/repositories/legalNature/UpsertLegalNaturePostgresRepository';
 import { UpsertCnaePostgresRepository } from '../../infra/db/postgres/repositories/cnae/UpsertCnaePostgresRepository';
 import { UpsertReasonPostgresRepository } from '../../infra/db/postgres/repositories/reason/UpsertReasonPostgresRepository';
+import { CnpjDataReaderAdapter } from '../../utils/CnpjDataReaderAdapter';
 
 export const makeCnpjQueryController = (): Controller => {
   const listDataUrlRepository = new ListDataUrlPostgresRepository();
-  const zipLoaderAdapter = new ZippedCsvReaderAdapter();
+  const cnpjDataReaderAdapter = new CnpjDataReaderAdapter();
   const upsertCompanyRepository = new UpsertCompanyPostgresRepository();
   const upsertEstablishmentRepository = new UpsertEstablishmentPostgresRepository();
   const upsertSimplesRepository = new UpsertSimplesPostgresRepository();
@@ -32,7 +32,7 @@ export const makeCnpjQueryController = (): Controller => {
 
   const queryCnpj = new DbQueryCnpj(
     listDataUrlRepository,
-    zipLoaderAdapter,
+    cnpjDataReaderAdapter,
     upsertCompanyRepository,
     upsertEstablishmentRepository,
     upsertSimplesRepository,
