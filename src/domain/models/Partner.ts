@@ -5,7 +5,7 @@ export interface UpsertPartnerModel {
   cpf: string;
   qualificationCode: string;
   entryDate: string;
-  countryCode: string;
+  countryCode: string | null;
   legalRepresentativeCpf: string;
   legalRepresentativeName: string;
   legalRepresentativeQualification: string;
