@@ -4,8 +4,8 @@ import {
   UpsertPartnerModel,
   ListDataUrlRepository,
   DataUrlModel,
-  ZippedCsvReader,
-  ZippedCsvReaderEvent,
+  CnpjDataReader,
+  CnpjDataReaderEvent,
   UpsertCompanyRepository,
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
@@ -161,9 +161,9 @@ const makeUpsertReasonRepository = (): UpsertReasonRepository => {
   return new UpsertReasonRepositoryStub();
 };
 
-const makeZippedCsvReader = (): ZippedCsvReader => {
-  class ZippedCsvReaderStub implements ZippedCsvReader {
-    async read(url: string): Promise<ZippedCsvReaderEvent> {
+const makeZippedCsvReader = (): CnpjDataReader => {
+  class CnpjDataReaderStub implements CnpjDataReader {
+    async read(url: string): Promise<CnpjDataReaderEvent> {
       return {
         on: jest.fn(),
         emit: jest.fn(),
@@ -171,7 +171,7 @@ const makeZippedCsvReader = (): ZippedCsvReader => {
     }
   }
 
-  return new ZippedCsvReaderStub();
+  return new CnpjDataReaderStub();
 };
 
 const makeListDataUrlRepository = (): ListDataUrlRepository => {
@@ -186,7 +186,7 @@ const makeListDataUrlRepository = (): ListDataUrlRepository => {
 
 interface SutTypes {
   listDataUrlRepositoryStub: ListDataUrlRepository;
-  zippedCsvReaderStub: ZippedCsvReader;
+  cnpjDataReader: CnpjDataReader;
   upsertCompanyRepositoryStub: UpsertCompanyRepository;
   upsertEstablishmentRepositoryStub: UpsertEstablishmentRepository;
   upsertSimplesRepositoryStub: UpsertSimplesRepository;
@@ -203,7 +203,7 @@ interface SutTypes {
 
 const makeSut = (): SutTypes => {
   const listDataUrlRepositoryStub = makeListDataUrlRepository();
-  const zippedCsvReaderStub = makeZippedCsvReader();
+  const cnpjDataReader = makeZippedCsvReader();
   const upsertCompanyRepositoryStub = makeUpsertCompanyRepository();
   const upsertEstablishmentRepositoryStub = makeUpsertEstablishmentRepository();
   const upsertSimplesRepositoryStub = makeUpsertSimplesRepository();
@@ -218,7 +218,7 @@ const makeSut = (): SutTypes => {
 
   const sut = new DbQueryCnpj(
     listDataUrlRepositoryStub,
-    zippedCsvReaderStub,
+    cnpjDataReader,
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
@@ -235,7 +235,7 @@ const makeSut = (): SutTypes => {
   return {
     sut,
     listDataUrlRepositoryStub,
-    zippedCsvReaderStub,
+    cnpjDataReader,
     upsertCompanyRepositoryStub,
     upsertEstablishmentRepositoryStub,
     upsertSimplesRepositoryStub,
