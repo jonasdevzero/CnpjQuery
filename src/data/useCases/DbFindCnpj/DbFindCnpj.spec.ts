@@ -35,6 +35,16 @@ describe('DbFindCnpj', () => {
     await expect(sut.find('any_cnpj')).rejects.toThrow();
   });
 
+  test('Should call FindCnpjRepository with correct value', async () => {
+    const { sut, findCnpjRepositoryStub } = makeSut();
+
+    const findCnpjRepositorySpy = jest.spyOn(findCnpjRepositoryStub, 'find');
+
+    await sut.find('any_cnpj');
+
+    expect(findCnpjRepositorySpy).toHaveBeenCalledWith('any_cnpj');
+  });
+
   test('Should return correct value if success', async () => {
     const { sut } = makeSut();
 
