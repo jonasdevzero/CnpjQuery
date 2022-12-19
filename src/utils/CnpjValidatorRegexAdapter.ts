@@ -1,0 +1,42 @@
+import { CnpjValidator } from '../domain/utils/CnpjValidator';
+
+export class CnpjValidatorRegexAdapter implements CnpjValidator {
+  private readonly regexp = /^[0-9]{14}|[0-9]{2}.[0-9]{3}.[0-9]{3}\/[0-9]{4}-[0-9]{2}$/g;
+
+  isValid(cnpj: string): boolean {
+    const isValid = this.regexp.test(cnpj);
+    const isValidVerifyNumber = this.isValidVerifyDigit(this.trimCnpj(cnpj));
+
+    return isValid && isValidVerifyNumber;
+  }
+
+  private isValidVerifyDigit(cnpj: string): boolean {
+    const digitLength = 2;
+    const multiplicationLimit = 9;
+    let cnpjToCompare = cnpj.slice(0, 12);
+
+    let multiplication: number;
+    let sum: number;
+    let digit: number;
+
+    for (let index = 0; index < digitLength; index++) {
+      sum = 0;
+      multiplication = 2;
+
+      for (let currentIndex = cnpjToCompare.length - 1; currentIndex >= 0; currentIndex--) {
+        sum += multiplication * Number(cnpjToCompare.charAt(currentIndex));
+        if (++multiplication > multiplicationLimit) multiplication = 2;
+      }
+
+      digit = ((sum * 10) % 11) % 10;
+
+      cnpjToCompare += digit;
+    }
+
+    return cnpj === cnpjToCompare;
+  }
+
+  private trimCnpj(cnpj: string): string {
+    return cnpj.replace(/\.|\/|-/g, '');
+  }
+}
