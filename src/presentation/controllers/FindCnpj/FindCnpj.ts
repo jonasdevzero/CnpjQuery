@@ -1,5 +1,6 @@
 import { FindCnpj } from '../../../domain/useCases/FindCnpj';
-import { ok, serverError } from '../../helpers/httpHelper';
+import { MissingParamError } from '../../errors/MissingParamError';
+import { badRequest, ok, serverError } from '../../helpers/httpHelper';
 import { Controller, HttpRequest, HttpResponse } from '../../protocols';
 
 export class FindCnpjController implements Controller {
@@ -12,6 +13,10 @@ export class FindCnpjController implements Controller {
   async handle(request: HttpRequest): Promise<HttpResponse> {
     try {
       const { cnpj } = request.params;
+
+      if (!cnpj) {
+        return badRequest(new MissingParamError('cnpj'));
+      }
 
       await this.findOneCnpj.find(cnpj);
 
