@@ -77,8 +77,6 @@ export class UpsertEstablishmentPostgresRepository implements UpsertEstablishmen
         return;
       }
 
-      console.log('data', data);
-
       throw error;
     }
   }

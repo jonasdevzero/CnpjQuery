@@ -1,4 +1,4 @@
-import { QueryCnpj } from './QueryCnpj.protocols';
+import { HttpRequest, QueryCnpj } from './QueryCnpj.protocols';
 import { serverError } from '../../helpers/httpHelper';
 import { QueryCnpjController } from './QueryCnpj';
 
@@ -10,6 +10,10 @@ const makeFakeQueryCnpj = (): QueryCnpj => {
   }
 
   return new QueryCnpjStub();
+};
+
+const makeFakeRequest = (): HttpRequest => {
+  return { params: {} };
 };
 
 interface SutTypes {
@@ -31,7 +35,7 @@ describe('QueryCnpj Controller', () => {
   test('Should return 200 if success', async () => {
     const { sut } = makeSut();
 
-    const httpResponse = await sut.handle({});
+    const httpResponse = await sut.handle(makeFakeRequest());
 
     expect(httpResponse.statusCode).toBe(200);
   });
@@ -43,7 +47,7 @@ describe('QueryCnpj Controller', () => {
       throw new Error();
     });
 
-    const httpResponse = await sut.handle({});
+    const httpResponse = await sut.handle(makeFakeRequest());
 
     expect(httpResponse).toEqual(serverError(new Error()));
   });
