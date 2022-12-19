@@ -22,7 +22,7 @@ export interface UpsertEstablishmentModel {
 
   address: {
     cityAbroad: string;
-    countryCode: string;
+    countryCode: string | null;
     streetDescription: string;
     street: string;
     number: string;
