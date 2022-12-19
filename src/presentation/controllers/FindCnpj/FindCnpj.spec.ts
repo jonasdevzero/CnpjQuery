@@ -89,4 +89,14 @@ describe('FindCnpj Controller', () => {
 
     expect(httpResponse).toEqual(serverError(new Error()));
   });
+
+  test('Should call FindCnpj with correct param', async () => {
+    const { sut, findCnpjStub } = makeSut();
+
+    const findCnpjSpy = jest.spyOn(findCnpjStub, 'find');
+
+    await sut.handle({ params: { cnpj: 'any_cnpj' } });
+
+    expect(findCnpjSpy).toHaveBeenCalledWith('any_cnpj');
+  });
 });
