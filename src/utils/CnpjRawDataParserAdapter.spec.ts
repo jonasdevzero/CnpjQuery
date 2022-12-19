@@ -9,7 +9,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
     const sut = makeSut();
 
     const companyRawData =
-      '"any_base_cnpj";"any_corporate_name";"any_legal_nature";"any_qualification";"any_capital";"any_size";"any_federative_entity"';
+      'any_base_cnpj<->any_corporate_name<->any_legal_nature<->any_qualification<->any_capital<->any_size<->any_federative_entity';
 
     const result = sut.parse(companyRawData, 'COMPANY');
 
@@ -28,7 +28,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
     const sut = makeSut();
 
     const establishmentData =
-      '"00000000";"0001";"00";"cnpj_identifier";"any_corporate_name";"any_cadaster_status";"any_cadaster_status_date";"00";"";"";"20170919";"4729699";"";"AVENIDA";"LEONARDO ANTONIO SCHIAVINATTO";"35";"";"JARDIM PARAISO I (NOVA VENEZA)";"13179335";"SP";"7149";"19";"89501000";"19";"89501001";"19";"89501002";"any_mail@mail.com";"";""';
+      '00000000<->0001<->00<->cnpj_identifier<->any_corporate_name<->any_cadaster_status<->any_cadaster_status_date<->00<->20170919<->4729699<->AVENIDA<->LEONARDO ANTONIO SCHIAVINATTO<->35<->JARDIM PARAISO I (NOVA VENEZA)<->13179335<->SP<->7149<->19<->89501000<->19<->89501001<->19<->89501002<->any_mail@mail.com<->';
 
     const result = sut.parse(establishmentData, 'ESTABLISHMENT');
 
@@ -71,7 +71,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
   test('Should parse cnpj simples data correctly', () => {
     const sut = makeSut();
 
-    const simplesData = '"00000000";"N";"20070701";"20070701";"N";"20090701";"20090701"';
+    const simplesData = '00000000<->N<->20070701<->20070701<->N<->20090701<->20090701';
 
     const result = sut.parse(simplesData, 'SIMPLES');
 
@@ -92,7 +92,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
     const sut = makeSut();
 
     const partnerData =
-      '"any_base_cnpj";"any_identifier";"any_partner_name";"any_registration";"any_qualification";"start_at";"any_country";"legal_representative_cpf";"legal_representative_name";"legal_representative_qualification";"any_age_group"';
+      'any_base_cnpj<->any_identifier<->any_partner_name<->any_registration<->any_qualification<->start_at<->any_country<->legal_representative_cpf<->legal_representative_name<->legal_representative_qualification<->any_age_group';
 
     const result = sut.parse(partnerData, 'PARTNER');
 
@@ -114,7 +114,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
   test('Should parse countries data correctly', () => {
     const sut = makeSut();
 
-    const countriesData = '"any_code";"any_name"';
+    const countriesData = 'any_code<->any_name';
 
     const result = sut.parse(countriesData, 'COUNTRIES');
 
@@ -124,7 +124,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
   test('Should parse city data correctly', () => {
     const sut = makeSut();
 
-    const citiesData = '"any_code";"any_name"';
+    const citiesData = 'any_code<->any_name';
 
     const result = sut.parse(citiesData, 'CITIES');
 
@@ -134,7 +134,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
   test('Should parse cnae data correctly', () => {
     const sut = makeSut();
 
-    const cnaeData = '"any_code";"any_description"';
+    const cnaeData = 'any_code<->any_description';
 
     const result = sut.parse(cnaeData, 'CNAE');
 
@@ -144,7 +144,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
   test('Should parse reason data correctly', () => {
     const sut = makeSut();
 
-    const reasonData = '"any_code";"any_description"';
+    const reasonData = 'any_code<->any_description';
 
     const result = sut.parse(reasonData, 'REASONS');
 
@@ -154,7 +154,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
   test('Should parse nature data correctly', () => {
     const sut = makeSut();
 
-    const natureData = '"any_code";"any_description"';
+    const natureData = 'any_code<->any_description';
 
     const result = sut.parse(natureData, 'NATURES');
 
@@ -164,7 +164,7 @@ describe('CnpjRawDataParserAdapter Util', () => {
   test('Should parse qualification data correctly', () => {
     const sut = makeSut();
 
-    const qualificationData = '"any_code";"any_description"';
+    const qualificationData = 'any_code<->any_description';
 
     const result = sut.parse(qualificationData, 'QUALIFICATIONS');
 

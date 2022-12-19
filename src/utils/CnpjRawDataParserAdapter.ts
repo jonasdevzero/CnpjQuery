@@ -1,30 +1,27 @@
+/* eslint-disable no-control-regex */
 import { DataUrlType } from '../domain/models/DataUrl';
 import { CnpjRawDataParser } from '../domain/utils';
 
 export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   private readonly parsers = {
-    COMPANY: this.parseCompanyData,
-    ESTABLISHMENT: this.parseEstablishmentData,
+    COMPANY: this.parseCompanyData.bind(this),
+    ESTABLISHMENT: this.parseEstablishmentData.bind(this),
     SIMPLES: this.parseSimplesData.bind(this),
-    PARTNER: this.parsePartnerData,
-    COUNTRIES: this.parseCountryData,
-    CITIES: this.parseCityData,
-    CNAE: this.parseGeneralData,
-    REASONS: this.parseGeneralData,
-    NATURES: this.parseGeneralData,
-    QUALIFICATIONS: this.parseGeneralData,
-  } as { [key in DataUrlType]: (data: string[]) => Object };
+    PARTNER: this.parsePartnerData.bind(this),
+    COUNTRIES: this.parseCountryData.bind(this),
+    CITIES: this.parseCityData.bind(this),
+    CNAE: this.parseGeneralData.bind(this),
+    REASONS: this.parseGeneralData.bind(this),
+    NATURES: this.parseGeneralData.bind(this),
+    QUALIFICATIONS: this.parseGeneralData.bind(this),
+  } as { [key in DataUrlType]: (data: Array<string | null>) => Object };
 
   parse(data: string, dataType: DataUrlType): Object {
-    const dataToParse = this.removeNonASCII(data).replace(/"/g, '').split(';');
+    const dataToParse = data.split('<->').map((d) => (!d ? null : d));
     const parser = this.parsers[dataType];
     const parsedData = parser(dataToParse);
 
     return parsedData;
-  }
-
-  private removeNonASCII(input: string): string {
-    return input.replace(/[^\x20-\x7E]/g, '');
   }
 
   private parseCompanyData(data: string[]): Object {
@@ -84,9 +81,9 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     ] = data;
 
     const cnpj = `${baseCnpj}${orderCnpj}${dvCnpj}`;
-    const fullTelephone1 = `${ddd1}${telephone1}`;
-    const fullTelephone2 = `${ddd2}${telephone2}`;
-    const fullFax = `${faxDdd}${fax}`;
+    const fullTelephone1 = ddd1 && telephone1 ? `${ddd1}${telephone1}` : null;
+    const fullTelephone2 = ddd2 && telephone2 ? `${ddd2}${telephone2}` : null;
+    const fullFax = faxDdd && fax ? `${faxDdd}${fax}` : null;
 
     return {
       baseCnpj,
@@ -107,7 +104,7 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
 
       address: {
         cityAbroad,
-        countryCode,
+        countryCode: this.parseCountryCode(countryCode),
         streetDescription,
         street,
         number,
@@ -118,6 +115,11 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
         cityCode,
       },
     };
+  }
+
+  private parseCountryCode(countryCode: string): string | null {
+    if (!countryCode) return null;
+    return countryCode.length < 3 ? `0${countryCode}` : countryCode;
   }
 
   private parseSimplesData(data: string[]): Object {
@@ -142,7 +144,8 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
     };
   }
 
-  private parseDataToBoolean(data: string): boolean {
+  private parseDataToBoolean(data: string | null): boolean | null {
+    if (!data) return null;
     return data === 'S';
   }
 
@@ -165,10 +168,10 @@ export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
       baseCnpj,
       identifier,
       name,
-      cpf,
+      cpf: cpf || '',
       qualificationCode,
       entryDate,
-      countryCode,
+      countryCode: this.parseCountryCode(countryCode),
       legalRepresentativeCpf,
       legalRepresentativeName,
       legalRepresentativeQualification,
