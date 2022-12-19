@@ -75,11 +75,11 @@ export default class InitMigration implements Migration {
       await transactionSql`
         CREATE TABLE IF NOT EXISTS "company" (
           "baseCnpj" TEXT NOT NULL,
-          "corporateName" TEXT NOT NULL,
-          "legalNatureCode" TEXT NOT NULL,
-          "qualification" TEXT NOT NULL,
-          "capital" TEXT NOT NULL,
-          "size" TEXT NOT NULL,
+          "corporateName" TEXT,
+          "legalNatureCode" TEXT,
+          "qualification" TEXT,
+          "capital" TEXT,
+          "size" TEXT,
           "federativeEntity" TEXT,
           PRIMARY KEY ("baseCnpj"),
           FOREIGN KEY ("legalNatureCode") REFERENCES "legalNature"("code")
@@ -91,8 +91,8 @@ export default class InitMigration implements Migration {
           "cnpj" TEXT NOT NULL,
           "baseCnpj" TEXT NOT NULL,
           "fantasyName" TEXT,
-          "cadasterStatus" TEXT NOT NULL,
-          "cadasterStatusDate" TEXT NOT NULL,
+          "cadasterStatus" TEXT,
+          "cadasterStatusDate" TEXT,
           "cadasterStatusReason" TEXT,
           "activityStartAt" TEXT,
           "mainCnae" TEXT,
@@ -149,7 +149,7 @@ export default class InitMigration implements Migration {
             "legalRepresentativeQualification" TEXT,
             "ageGroup" TEXT,
             "entryDate" TEXT,
-            PRIMARY KEY ("baseCnpj", "cpf"),
+            PRIMARY KEY ("baseCnpj", "name", "cpf"),
             FOREIGN KEY ("baseCnpj") REFERENCES "company"("baseCnpj"),
             FOREIGN KEY ("countryCode") REFERENCES "country"("code"),
             FOREIGN KEY ("qualificationCode") REFERENCES "qualification"("code")

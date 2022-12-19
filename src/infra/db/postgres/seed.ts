@@ -44,7 +44,9 @@ export async function seed() {
         ('http://200.152.38.155/CNPJ/Socios6.zip', 'PARTNER'),
         ('http://200.152.38.155/CNPJ/Socios7.zip', 'PARTNER'),
         ('http://200.152.38.155/CNPJ/Socios8.zip', 'PARTNER'),
-        ('http://200.152.38.155/CNPJ/Socios9.zip', 'PARTNER');
+        ('http://200.152.38.155/CNPJ/Socios9.zip', 'PARTNER'),
+
+        ('http://200.152.38.155/CNPJ/Simples.zip', 'SIMPLES');
     
   `;
 }
