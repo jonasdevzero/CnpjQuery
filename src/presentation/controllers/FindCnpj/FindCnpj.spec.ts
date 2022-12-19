@@ -3,6 +3,7 @@ import { FindCnpj } from '../../../domain/useCases/FindCnpj';
 import { badRequest, serverError } from '../../helpers/httpHelper';
 import { FindCnpjController } from './FindCnpj';
 import { MissingParamError } from '../../errors/MissingParamError';
+import { InvalidParamError } from '../../errors/InvalidParamError';
 import { CnpjValidator } from '../../../domain/utils/CnpjValidator';
 
 const makeFakeFindCnpj = (): FindCnpj => {
@@ -18,7 +19,7 @@ const makeFakeFindCnpj = (): FindCnpj => {
 const makeFakeCnpjValidator = (): CnpjValidator => {
   class CnpjValidatorStub implements CnpjValidator {
     isValid(cnpj: string): boolean {
-      throw new Error();
+      return true;
     }
   }
 
@@ -50,11 +51,25 @@ describe('FindCnpj Controller', () => {
   });
 
   test('Should return 500 if CnpjValidator throws', async () => {
-    const { sut } = makeSut();
+    const { sut, cnpjValidator } = makeSut();
+
+    jest.spyOn(cnpjValidator, 'isValid').mockImplementationOnce(() => {
+      throw new Error();
+    });
 
     const httpResponse = await sut.handle({ params: { cnpj: 'any_cnpj' } });
 
     expect(httpResponse).toEqual(serverError(new Error()));
+  });
+
+  test('Should return 400 if an invalid cnpj was provided', async () => {
+    const { sut, cnpjValidator } = makeSut();
+
+    jest.spyOn(cnpjValidator, 'isValid').mockImplementationOnce(() => false);
+
+    const httpResponse = await sut.handle({ params: { cnpj: 'invalid_cnpj' } });
+
+    expect(httpResponse).toEqual(badRequest(new InvalidParamError('cnpj')));
   });
 
   test('Should return 500 if FindCnpj throws', async () => {
