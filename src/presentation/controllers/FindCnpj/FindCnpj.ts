@@ -1,5 +1,6 @@
 import { FindCnpj } from '../../../domain/useCases/FindCnpj';
 import { CnpjValidator } from '../../../domain/utils/CnpjValidator';
+import { InvalidParamError } from '../../errors/InvalidParamError';
 import { MissingParamError } from '../../errors/MissingParamError';
 import { badRequest, ok, serverError } from '../../helpers/httpHelper';
 import { Controller, HttpRequest, HttpResponse } from '../../protocols';
@@ -21,7 +22,11 @@ export class FindCnpjController implements Controller {
         return badRequest(new MissingParamError('cnpj'));
       }
 
-      this.cnpjValidator.isValid(cnpj);
+      const isCnpjValid = this.cnpjValidator.isValid(cnpj);
+
+      if (!isCnpjValid) {
+        return badRequest(new InvalidParamError('cnpj'));
+      }
 
       await this.findOneCnpj.find(cnpj);
 
