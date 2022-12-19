@@ -3,7 +3,7 @@ import { ListDataUrlPostgresRepository } from '../../infra/db/postgres/repositor
 import { UpsertCompanyPostgresRepository } from '../../infra/db/postgres/repositories/company/UpsertCompanyPostgresRepository';
 import { UpsertEstablishmentPostgresRepository } from '../../infra/db/postgres/repositories/establishment/UpsertEstablishmentPostgresRepository';
 import { UpsertSimplesPostgresRepository } from '../../infra/db/postgres/repositories/simples/UpsertSimplesPostgresRepository';
-import { QueryCnpjController } from '../../presentation/controllers/QueryCnpj';
+import { QueryCnpjController } from '../../presentation/controllers/QueryCnpj/QueryCnpj';
 import { Controller } from '../../presentation/protocols';
 import { CnpjRawDataParserAdapter } from '../../utils/CnpjRawDataParserAdapter';
 import { UpsertPartnerPostgresRepository } from '../../infra/db/postgres/repositories/partner/UpsertPartnerPostgresRepository';

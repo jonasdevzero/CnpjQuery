@@ -1,4 +1,4 @@
-import { ok, serverError } from '../helpers/httpHelper';
+import { ok, serverError } from '../../helpers/httpHelper';
 import { Controller, HttpRequest, HttpResponse, QueryCnpj } from './QueryCnpj.protocols';
 
 export class QueryCnpjController implements Controller {
