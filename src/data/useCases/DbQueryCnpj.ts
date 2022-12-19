@@ -3,7 +3,6 @@ import {
   ListDataUrlRepository,
   DataUrlModel,
   DataUrlType,
-  ZippedCsvReader,
   UpsertCompanyRepository,
   UpsertEstablishmentRepository,
   UpsertSimplesRepository,
@@ -15,11 +14,12 @@ import {
   UpsertLegalNatureRepository,
   UpsertCnaeRepository,
   UpsertReasonRepository,
+  CnpjDataReader,
 } from './DbQueryCnpj.protocols';
 
 export class DbQueryCnpj implements QueryCnpj {
   private readonly listDataUrlRepository: ListDataUrlRepository;
-  private readonly zippedCsvReader: ZippedCsvReader;
+  private readonly cnpjDataReader: CnpjDataReader;
   private readonly cnpjRawDataParser: CnpjRawDataParser;
   private readonly upsertCompanyRepository: UpsertCompanyRepository;
   private readonly upsertEstablishmentRepository: UpsertEstablishmentRepository;
@@ -34,7 +34,7 @@ export class DbQueryCnpj implements QueryCnpj {
 
   constructor(
     listDataUrlRepository: ListDataUrlRepository,
-    zipLoader: ZippedCsvReader,
+    cnpjDataReader: CnpjDataReader,
     upsertCompanyRepository: UpsertCompanyRepository,
     upsertEstablishmentRepository: UpsertEstablishmentRepository,
     upsertSimplesRepositoryStub: UpsertSimplesRepository,
@@ -48,7 +48,7 @@ export class DbQueryCnpj implements QueryCnpj {
     upsertReasonRepository: UpsertReasonRepository,
   ) {
     this.listDataUrlRepository = listDataUrlRepository;
-    this.zippedCsvReader = zipLoader;
+    this.cnpjDataReader = cnpjDataReader;
     this.upsertCompanyRepository = upsertCompanyRepository;
     this.upsertEstablishmentRepository = upsertEstablishmentRepository;
     this.upsertSimplesRepository = upsertSimplesRepositoryStub;
@@ -64,7 +64,7 @@ export class DbQueryCnpj implements QueryCnpj {
 
   async query(): Promise<void> {
     const dataUrls = await this.listDataUrlRepository.list();
-    await this.execute(dataUrls);
+    this.execute(dataUrls);
   }
 
   private async execute(dataUrls: DataUrlModel[]) {
@@ -80,12 +80,12 @@ export class DbQueryCnpj implements QueryCnpj {
   private async queryDataUrl(dataUrl: DataUrlModel) {
     const { url, type } = dataUrl;
 
-    const event = await this.zippedCsvReader.read(url);
+    const event = await this.cnpjDataReader.read(url);
     const upsert = this.getUpsert(type);
 
     return new Promise<void>(async (resolve, reject) => {
       event.on('rows', async (data) => {
-        const parsedData = data.map((d) => this.cnpjRawDataParser.parse(d, type));
+        const parsedData = data.map((row) => this.cnpjRawDataParser.parse(row, type));
         await Promise.all(parsedData.map(upsert));
 
         event.emit('rows:next');
@@ -99,9 +99,11 @@ export class DbQueryCnpj implements QueryCnpj {
   private getUpsert(dataType: DataUrlType) {
     const upsert = {
       COMPANY: this.upsertCompanyRepository.upsert,
-      ESTABLISHMENT: this.upsertEstablishmentRepository.upsert,
+      ESTABLISHMENT: this.upsertEstablishmentRepository.upsert.bind(
+        this.upsertEstablishmentRepository,
+      ),
       SIMPLES: this.upsertSimplesRepository.upsert,
-      PARTNER: this.upsertPartnerRepository.upsert,
+      PARTNER: this.upsertPartnerRepository.upsert.bind(this.upsertPartnerRepository),
       COUNTRIES: this.upsertCountryRepository.upsert,
       CITIES: this.upsertCityRepository.upsert,
       QUALIFICATIONS: this.upsertQualificationRepository.upsert,
