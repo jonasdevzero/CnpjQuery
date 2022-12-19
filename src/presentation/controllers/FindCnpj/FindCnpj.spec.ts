@@ -1,6 +1,6 @@
 import { CnpjModel } from '../../../domain/models/Cnpj';
 import { FindCnpj } from '../../../domain/useCases/FindCnpj';
-import { badRequest, serverError } from '../../helpers/httpHelper';
+import { badRequest, notFound, serverError } from '../../helpers/httpHelper';
 import { FindCnpjController } from './FindCnpj';
 import { MissingParamError } from '../../errors/MissingParamError';
 import { InvalidParamError } from '../../errors/InvalidParamError';
@@ -9,7 +9,7 @@ import { CnpjValidator } from '../../../domain/utils/CnpjValidator';
 const makeFakeFindCnpj = (): FindCnpj => {
   class FindCnpjStub implements FindCnpj {
     async find(cnpj: string): Promise<CnpjModel | null> {
-      throw new Error();
+      return {};
     }
   }
 
@@ -83,7 +83,11 @@ describe('FindCnpj Controller', () => {
   });
 
   test('Should return 500 if FindCnpj throws', async () => {
-    const { sut } = makeSut();
+    const { sut, findCnpjStub } = makeSut();
+
+    jest.spyOn(findCnpjStub, 'find').mockImplementationOnce(() => {
+      throw new Error();
+    });
 
     const httpResponse = await sut.handle({ params: { cnpj: 'any_cnpj' } });
 
@@ -98,5 +102,15 @@ describe('FindCnpj Controller', () => {
     await sut.handle({ params: { cnpj: 'any_cnpj' } });
 
     expect(findCnpjSpy).toHaveBeenCalledWith('any_cnpj');
+  });
+
+  test('Should return 404 if cnpj was not found', async () => {
+    const { sut, findCnpjStub } = makeSut();
+
+    jest.spyOn(findCnpjStub, 'find').mockImplementationOnce(async () => null);
+
+    const httpResponse = await sut.handle({ params: { cnpj: 'any_cnpj' } });
+
+    expect(httpResponse).toEqual(notFound());
   });
 });
