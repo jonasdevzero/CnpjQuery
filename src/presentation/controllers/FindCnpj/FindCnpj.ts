@@ -34,7 +34,7 @@ export class FindCnpjController implements Controller {
         return notFound();
       }
 
-      return ok();
+      return ok(cnpjModel);
     } catch (error) {
       return serverError(error);
     }
