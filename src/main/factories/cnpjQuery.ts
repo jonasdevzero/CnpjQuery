@@ -1,4 +1,4 @@
-import { DbQueryCnpj } from '../../data/useCases/DbQueryCnpj';
+import { DbQueryCnpj } from '../../data/useCases/DbQueryCnpj/DbQueryCnpj';
 import { ListDataUrlPostgresRepository } from '../../infra/db/postgres/repositories/dataUrl/ListDataUrlPostgresRepository';
 import { UpsertCompanyPostgresRepository } from '../../infra/db/postgres/repositories/company/UpsertCompanyPostgresRepository';
 import { UpsertEstablishmentPostgresRepository } from '../../infra/db/postgres/repositories/establishment/UpsertEstablishmentPostgresRepository';
