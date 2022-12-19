@@ -10,7 +10,7 @@ export class DbFindCnpj implements FindCnpj {
   }
 
   async find(cnpj: string): Promise<CnpjModel | null> {
-    await this.findCnpjRepository.find(cnpj);
-    return null;
+    const result = await this.findCnpjRepository.find(cnpj);
+    return result;
   }
 }
