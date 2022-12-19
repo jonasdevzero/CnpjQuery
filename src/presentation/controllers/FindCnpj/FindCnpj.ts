@@ -1,9 +1,13 @@
-import { FindCnpj } from '../../../domain/useCases/FindCnpj';
-import { CnpjValidator } from '../../../domain/utils/CnpjValidator';
+import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
 import { InvalidParamError } from '../../errors/InvalidParamError';
 import { MissingParamError } from '../../errors/MissingParamError';
-import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
-import { Controller, HttpRequest, HttpResponse } from '../../protocols';
+import {
+  CnpjValidator,
+  Controller,
+  FindCnpj,
+  HttpRequest,
+  HttpResponse,
+} from './FindCnpj.protocols';
 
 export class FindCnpjController implements Controller {
   private readonly findOneCnpj: FindCnpj;

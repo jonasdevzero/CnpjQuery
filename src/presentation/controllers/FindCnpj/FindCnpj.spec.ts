@@ -1,10 +1,9 @@
-import { CnpjModel } from '../../../domain/models/Cnpj';
-import { FindCnpj } from '../../../domain/useCases/FindCnpj';
-import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
 import { FindCnpjController } from './FindCnpj';
-import { MissingParamError } from '../../errors/MissingParamError';
+import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
 import { InvalidParamError } from '../../errors/InvalidParamError';
-import { CnpjValidator } from '../../../domain/utils/CnpjValidator';
+import { MissingParamError } from '../../errors/MissingParamError';
+import { CnpjValidator, FindCnpj } from './FindCnpj.protocols';
+import { CnpjModel } from '../../../domain/models/Cnpj';
 
 const makeFakeFindCnpj = (): FindCnpj => {
   class FindCnpjStub implements FindCnpj {
