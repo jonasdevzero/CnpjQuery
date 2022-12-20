@@ -252,9 +252,7 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
         partner[partnerKey] = value;
       });
 
-      if (Object.keys(partner).length) {
-        partners.push(partner);
-      }
+      partner.entryDate ? partners.push(partner) : null;
     });
 
     return partners;
