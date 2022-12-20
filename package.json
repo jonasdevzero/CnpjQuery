@@ -17,6 +17,9 @@
     "dev:migrations:down": "tsnd src/infra/db/postgres/migrations/migrations.ts --down",
     "seed": "tsnd src/infra/db/postgres/seed.ts"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
