@@ -1,10 +1,8 @@
 import { CnpjValidator } from '../domain/utils/CnpjValidator';
 
 export class CnpjValidatorRegexAdapter implements CnpjValidator {
-  private readonly regexp = /^[0-9]{14}|[0-9]{2}.[0-9]{3}.[0-9]{3}\/[0-9]{4}-[0-9]{2}$/g;
-
   isValid(cnpj: string): boolean {
-    const isValid = this.regexp.test(cnpj);
+    const isValid = /^[0-9]{14}|[0-9]{2}.[0-9]{3}.[0-9]{3}\/[0-9]{4}-[0-9]{2}$/g.test(cnpj);
     const isValidVerifyNumber = this.isValidVerifyDigit(this.trimCnpj(cnpj));
 
     return isValid && isValidVerifyNumber;

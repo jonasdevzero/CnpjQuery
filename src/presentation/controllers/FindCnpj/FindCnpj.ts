@@ -10,11 +10,11 @@ import {
 } from './FindCnpj.protocols';
 
 export class FindCnpjController implements Controller {
-  private readonly findOneCnpj: FindCnpj;
+  private readonly findCnpj: FindCnpj;
   private readonly cnpjValidator: CnpjValidator;
 
-  constructor(findOneCnpj: FindCnpj, cnpjValidator: CnpjValidator) {
-    this.findOneCnpj = findOneCnpj;
+  constructor(findCnpj: FindCnpj, cnpjValidator: CnpjValidator) {
+    this.findCnpj = findCnpj;
     this.cnpjValidator = cnpjValidator;
   }
 
@@ -32,7 +32,7 @@ export class FindCnpjController implements Controller {
         return badRequest(new InvalidParamError('cnpj'));
       }
 
-      const cnpjModel = await this.findOneCnpj.find(cnpj);
+      const cnpjModel = await this.findCnpj.find(cnpj);
 
       if (!cnpjModel) {
         return notFound();
