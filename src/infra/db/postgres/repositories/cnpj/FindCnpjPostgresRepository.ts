@@ -54,6 +54,27 @@ interface RawCnpj {
 type Partner = CnpjModel['company']['partners'][number];
 
 export class FindCnpjPostgresRepository implements FindCnpjRepository {
+  private readonly cadasterStatusTypes = {
+    '01': 'NULA',
+    '02': 'ATIVA',
+    '03': 'SUSPENSA',
+    '04': 'INAPTA',
+    '08': 'BAIXADA',
+  };
+
+  private readonly partnerIdentifier = {
+    1: 'PESSOA JURÍDICA',
+    2: 'PESSOA FÍSICA',
+    3: 'ESTRANGEIRO',
+  };
+
+  private readonly companySizes = {
+    '00': 'NÃO INFORMADO',
+    '01': 'MICRO EMPRESA',
+    '03': 'EMPRESA DE PEQUENO PORTE',
+    '05': 'DEMAIS',
+  };
+
   async find(cnpj: string): Promise<CnpjModel | null> {
     const result = await sql<RawCnpj[]>`
       SELECT
@@ -160,7 +181,7 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
     return {
       cnpj,
       fantasyName,
-      cadasterStatus,
+      cadasterStatus: this.cadasterStatusTypes[cadasterStatus],
       cadasterStatusDate: this.parseRawDate(cadasterStatusDate),
       cadasterStatusReason,
       activityStartAt,
@@ -200,7 +221,7 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
         legalNature,
         qualification,
         capital,
-        size,
+        size: this.companySizes[size],
         federativeEntity,
 
         partners: this.getPartners(result),
@@ -219,7 +240,10 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
     rawData.forEach((data) => {
       const partner = {} as Partner;
 
+      const identifier = Number(data.p_identifier);
+
       data.p_entryDate = this.parseRawDate(data.p_entryDate);
+      data.p_identifier = this.partnerIdentifier[identifier] || null;
 
       Object.entries(data).forEach(([key, value]) => {
         if (!key.startsWith('p_')) return;

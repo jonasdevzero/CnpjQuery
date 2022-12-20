@@ -36,10 +36,10 @@ describe('FindCnpjPostgresRepository', () => {
         legalNature: 'any_legal_nature',
         qualification: 'any_qualification',
         capital: 'any_capital',
-        size: 'any_size',
+        size: '00',
         federativeEntity: 'any_federative_entity',
         fantasyName: 'any_fantasy_name',
-        cadasterStatus: 'any_cadaster_status',
+        cadasterStatus: '02',
         cadasterStatusDate: '20000515',
         cadasterStatusReason: 'any_cadaster_status_reason',
         activityStartAt: 'any_activity_start_at',
@@ -68,7 +68,7 @@ describe('FindCnpjPostgresRepository', () => {
         meiSince: '20000515',
         meiExclusionDate: '20000515',
         p_name: 'any_partner_name',
-        p_identifier: 'any_identifier',
+        p_identifier: '2',
         p_cpf: 'any_cpf',
         p_qualification: 'any_partner_qualification',
         p_country: 'any_partner_country',
@@ -78,7 +78,7 @@ describe('FindCnpjPostgresRepository', () => {
         p_ageGroup: 'any_age_group',
         p_entryDate: '20000515',
       };
-      return [cnpj, cnpj];
+      return [cnpj, { ...cnpj }];
     });
 
     const cnpj = await sut.find('any_cnpj');
@@ -86,7 +86,7 @@ describe('FindCnpjPostgresRepository', () => {
     expect(cnpj).toEqual({
       cnpj: 'any_cnpj',
       fantasyName: 'any_fantasy_name',
-      cadasterStatus: 'any_cadaster_status',
+      cadasterStatus: 'ATIVA',
       cadasterStatusDate: '2000-05-15',
       cadasterStatusReason: 'any_cadaster_status_reason',
       activityStartAt: 'any_activity_start_at',
@@ -126,13 +126,13 @@ describe('FindCnpjPostgresRepository', () => {
         legalNature: 'any_legal_nature',
         qualification: 'any_qualification',
         capital: 'any_capital',
-        size: 'any_size',
+        size: 'NÃO INFORMADO',
         federativeEntity: 'any_federative_entity',
 
         partners: [
           {
             name: 'any_partner_name',
-            identifier: 'any_identifier',
+            identifier: 'PESSOA FÍSICA',
             cpf: 'any_cpf',
             qualification: 'any_partner_qualification',
             country: 'any_partner_country',
@@ -144,7 +144,7 @@ describe('FindCnpjPostgresRepository', () => {
           },
           {
             name: 'any_partner_name',
-            identifier: 'any_identifier',
+            identifier: 'PESSOA FÍSICA',
             cpf: 'any_cpf',
             qualification: 'any_partner_qualification',
             country: 'any_partner_country',
