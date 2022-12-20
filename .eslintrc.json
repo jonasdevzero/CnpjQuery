@@ -28,7 +28,8 @@
     "no-await-in-loop": "off",
     "no-async-promise-executor": "off",
     "no-control-regex": "off",
-    "no-plusplus": "off"
+    "no-plusplus": "off",
+    "no-param-reassign": "off"
   },
   "settings": {
     "import/resolver": {

@@ -2,12 +2,12 @@ export interface CnpjModel {
   cnpj: string;
   fantasyName: string;
   cadasterStatus: string;
-  cadasterStatusDate: string;
+  cadasterStatusDate: string | null;
   cadasterStatusReason: string;
   activityStartAt: string;
 
   mainCnae: string | null;
-  secondaryCnae: string[] | null;
+  secondaryCnae: string[];
 
   specialStatus: string | null;
   specialStatusDate: string | null;
@@ -19,10 +19,10 @@ export interface CnpjModel {
 
   isSimples: boolean | null;
   simplesSince: string | null;
-  simplesExclusionsDate: string | null;
-  isSMei: boolean | null;
-  sMeiSince: string | null;
-  sMeiExclusionsDate: string | null;
+  simplesExclusionDate: string | null;
+  isMei: boolean | null;
+  meiSince: string | null;
+  meiExclusionDate: string | null;
 
   address: {
     cityAbroad: string | null;
