@@ -1,4 +1,5 @@
 import { FindCnpjRepository } from '../../../../../data/protocols/FindCnpjRepository';
+import { CnaeModel } from '../../../../../domain/models/Cnae';
 import { CnpjModel } from '../../../../../domain/models/Cnpj';
 import sql from '../../db';
 
@@ -15,7 +16,8 @@ interface RawCnpj {
   cadasterStatusDate: string;
   cadasterStatusReason: string;
   activityStartAt: string;
-  mainCnae: string;
+  mainCnaeCode: string;
+  mainCnaeDescription: string;
   secondaryCnae: string;
   specialStatus: string;
   specialStatusDate: string;
@@ -89,7 +91,8 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
         "cadasterStatusDate",
         R."description" AS "cadasterStatusReason",
         "activityStartAt",
-        CN."description" AS "mainCnae",
+        E."mainCnae" AS "mainCnaeCode",
+        CN."description" AS "mainCnaeDescription",
         "secondaryCnae",
         "specialStatus",
         "specialStatusDate",
@@ -152,7 +155,8 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
       cadasterStatusDate,
       cadasterStatusReason,
       activityStartAt,
-      mainCnae,
+      mainCnaeCode,
+      mainCnaeDescription,
       secondaryCnae,
       specialStatus,
       specialStatusDate,
@@ -178,6 +182,8 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
       meiExclusionDate,
     } = result[0];
 
+    const parsedSecondaryCnae = await this.parseSecondaryCnae(secondaryCnae);
+
     return {
       cnpj,
       fantasyName,
@@ -185,24 +191,23 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
       cadasterStatusDate: this.parseRawDate(cadasterStatusDate),
       cadasterStatusReason,
       activityStartAt,
-
-      mainCnae,
-      secondaryCnae: secondaryCnae ? secondaryCnae.split(',') : [],
+      mainCnae: {
+        code: mainCnaeCode,
+        description: mainCnaeDescription,
+      },
+      secondaryCnae: parsedSecondaryCnae,
       specialStatus,
       specialStatusDate: this.parseRawDate(specialStatusDate),
-
       telephone1,
       telephone2,
       fax,
       email,
-
       isSimples,
       simplesSince: this.parseRawDate(simplesSince),
       simplesExclusionDate: this.parseRawDate(simplesExclusionDate),
       isMei,
       meiSince: this.parseRawDate(meiSince),
       meiExclusionDate: this.parseRawDate(meiExclusionDate),
-
       address: {
         cityAbroad,
         country,
@@ -215,7 +220,6 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
         uf,
         city,
       },
-
       company: {
         corporateName,
         legalNature,
@@ -223,7 +227,6 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
         capital,
         size: this.companySizes[size],
         federativeEntity,
-
         partners: this.getPartners(result),
       },
     };
@@ -256,5 +259,15 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
     });
 
     return partners;
+  }
+
+  private async parseSecondaryCnae(cnae: string) {
+    const cnaes = cnae ? cnae.split(',') : [];
+
+    if (!cnaes.length) return [];
+
+    const result = await sql<CnaeModel[]>`SELECT * FROM cnae WHERE code IN ${sql(cnaes)}`;
+
+    return result;
   }
 }

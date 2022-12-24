@@ -1,3 +1,5 @@
+import { CnaeModel } from './Cnae';
+
 export interface CnpjModel {
   cnpj: string;
   fantasyName: string;
@@ -6,8 +8,8 @@ export interface CnpjModel {
   cadasterStatusReason: string;
   activityStartAt: string;
 
-  mainCnae: string | null;
-  secondaryCnae: string[];
+  mainCnae: CnaeModel;
+  secondaryCnae: CnaeModel[];
 
   specialStatus: string | null;
   specialStatusDate: string | null;

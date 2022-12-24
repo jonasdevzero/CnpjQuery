@@ -43,8 +43,9 @@ describe('FindCnpjPostgresRepository', () => {
         cadasterStatusDate: '20000515',
         cadasterStatusReason: 'any_cadaster_status_reason',
         activityStartAt: 'any_activity_start_at',
-        mainCnae: 'any_cnae',
-        secondaryCnae: 'any_cnae,any_cnae,any_cnae',
+        mainCnaeDescription: 'any_cnae',
+        mainCnaeCode: 'any_code',
+        secondaryCnae: '',
         specialStatus: 'any_special_status',
         specialStatusDate: null,
         telephone1: 'any_telephone',
@@ -91,8 +92,8 @@ describe('FindCnpjPostgresRepository', () => {
       cadasterStatusReason: 'any_cadaster_status_reason',
       activityStartAt: 'any_activity_start_at',
 
-      mainCnae: 'any_cnae',
-      secondaryCnae: ['any_cnae', 'any_cnae', 'any_cnae'],
+      mainCnae: { code: 'any_code', description: 'any_cnae' },
+      secondaryCnae: [],
       specialStatus: 'any_special_status',
       specialStatusDate: null,
 
