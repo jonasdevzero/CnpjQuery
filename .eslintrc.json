@@ -29,7 +29,8 @@
     "no-async-promise-executor": "off",
     "no-control-regex": "off",
     "no-plusplus": "off",
-    "no-param-reassign": "off"
+    "no-param-reassign": "off",
+    "no-use-before-define": "off"
   },
   "settings": {
     "import/resolver": {

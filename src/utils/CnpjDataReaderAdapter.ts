@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import unzipper from 'unzipper';
 import stream from 'node:stream';
+import util from 'node:util';
 import { InvalidParamError } from '../presentation/errors/InvalidParamError';
 import { CnpjDataReader, CnpjDataReaderEvent } from '../domain/utils/CnpjDataReader';
 
@@ -71,6 +72,11 @@ export class CnpjDataReaderAdapter implements CnpjDataReader {
     const errorHandler = this.makeErrorHandler(event);
 
     return (response: Http.IncomingMessage) => {
+      const totalLength = Number(response.headers['content-length']);
+
+      event.emit('download:start', totalLength);
+      response.on('data', (chunk) => event.emit('download:chunk', chunk.length));
+
       response.on('error', errorHandler);
       response
         .pipe(fs.createWriteStream(zippedFilePath))
@@ -89,12 +95,17 @@ export class CnpjDataReaderAdapter implements CnpjDataReader {
       fs.createReadStream(zippedFilePath)
         .pipe(unzipper.Parse())
         .on('entry', (entry: unzipper.Entry) => {
+          const size = entry.vars as unknown as { uncompressedSize: number };
+          event.emit('unzip:start', size.uncompressedSize);
+
+          entry.on('data', (chunk) => event.emit('unzip:chunk', chunk.length));
           entry
             .pipe(this.makeCleanDataStream())
             .pipe(fs.createWriteStream(filePath))
             .on('error', this.makeErrorHandler(event))
             .on('finish', async () => {
               await this.deleteFile(zippedFilePath);
+
               resolve(filePath);
             });
         })
@@ -137,9 +148,11 @@ export class CnpjDataReaderAdapter implements CnpjDataReader {
     });
   }
 
-  private readFileAndDelete(event: Event, filePath: string) {
+  private async readFileAndDelete(event: Event, filePath: string) {
+    const stat = await util.promisify(fs.stat)(filePath);
     const readStream = fs.createReadStream(filePath, { encoding: this.FILE_ENCODING });
 
+    event.emit('read:start', stat.size);
     event.on('rows:next', () => readStream.resume());
 
     readStream.on('data', this.makeDataHandler(event, readStream));
@@ -163,6 +176,8 @@ export class CnpjDataReaderAdapter implements CnpjDataReader {
     });
 
     return (chunk: string) => {
+      event.emit('read:chunk', chunk.length);
+
       pendingData += chunk;
       rowEndIndex = pendingData.indexOf(this.EOL);
 
