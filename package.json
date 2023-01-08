@@ -16,7 +16,7 @@
     "dev:migrations:up": "tsnd src/infra/db/postgres/migrations/migrations.ts --up",
     "dev:migrations:down": "tsnd src/infra/db/postgres/migrations/migrations.ts --down",
     "seed": "tsnd src/infra/db/postgres/seed.ts",
-    "query": "tsnd src/cli/query.ts"
+    "query": "tsnd src/main/query.ts"
   },
   "engines": {
     "node": ">=18.0.0"
