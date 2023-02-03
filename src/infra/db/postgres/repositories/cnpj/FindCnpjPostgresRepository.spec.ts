@@ -1,8 +1,11 @@
 import { dbMock } from '../../dbMock';
+import { CacheMock } from '../../../../cache/mock/client';
 import { FindCnpjPostgresRepository } from './FindCnpjPostgresRepository';
 
 const makeSut = () => {
-  return new FindCnpjPostgresRepository();
+  const cache = new CacheMock();
+
+  return new FindCnpjPostgresRepository(cache);
 };
 
 describe('FindCnpjPostgresRepository', () => {
@@ -30,7 +33,7 @@ describe('FindCnpjPostgresRepository', () => {
     const sut = makeSut();
 
     dbMock.mockImplementationOnce(() => {
-      const cnpj = {
+      const cnpj = JSON.stringify({
         cnpj: 'any_cnpj',
         corporateName: 'any_corporate_name',
         legalNature: 'any_legal_nature',
@@ -78,13 +81,13 @@ describe('FindCnpjPostgresRepository', () => {
         p_legalRepresentativeQualification: 'any_legal_representative_qualification',
         p_ageGroup: 'any_age_group',
         p_entryDate: '20000515',
-      };
-      return [cnpj, { ...cnpj }];
+      });
+      return [cnpj, cnpj];
     });
 
     const cnpj = await sut.find('any_cnpj');
 
-    expect(cnpj).toEqual({
+    expect(JSON.parse(cnpj || '')).toEqual({
       cnpj: 'any_cnpj',
       fantasyName: 'any_fantasy_name',
       cadasterStatus: 'ATIVA',

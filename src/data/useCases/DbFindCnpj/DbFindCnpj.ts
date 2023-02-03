@@ -1,4 +1,3 @@
-import { CnpjModel } from '../../../domain/models/Cnpj';
 import { FindCnpj } from '../../../domain/useCases/FindCnpj';
 import { FindCnpjRepository } from '../../protocols/FindCnpjRepository';
 
@@ -9,7 +8,7 @@ export class DbFindCnpj implements FindCnpj {
     this.findCnpjRepository = findCnpjRepository;
   }
 
-  async find(cnpj: string): Promise<CnpjModel | null> {
+  async find(cnpj: string): Promise<string | null> {
     const result = await this.findCnpjRepository.find(cnpj);
     return result;
   }

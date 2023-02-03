@@ -1,4 +1,4 @@
-import { PgSql } from '.';
+import { PgSql } from './PgSql';
 
 export interface Migration {
   up(sql: PgSql): Promise<void>;

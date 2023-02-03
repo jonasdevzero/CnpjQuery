@@ -1,6 +1,5 @@
-import { FindCnpjRepository } from '../../../../../data/protocols/FindCnpjRepository';
-import { CnaeModel } from '../../../../../domain/models/Cnae';
-import { CnpjModel } from '../../../../../domain/models/Cnpj';
+import { Cache, FindCnpjRepository } from '@data/protocols';
+import { CnaeModel, CnpjModel } from '@domain/models';
 import sql from '../../db';
 
 interface RawCnpj {
@@ -56,6 +55,8 @@ interface RawCnpj {
 type Partner = CnpjModel['company']['partners'][number];
 
 export class FindCnpjPostgresRepository implements FindCnpjRepository {
+  private readonly cache: Cache;
+
   private readonly cadasterStatusTypes = {
     '01': 'NULA',
     '02': 'ATIVA',
@@ -77,7 +78,15 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
     '05': 'DEMAIS',
   };
 
-  async find(cnpj: string): Promise<CnpjModel | null> {
+  constructor(cache: Cache) {
+    this.cache = cache;
+  }
+
+  async find(cnpj: string): Promise<string | null> {
+    const cachedCnpj = await this.cache.get(cnpj);
+
+    if (cachedCnpj !== null) return cachedCnpj;
+
     const result = await sql<RawCnpj[]>`
       SELECT
         "corporateName",
@@ -184,7 +193,7 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
 
     const parsedSecondaryCnae = await this.parseSecondaryCnae(secondaryCnae);
 
-    return {
+    const cnpjData = JSON.stringify({
       cnpj,
       fantasyName,
       cadasterStatus: this.cadasterStatusTypes[cadasterStatus],
@@ -229,7 +238,11 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
         federativeEntity,
         partners: this.getPartners(result),
       },
-    };
+    } as CnpjModel);
+
+    this.cache.set(cnpj, cnpjData);
+
+    return cnpjData;
   }
 
   private parseRawDate(date: string | null) {

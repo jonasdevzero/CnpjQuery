@@ -1,11 +1,10 @@
 import { DbFindCnpj } from './DbFindCnpj';
-import { CnpjModel } from '../../../domain/models/Cnpj';
 import { FindCnpjRepository } from '../../protocols/FindCnpjRepository';
 
 const makeFakeFindCnpjRepository = (): FindCnpjRepository => {
   class FindCnpjRepositoryStub implements FindCnpjRepository {
-    async find(cnpj: string): Promise<CnpjModel | null> {
-      return {} as CnpjModel;
+    async find(cnpj: string): Promise<string | null> {
+      return ' ';
     }
   }
 
