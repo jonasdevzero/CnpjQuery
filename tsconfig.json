@@ -1,11 +1,21 @@
 {
   "compilerOptions": {
     "outDir": "./dist",
+    "baseUrl": "./src",
+    "rootDir": "./src",
     "module": "commonjs",
     "target": "es2019",
     "esModuleInterop": true,
     "allowJs": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "paths": {
+      "@data/*": ["data/*"],
+      "@domain/*": ["domain/*"],
+      "@infra/*": ["infra/*"],
+      "@main/*": ["main/*"],
+      "@presentation/*": ["presentation/*"],
+      "@utils/*": ["utils/*"]
+    }
   },
   "exclude": ["temp", "coverage", "dist", "./*.js", "**/*.spec.ts", "**/*.test.ts"]
 }
