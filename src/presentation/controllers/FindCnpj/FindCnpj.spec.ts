@@ -1,11 +1,11 @@
-import { InvalidParamError, MissingParamError } from '@presentation/errors';
+import { InvalidParamError, NotFoundError } from '@presentation/errors';
+import { ok, serverError } from '../../helpers/httpHelper';
 import { FindCnpjController } from './FindCnpj';
-import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
 import { CnpjValidator, FindCnpj } from './FindCnpj.protocols';
 
 const makeFakeFindCnpj = (): FindCnpj => {
   class FindCnpjStub implements FindCnpj {
-    async find(cnpj: string): Promise<string | null> {
+    async find(cnpj: string): Promise<string> {
       return 'any_cnpj_json';
     }
   }
@@ -39,14 +39,6 @@ const makeSut = (): SutTypes => {
 };
 
 describe('FindCnpj Controller', () => {
-  test('Should return 400 if cnpj was not provided', async () => {
-    const { sut } = makeSut();
-
-    const httpResponse = await sut.handle({ params: {} });
-
-    expect(httpResponse).toEqual(badRequest(new MissingParamError('cnpj')));
-  });
-
   test('Should return 500 if CnpjValidator throws', async () => {
     const { sut, cnpjValidator } = makeSut();
 
@@ -66,7 +58,7 @@ describe('FindCnpj Controller', () => {
 
     const httpResponse = await sut.handle({ params: { cnpj: 'invalid_cnpj' } });
 
-    expect(httpResponse).toEqual(badRequest(new InvalidParamError('cnpj')));
+    expect(httpResponse).toEqual(new InvalidParamError('cnpj').makeResponse());
   });
 
   test('Should call CnpjValidator with correct param', async () => {
@@ -101,14 +93,16 @@ describe('FindCnpj Controller', () => {
     expect(findCnpjSpy).toHaveBeenCalledWith('any_cnpj');
   });
 
-  test('Should return 404 if cnpj was not found', async () => {
+  test('Should throw if cnpj was not found', async () => {
     const { sut, findCnpjStub } = makeSut();
 
-    jest.spyOn(findCnpjStub, 'find').mockImplementationOnce(async () => null);
+    jest.spyOn(findCnpjStub, 'find').mockImplementationOnce(async () => {
+      throw new NotFoundError('cnpj');
+    });
 
     const httpResponse = await sut.handle({ params: { cnpj: 'any_cnpj' } });
 
-    expect(httpResponse).toEqual(notFound());
+    expect(httpResponse).toEqual(new NotFoundError('cnpj').makeResponse());
   });
 
   test('Should return 200 if success', async () => {
