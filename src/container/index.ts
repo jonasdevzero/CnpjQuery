@@ -15,7 +15,7 @@ export const container = {
     this[kInstances].set(key, new AnyClass());
   },
 
-  get<T = unknown>(key: string): T {
+  get<T = unknown>(key: string): T | undefined {
     return this[kInstances].get(key);
   },
 
@@ -31,7 +31,10 @@ export function Injectable() {
         const injections = (constructor as any).injections as Injection[];
         const injectedArgs: any[] = injections
           .sort((a, b) => a.index - b.index)
-          .map(({ key }) => container.get(key));
+          .map(({ key, index }) => {
+            const injection = container.get(key);
+            return injection || args[index];
+          });
 
         super(...injectedArgs);
       }
