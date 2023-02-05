@@ -1,3 +1,4 @@
+import { Inject, Injectable } from '@container';
 import { Cache, FindCnpjRepository } from '@data/protocols';
 import { CnaeModel, CnpjModel } from '@domain/models';
 import sql from '../../db';
@@ -54,9 +55,8 @@ interface RawCnpj {
 
 type Partner = CnpjModel['company']['partners'][number];
 
+@Injectable()
 export class FindCnpjPostgresRepository implements FindCnpjRepository {
-  private readonly cache: Cache;
-
   private readonly cadasterStatusTypes = {
     '01': 'NULA',
     '02': 'ATIVA',
@@ -78,9 +78,10 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
     '05': 'DEMAIS',
   };
 
-  constructor(cache: Cache) {
-    this.cache = cache;
-  }
+  constructor(
+    @Inject('Cache')
+    private cache: Cache,
+  ) {}
 
   async find(cnpj: string): Promise<string | null> {
     const cachedCnpj = await this.cache.get(cnpj);

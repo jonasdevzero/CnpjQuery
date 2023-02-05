@@ -8,13 +8,16 @@
     "allowJs": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
+    "experimentalDecorators": true,
     "paths": {
       "@data/*": ["data/*"],
       "@domain/*": ["domain/*"],
       "@infra/*": ["infra/*"],
       "@main/*": ["main/*"],
       "@presentation/*": ["presentation/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@container": ["container/index"],
+      "@container/*": ["container/*"]
     }
   },
   "exclude": ["temp", "coverage", "dist", "./*.js"]

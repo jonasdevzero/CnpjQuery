@@ -1,3 +1,4 @@
+import { Inject, Injectable } from '@container';
 import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
 import { InvalidParamError } from '../../errors/InvalidParamError';
 import { MissingParamError } from '../../errors/MissingParamError';
@@ -9,14 +10,15 @@ import {
   HttpResponse,
 } from './FindCnpj.protocols';
 
+@Injectable()
 export class FindCnpjController implements Controller {
-  private readonly findCnpj: FindCnpj;
-  private readonly cnpjValidator: CnpjValidator;
+  constructor(
+    @Inject('FindCnpj')
+    private findCnpj: FindCnpj,
 
-  constructor(findCnpj: FindCnpj, cnpjValidator: CnpjValidator) {
-    this.findCnpj = findCnpj;
-    this.cnpjValidator = cnpjValidator;
-  }
+    @Inject('CnpjValidator')
+    private cnpjValidator: CnpjValidator,
+  ) {}
 
   async handle(request: HttpRequest): Promise<HttpResponse> {
     try {

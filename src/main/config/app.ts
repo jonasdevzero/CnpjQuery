@@ -1,3 +1,5 @@
+import 'dotenv/config';
+import '@container/register';
 import fastify from 'fastify';
 import setupMiddlewares from './middlewares';
 import setupRoutes from './routes';
