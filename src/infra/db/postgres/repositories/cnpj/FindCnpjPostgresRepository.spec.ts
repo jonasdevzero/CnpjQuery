@@ -33,7 +33,7 @@ describe('FindCnpjPostgresRepository', () => {
     const sut = makeSut();
 
     dbMock.mockImplementationOnce(() => {
-      const cnpj = JSON.stringify({
+      const cnpj = {
         cnpj: 'any_cnpj',
         corporateName: 'any_corporate_name',
         legalNature: 'any_legal_nature',
@@ -81,8 +81,8 @@ describe('FindCnpjPostgresRepository', () => {
         p_legalRepresentativeQualification: 'any_legal_representative_qualification',
         p_ageGroup: 'any_age_group',
         p_entryDate: '20000515',
-      });
-      return [cnpj, cnpj];
+      };
+      return [cnpj, { ...cnpj }];
     });
 
     const cnpj = await sut.find('any_cnpj');

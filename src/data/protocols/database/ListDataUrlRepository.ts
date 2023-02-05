@@ -1,4 +1,4 @@
-import { DataUrlModel } from '../../domain/models/DataUrl';
+import { DataUrlModel } from '@domain/models';
 
 export interface ListDataUrlRepository {
   list(): Promise<DataUrlModel[]>;

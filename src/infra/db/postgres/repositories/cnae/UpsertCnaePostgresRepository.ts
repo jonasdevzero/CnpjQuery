@@ -1,5 +1,5 @@
-import { UpsertCnaeRepository } from '../../../../../data/protocols/UpsertCnaeRepository';
-import { UpsertCnaeModel } from '../../../../../domain/models/Cnae';
+import { UpsertCnaeRepository } from '@data/protocols';
+import { UpsertCnaeModel } from '@domain/models';
 import sql from '../../db';
 
 export class UpsertCnaePostgresRepository implements UpsertCnaeRepository {

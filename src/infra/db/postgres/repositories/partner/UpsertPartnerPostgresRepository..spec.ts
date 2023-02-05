@@ -1,5 +1,5 @@
+import { UpsertPartnerModel } from '@domain/models';
 import { dbMock } from '../../dbMock';
-import { UpsertPartnerModel } from '../../../../../domain/models/Partner';
 import { UpsertPartnerPostgresRepository } from './UpsertPartnerPostgresRepository';
 
 const makeFakePartnerData = (): UpsertPartnerModel => {

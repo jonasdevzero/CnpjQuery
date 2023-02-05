@@ -5,8 +5,8 @@ import path from 'node:path';
 import unzipper from 'unzipper';
 import stream from 'node:stream';
 import util from 'node:util';
-import { InvalidParamError } from '../presentation/errors/InvalidParamError';
-import { CnpjDataReader, CnpjDataReaderEvent } from '../domain/utils/CnpjDataReader';
+import { InvalidParamError } from '@presentation/errors/InvalidParamError';
+import { CnpjDataReader, CnpjDataReaderEvent } from '@domain/utils';
 
 export class CnpjDataReaderAdapter implements CnpjDataReader {
   private readonly EOL = '\n';

@@ -1,5 +1,5 @@
-import { UpsertLegalNatureRepository } from '../../../../../data/protocols/UpsertLegalNatureRepository';
-import { UpsertLegalNatureModel } from '../../../../../domain/models/LegalNature';
+import { UpsertLegalNatureRepository } from '@data/protocols';
+import { UpsertLegalNatureModel } from '@domain/models';
 import sql from '../../db';
 
 export class UpsertLegalNaturePostgresRepository implements UpsertLegalNatureRepository {

@@ -1,6 +1,6 @@
+import { UpsertQualificationModel } from '@domain/models';
 import { dbMock } from '../../dbMock';
 import { UpsertQualificationPostgresRepository } from './UpsertQualificationPostgresRepository';
-import { UpsertQualificationModel } from '../../../../../domain/models/Qualification';
 
 const makeFakeQualification = (): UpsertQualificationModel => {
   const qualification = {

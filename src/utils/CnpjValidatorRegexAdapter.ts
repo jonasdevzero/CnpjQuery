@@ -1,4 +1,4 @@
-import { CnpjValidator } from '../domain/utils/CnpjValidator';
+import { CnpjValidator } from '@domain/utils';
 
 export class CnpjValidatorRegexAdapter implements CnpjValidator {
   isValid(cnpj: string): boolean {

@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import { join } from 'node:path';
-import { FilesFinder } from '../domain/utils/FilesFinder';
+import { FilesFinder } from '@domain/utils';
 
 const rootPath = process.cwd();
 

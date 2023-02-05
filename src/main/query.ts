@@ -1,20 +1,21 @@
 /* eslint-disable no-bitwise */
 import signale from 'signale';
 import ProgressBar from 'progress';
-import { DataUrlType } from '../domain/models/DataUrl';
-import { UpsertCityPostgresRepository } from '../infra/db/postgres/repositories/city/UpsertCityPostgresRepository';
-import { UpsertCnaePostgresRepository } from '../infra/db/postgres/repositories/cnae/UpsertCnaePostgresRepository';
-import { UpsertCompanyPostgresRepository } from '../infra/db/postgres/repositories/company/UpsertCompanyPostgresRepository';
-import { UpsertCountryPostgresRepository } from '../infra/db/postgres/repositories/country/UpsertCountryPostgresRepository';
-import { ListDataUrlPostgresRepository } from '../infra/db/postgres/repositories/dataUrl/ListDataUrlPostgresRepository';
-import { UpsertEstablishmentPostgresRepository } from '../infra/db/postgres/repositories/establishment/UpsertEstablishmentPostgresRepository';
-import { UpsertLegalNaturePostgresRepository } from '../infra/db/postgres/repositories/legalNature/UpsertLegalNaturePostgresRepository';
-import { UpsertQualificationPostgresRepository } from '../infra/db/postgres/repositories/qualification/UpsertQualificationPostgresRepository';
-import { UpsertReasonPostgresRepository } from '../infra/db/postgres/repositories/reason/UpsertReasonPostgresRepository';
-import { UpsertSimplesPostgresRepository } from '../infra/db/postgres/repositories/simples/UpsertSimplesPostgresRepository';
-import { CnpjDataReaderAdapter } from '../utils/CnpjDataReaderAdapter';
-import { CnpjRawDataParserAdapter } from '../utils/CnpjRawDataParserAdapter';
-import { CnpjDataReaderEvent } from '../domain/utils';
+import { DataUrlType } from '@domain/models';
+import { CnpjDataReaderEvent } from '@domain/utils';
+import {
+  UpsertCityPostgresRepository,
+  UpsertCnaePostgresRepository,
+  UpsertCompanyPostgresRepository,
+  UpsertCountryPostgresRepository,
+  ListDataUrlPostgresRepository,
+  UpsertEstablishmentPostgresRepository,
+  UpsertLegalNaturePostgresRepository,
+  UpsertQualificationPostgresRepository,
+  UpsertReasonPostgresRepository,
+  UpsertSimplesPostgresRepository,
+} from '@infra/db/postgres/repositories';
+import { CnpjDataReaderAdapter, CnpjRawDataParserAdapter } from '@utils/index';
 
 const listDataUrlRepository = new ListDataUrlPostgresRepository();
 const cnpjDataReader = new CnpjDataReaderAdapter();

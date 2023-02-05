@@ -2,12 +2,12 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./src",
-    "rootDir": "./src",
     "module": "commonjs",
     "target": "es2019",
     "esModuleInterop": true,
     "allowJs": true,
     "strictNullChecks": true,
+    "resolveJsonModule": true,
     "paths": {
       "@data/*": ["data/*"],
       "@domain/*": ["domain/*"],
@@ -17,5 +17,5 @@
       "@utils/*": ["utils/*"]
     }
   },
-  "exclude": ["temp", "coverage", "dist", "./*.js", "**/*.spec.ts", "**/*.test.ts"]
+  "exclude": ["temp", "coverage", "dist", "./*.js"]
 }

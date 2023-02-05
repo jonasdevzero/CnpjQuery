@@ -1,5 +1,5 @@
-import { UpsertReasonRepository } from '../../../../../data/protocols/UpsertReasonRepository';
-import { UpsertReasonModel } from '../../../../../domain/models/Reason';
+import { UpsertReasonRepository } from '@data/protocols';
+import { UpsertReasonModel } from '@domain/models';
 import sql from '../../db';
 
 export class UpsertReasonPostgresRepository implements UpsertReasonRepository {

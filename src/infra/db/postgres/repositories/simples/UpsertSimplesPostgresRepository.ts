@@ -1,6 +1,6 @@
 import { PostgresError } from 'postgres';
-import { UpsertSimplesRepository } from '../../../../../data/protocols/UpsertSimplesRepository';
-import { UpsertSimplesModel } from '../../../../../domain/models/Simples';
+import { UpsertSimplesRepository } from '@data/protocols';
+import { UpsertSimplesModel } from '@domain/models';
 import sql from '../../db';
 
 export class UpsertSimplesPostgresRepository implements UpsertSimplesRepository {

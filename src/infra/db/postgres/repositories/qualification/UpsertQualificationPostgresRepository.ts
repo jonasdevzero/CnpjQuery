@@ -1,5 +1,5 @@
-import { UpsertQualificationRepository } from '../../../../../data/protocols/UpsertQualificationRepository';
-import { UpsertQualificationModel } from '../../../../../domain/models/Qualification';
+import { UpsertQualificationRepository } from '@data/protocols';
+import { UpsertQualificationModel } from '@domain/models';
 import sql from '../../db';
 
 export class UpsertQualificationPostgresRepository implements UpsertQualificationRepository {

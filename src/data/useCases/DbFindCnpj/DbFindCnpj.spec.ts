@@ -1,10 +1,10 @@
+import { FindCnpjRepository } from '@data/protocols/database';
 import { DbFindCnpj } from './DbFindCnpj';
-import { FindCnpjRepository } from '../../protocols/FindCnpjRepository';
 
 const makeFakeFindCnpjRepository = (): FindCnpjRepository => {
   class FindCnpjRepositoryStub implements FindCnpjRepository {
     async find(cnpj: string): Promise<string | null> {
-      return ' ';
+      return 'any_cnpj_json';
     }
   }
 
@@ -49,6 +49,6 @@ describe('DbFindCnpj', () => {
 
     const result = await sut.find('any_cnpj');
 
-    expect(result).toEqual({});
+    expect(result).toEqual('any_cnpj_json');
   });
 });

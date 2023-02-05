@@ -1,14 +1,12 @@
+import { InvalidParamError, MissingParamError } from '@presentation/errors';
 import { FindCnpjController } from './FindCnpj';
 import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
-import { InvalidParamError } from '../../errors/InvalidParamError';
-import { MissingParamError } from '../../errors/MissingParamError';
 import { CnpjValidator, FindCnpj } from './FindCnpj.protocols';
-import { CnpjModel } from '../../../domain/models/Cnpj';
 
 const makeFakeFindCnpj = (): FindCnpj => {
   class FindCnpjStub implements FindCnpj {
-    async find(cnpj: string): Promise<CnpjModel | null> {
-      return {} as CnpjModel;
+    async find(cnpj: string): Promise<string | null> {
+      return 'any_cnpj_json';
     }
   }
 
@@ -118,6 +116,6 @@ describe('FindCnpj Controller', () => {
 
     const httpResponse = await sut.handle({ params: { cnpj: 'any_cnpj' } });
 
-    expect(httpResponse).toEqual(ok({}));
+    expect(httpResponse).toEqual(ok('any_cnpj_json'));
   });
 });

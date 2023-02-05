@@ -1,4 +1,4 @@
-import { UpsertCountryModel } from '../../domain/models/Country';
+import { UpsertCountryModel } from 'domain/models';
 
 export interface UpsertCountryRepository {
   upsert(data: UpsertCountryModel): Promise<void>;

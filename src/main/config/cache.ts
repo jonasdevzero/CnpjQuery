@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify';
 import fastifyCaching from '@fastify/caching';
 import fastifyRedis from '@fastify/redis';
 import AbstractCache from 'abstract-cache';
-import { ioredis } from 'infra/cache/ioredis/client';
+import { ioredis } from '@infra/cache/ioredis/client';
 
 export default (app: FastifyInstance) => {
   if (!ioredis) {

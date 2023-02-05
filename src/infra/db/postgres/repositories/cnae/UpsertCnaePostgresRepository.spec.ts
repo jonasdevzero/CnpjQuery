@@ -1,6 +1,6 @@
+import { UpsertCnaeModel } from '@domain/models/Cnae';
 import { dbMock } from '../../dbMock';
 import { UpsertCnaePostgresRepository } from './UpsertCnaePostgresRepository';
-import { UpsertCnaeModel } from '../../../../../domain/models/Cnae';
 
 const makeFakeCnae = (): UpsertCnaeModel => {
   const qualification = {

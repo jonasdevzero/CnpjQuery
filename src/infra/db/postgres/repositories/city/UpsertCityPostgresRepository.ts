@@ -1,5 +1,5 @@
-import { UpsertCountryRepository } from '../../../../../data/protocols/UpsertCountryRepository';
-import { UpsertCityModel } from '../../../../../domain/models/City';
+import { UpsertCountryRepository } from '@data/protocols';
+import { UpsertCityModel } from '@domain/models';
 import sql from '../../db';
 
 export class UpsertCityPostgresRepository implements UpsertCountryRepository {

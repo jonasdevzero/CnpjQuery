@@ -1,5 +1,5 @@
-import { UpsertEstablishmentRepository } from '../../../../../data/protocols/UpsertEstablishmentRepository';
-import { UpsertEstablishmentModel } from '../../../../../domain/models/Establishment';
+import { UpsertEstablishmentRepository } from '@data/protocols';
+import { UpsertEstablishmentModel } from '@domain/models';
 import sql from '../../db';
 
 export class UpsertEstablishmentPostgresRepository implements UpsertEstablishmentRepository {

@@ -1,7 +1,7 @@
 import { PostgresError } from 'postgres';
+import { UpsertSimplesModel } from '@domain/models';
 import { UpsertSimplesPostgresRepository } from './UpsertSimplesPostgresRepository';
 import { dbMock } from '../../dbMock';
-import { UpsertSimplesModel } from '../../../../../domain/models/Simples';
 
 const makeFakeSimples = (): UpsertSimplesModel => {
   const simplesData = {

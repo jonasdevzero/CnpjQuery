@@ -1,6 +1,6 @@
+import { UpsertReasonModel } from '@domain/models';
 import { dbMock } from '../../dbMock';
 import { UpsertReasonPostgresRepository } from './UpsertReasonPostgresRepository';
-import { UpsertReasonModel } from '../../../../../domain/models/Reason';
 
 const makeFakeReason = (): UpsertReasonModel => {
   const reason = {

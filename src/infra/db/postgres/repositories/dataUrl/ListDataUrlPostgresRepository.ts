@@ -1,5 +1,5 @@
-import { ListDataUrlRepository } from '../../../../../data/protocols/ListDataUrlRepository';
-import { DataUrlModel, DataUrlType } from '../../../../../domain/models/DataUrl';
+import { ListDataUrlRepository } from '@data/protocols';
+import { DataUrlModel, DataUrlType } from '@domain/models';
 import sql from '../../db';
 
 export class ListDataUrlPostgresRepository implements ListDataUrlRepository {

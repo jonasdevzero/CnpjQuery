@@ -1,4 +1,4 @@
-import { UpsertCompanyModel } from '../../../../../domain/models/Company';
+import { UpsertCompanyModel } from '@domain/models';
 import { dbMock } from '../../dbMock';
 import { UpsertCompanyPostgresRepository } from './UpsertCompanyPostgresRepository';
 

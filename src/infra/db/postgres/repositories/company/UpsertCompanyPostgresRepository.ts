@@ -1,4 +1,4 @@
-import { UpsertCompanyRepository } from '../../../../../data/protocols/UpsertCompanyRepository';
+import { UpsertCompanyRepository } from '@data/protocols';
 import { UpsertCompanyModel } from '../../../../../domain/models/Company';
 import sql from '../../db';
 

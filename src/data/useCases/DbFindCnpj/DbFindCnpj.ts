@@ -1,5 +1,5 @@
-import { FindCnpj } from '../../../domain/useCases/FindCnpj';
-import { FindCnpjRepository } from '../../protocols/FindCnpjRepository';
+import { FindCnpjRepository } from '@data/protocols';
+import { FindCnpj } from '@domain/useCases/FindCnpj';
 
 export class DbFindCnpj implements FindCnpj {
   private readonly findCnpjRepository: FindCnpjRepository;

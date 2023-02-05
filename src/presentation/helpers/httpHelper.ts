@@ -27,3 +27,10 @@ export const serverError = (error: Error): HttpResponse => {
     body: new ServerError(error.stack),
   };
 };
+
+export const httpResponse = {
+  ok,
+  badRequest,
+  notFound,
+  serverError,
+};

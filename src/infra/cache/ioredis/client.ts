@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import IoRedis from 'ioredis';
-import { Cache } from '@data/protocols/Cache';
+import { Cache } from '@data/protocols';
 
 const redisConnection = process.env.REDIS_CONNECTION;
 

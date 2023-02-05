@@ -1,6 +1,6 @@
 /* eslint-disable no-control-regex */
-import { DataUrlType } from '../domain/models/DataUrl';
-import { CnpjRawDataParser } from '../domain/utils';
+import { DataUrlType } from '@domain/models/DataUrl';
+import { CnpjRawDataParser } from '@domain/utils';
 
 export class CnpjRawDataParserAdapter implements CnpjRawDataParser {
   private readonly parsers = {
