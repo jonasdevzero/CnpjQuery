@@ -24,7 +24,7 @@ export const container = {
   },
 };
 
-export function Injectable() {
+export function injectable() {
   return function injectTarget<T extends Constructor<any>>(constructor: T): T | void {
     return class extends constructor {
       constructor(...args: any[]) {
@@ -42,7 +42,7 @@ export function Injectable() {
   };
 }
 
-export function Inject(key: string) {
+export function inject(key: string) {
   return function injectTarget(target: Object, _key: string | symbol, parameterIndex: number) {
     const injection: Injection = { index: parameterIndex, key };
     const existingInjections: Injection[] = (target as any).injections || [];

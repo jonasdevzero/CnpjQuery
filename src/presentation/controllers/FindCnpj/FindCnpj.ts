@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@container';
+import { inject, injectable } from '@container';
 import { controller } from '@presentation/decorators';
 import { InvalidParamError } from '../../errors';
 import { ok } from '../../helpers/httpHelper';
@@ -11,13 +11,13 @@ import {
 } from './FindCnpj.protocols';
 
 @controller()
-@Injectable()
+@injectable()
 export class FindCnpjController implements Controller {
   constructor(
-    @Inject('FindCnpj')
+    @inject('FindCnpj')
     private findCnpj: FindCnpj,
 
-    @Inject('CnpjValidator')
+    @inject('CnpjValidator')
     private cnpjValidator: CnpjValidator,
   ) {}
 

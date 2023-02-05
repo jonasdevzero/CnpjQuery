@@ -1,12 +1,12 @@
-import { Inject, Injectable } from '@container';
+import { inject, injectable } from '@container';
 import { FindCnpjRepository } from '@data/protocols';
 import { FindCnpj } from '@domain/use-cases/FindCnpj';
 import { NotFoundError } from '@presentation/errors';
 
-@Injectable()
+@injectable()
 export class DbFindCnpj implements FindCnpj {
   constructor(
-    @Inject('FindCnpjRepository')
+    @inject('FindCnpjRepository')
     private findCnpjRepository: FindCnpjRepository,
   ) {}
 
