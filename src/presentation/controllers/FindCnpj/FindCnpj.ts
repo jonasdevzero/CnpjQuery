@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@container';
-import { badRequest, notFound, ok, serverError } from '../../helpers/httpHelper';
-import { InvalidParamError } from '../../errors/InvalidParamError';
-import { MissingParamError } from '../../errors/MissingParamError';
+import { controller } from '@presentation/decorators';
+import { InvalidParamError } from '../../errors';
+import { ok } from '../../helpers/httpHelper';
 import {
   CnpjValidator,
   Controller,
@@ -10,6 +10,7 @@ import {
   HttpResponse,
 } from './FindCnpj.protocols';
 
+@controller()
 @Injectable()
 export class FindCnpjController implements Controller {
   constructor(
@@ -21,28 +22,16 @@ export class FindCnpjController implements Controller {
   ) {}
 
   async handle(request: HttpRequest): Promise<HttpResponse> {
-    try {
-      const { cnpj } = request.params;
+    const { cnpj } = request.params;
 
-      if (!cnpj) {
-        return badRequest(new MissingParamError('cnpj'));
-      }
+    const isCnpjValid = this.cnpjValidator.isValid(cnpj);
 
-      const isCnpjValid = this.cnpjValidator.isValid(cnpj);
-
-      if (!isCnpjValid) {
-        return badRequest(new InvalidParamError('cnpj'));
-      }
-
-      const cnpjModel = await this.findCnpj.find(cnpj);
-
-      if (!cnpjModel) {
-        return notFound();
-      }
-
-      return ok(cnpjModel);
-    } catch (error) {
-      return serverError(error);
+    if (!isCnpjValid) {
+      throw new InvalidParamError('cnpj');
     }
+
+    const cnpjModel = await this.findCnpj.find(cnpj);
+
+    return ok(cnpjModel);
   }
 }

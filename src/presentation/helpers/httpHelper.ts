@@ -1,4 +1,3 @@
-import { ServerError } from '../errors/ServerError';
 import { HttpResponse } from '../protocols';
 
 export const ok = (data?: any): HttpResponse => {
@@ -24,13 +23,6 @@ export const notFound = (): HttpResponse => {
 export const serverError = (error: Error): HttpResponse => {
   return {
     statusCode: 500,
-    body: new ServerError(error.stack),
+    body: { error: 'Internal Server Error' },
   };
-};
-
-export const httpResponse = {
-  ok,
-  badRequest,
-  notFound,
-  serverError,
 };
