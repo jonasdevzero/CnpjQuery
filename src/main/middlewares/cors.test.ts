@@ -1,3 +1,4 @@
+import { ioredis } from '@infra/cache/ioredis/client';
 import request from 'supertest';
 import app from '../config/app';
 
@@ -8,6 +9,7 @@ describe('CORS Plugin', () => {
 
   afterAll(() => {
     app.close();
+    ioredis?.disconnect();
   });
 
   test('Should enable CORS', async () => {
