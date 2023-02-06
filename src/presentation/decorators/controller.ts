@@ -1,5 +1,5 @@
 import { AppError } from '@presentation/errors/AppError';
-import { ok, serverError } from '@presentation/helpers/httpHelper';
+import { serverError } from '@presentation/helpers/httpHelper';
 import { Controller, HttpRequest, HttpResponse } from '@presentation/protocols';
 
 type ControllerClass<T = Controller> = { new (...args: any[]): T };
@@ -24,11 +24,4 @@ export function controller() {
       }
     };
   };
-}
-
-@controller()
-export class AnyController implements Controller {
-  async handle(request: HttpRequest): Promise<HttpResponse> {
-    return ok();
-  }
 }
