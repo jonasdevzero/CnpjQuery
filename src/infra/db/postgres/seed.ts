@@ -1,4 +1,4 @@
-import sql from './db';
+import sql from './connection';
 
 export async function seed() {
   await sql`DELETE FROM "dataUrl";`;

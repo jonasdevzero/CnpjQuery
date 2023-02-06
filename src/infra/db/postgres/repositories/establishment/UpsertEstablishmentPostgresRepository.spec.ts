@@ -1,5 +1,5 @@
 import { UpsertEstablishmentModel } from '@domain/models';
-import { dbMock } from '../../dbMock';
+import { dbMock } from '@infra/db/postgres/connection.mock';
 import { UpsertEstablishmentPostgresRepository } from './UpsertEstablishmentPostgresRepository';
 
 const makeFakeEstablishment = (): UpsertEstablishmentModel => {

@@ -1,6 +1,6 @@
-import sql from './db';
+import sql from './connection';
 
-jest.mock('./db', () => ({
+jest.mock('./connection', () => ({
   __esModule: true,
   default: jest.fn(),
 }));

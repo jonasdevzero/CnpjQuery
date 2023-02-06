@@ -1,7 +1,8 @@
-import { PgSql, Migration } from '../protocols';
+import type { Sql } from 'postgres';
+import { Migration } from '../protocols';
 
 export default class InitMigration implements Migration {
-  async up(sql: PgSql): Promise<void> {
+  async up(sql: Sql): Promise<void> {
     await sql.begin(async (transactionSql) => {
       await transactionSql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`;
 
@@ -170,7 +171,7 @@ export default class InitMigration implements Migration {
     });
   }
 
-  async down(sql: PgSql): Promise<void> {
+  async down(sql: Sql): Promise<void> {
     await sql`DROP TABLE IF EXISTS "dataUrl";`;
     await sql`DROP INDEX IF EXISTS "dataUrl_url_key";`;
 

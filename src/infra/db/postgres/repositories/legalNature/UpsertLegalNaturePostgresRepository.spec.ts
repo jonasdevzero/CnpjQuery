@@ -1,5 +1,5 @@
 import { UpsertQualificationModel } from '@domain/models';
-import { dbMock } from '../../dbMock';
+import { dbMock } from '@infra/db/postgres/connection.mock';
 import { UpsertLegalNaturePostgresRepository } from './UpsertLegalNaturePostgresRepository';
 
 const makeFakeQualification = (): UpsertQualificationModel => {

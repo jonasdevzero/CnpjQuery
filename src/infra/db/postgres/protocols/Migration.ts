@@ -1,6 +1,6 @@
-import { PgSql } from './PgSql';
+import type { Sql } from 'postgres';
 
 export interface Migration {
-  up(sql: PgSql): Promise<void>;
-  down(sql: PgSql): Promise<void>;
+  up(sql: Sql): Promise<void>;
+  down(sql: Sql): Promise<void>;
 }

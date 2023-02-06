@@ -1,6 +1,6 @@
 import { UpsertLegalNatureRepository } from '@data/protocols';
 import { UpsertLegalNatureModel } from '@domain/models';
-import sql from '../../db';
+import sql from '@infra/db/postgres/connection';
 
 export class UpsertLegalNaturePostgresRepository implements UpsertLegalNatureRepository {
   async upsert(data: UpsertLegalNatureModel): Promise<void> {

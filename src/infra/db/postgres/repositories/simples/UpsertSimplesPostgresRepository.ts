@@ -1,7 +1,7 @@
 import { PostgresError } from 'postgres';
 import { UpsertSimplesRepository } from '@data/protocols';
 import { UpsertSimplesModel } from '@domain/models';
-import sql from '../../db';
+import sql from '@infra/db/postgres/connection';
 
 export class UpsertSimplesPostgresRepository implements UpsertSimplesRepository {
   async upsert(data: UpsertSimplesModel): Promise<void> {
@@ -29,6 +29,7 @@ export class UpsertSimplesPostgresRepository implements UpsertSimplesRepository 
       const err = error as PostgresError;
       if (/violates foreign key constraint/g.test(err.message)) return;
 
+      console.log('err', err.message);
       throw error;
     }
   }

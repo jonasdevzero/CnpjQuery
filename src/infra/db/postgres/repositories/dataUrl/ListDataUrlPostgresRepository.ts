@@ -1,6 +1,6 @@
 import { ListDataUrlRepository } from '@data/protocols';
 import { DataUrlModel, DataUrlType } from '@domain/models';
-import sql from '../../db';
+import sql from '@infra/db/postgres/connection';
 
 export class ListDataUrlPostgresRepository implements ListDataUrlRepository {
   private readonly urlPriority = {

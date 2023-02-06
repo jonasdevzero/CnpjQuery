@@ -1,4 +1,4 @@
-import { dbMock } from '../../dbMock';
+import { dbMock } from '@infra/db/postgres/connection.mock';
 import { ListDataUrlPostgresRepository } from './ListDataUrlPostgresRepository';
 
 const makeSut = (): ListDataUrlPostgresRepository => {

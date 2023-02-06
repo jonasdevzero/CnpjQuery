@@ -1,6 +1,6 @@
 import { UpsertCountryRepository } from '@data/protocols';
 import { UpsertCountryModel } from '@domain/models';
-import sql from '../../db';
+import sql from '@infra/db/postgres/connection';
 
 export class UpsertCountryPostgresRepository implements UpsertCountryRepository {
   async upsert(data: UpsertCountryModel): Promise<void> {

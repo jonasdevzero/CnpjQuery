@@ -1,5 +1,5 @@
 import { UpsertCityModel } from '@domain/models/City';
-import { dbMock } from '../../dbMock';
+import { dbMock } from '@infra/db/postgres/connection.mock';
 import { UpsertCityPostgresRepository } from './UpsertCityPostgresRepository';
 
 const makeFakeCity = (): UpsertCityModel => {

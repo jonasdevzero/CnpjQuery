@@ -1,7 +1,7 @@
 import { inject, injectable } from '@container';
 import { Cache, FindCnpjRepository } from '@data/protocols';
 import { CnaeModel, CnpjModel } from '@domain/models';
-import sql from '../../db';
+import sql from '@infra/db/postgres/connection';
 
 interface RawCnpj {
   cnpj: string;

@@ -1,7 +1,6 @@
-import { PostgresError } from 'postgres';
 import { UpsertSimplesModel } from '@domain/models';
+import { dbMock } from '@infra/db/postgres/connection.mock';
 import { UpsertSimplesPostgresRepository } from './UpsertSimplesPostgresRepository';
-import { dbMock } from '../../dbMock';
 
 const makeFakeSimples = (): UpsertSimplesModel => {
   const simplesData = {
@@ -24,7 +23,7 @@ describe('UpsertSimplesPostgresRepository', () => {
       'insert or update on table "cnpjSimples" violates foreign key constraint "cnpjSimples_baseCnpj_fkey"';
 
     dbMock.mockImplementationOnce(() => {
-      throw new PostgresError(errorMessage);
+      throw new Error(errorMessage);
     });
 
     await sut.upsert(makeFakeSimples());

@@ -1,6 +1,6 @@
 import { UpsertCnaeRepository } from '@data/protocols';
 import { UpsertCnaeModel } from '@domain/models';
-import sql from '../../db';
+import sql from '@infra/db/postgres/connection';
 
 export class UpsertCnaePostgresRepository implements UpsertCnaeRepository {
   async upsert(data: UpsertCnaeModel): Promise<void> {

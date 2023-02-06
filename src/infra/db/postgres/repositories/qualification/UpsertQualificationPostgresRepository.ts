@@ -1,6 +1,6 @@
 import { UpsertQualificationRepository } from '@data/protocols';
 import { UpsertQualificationModel } from '@domain/models';
-import sql from '../../db';
+import sql from '@infra/db/postgres/connection';
 
 export class UpsertQualificationPostgresRepository implements UpsertQualificationRepository {
   async upsert(data: UpsertQualificationModel): Promise<void> {

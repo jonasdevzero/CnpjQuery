@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 import { join } from 'node:path';
 import { FilesFinderAdapter } from '../../../../utils/FilesFinderAdapter';
-import sql from '../db';
+import sql from '../connection';
 
 const validArguments = ['--up', '--down'];
 const argument = process.argv[2];

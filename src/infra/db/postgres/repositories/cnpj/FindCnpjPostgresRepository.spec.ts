@@ -1,4 +1,4 @@
-import { dbMock } from '../../dbMock';
+import { dbMock } from '@infra/db/postgres/connection.mock';
 import { CacheMock } from '../../../../cache/mock/client';
 import { FindCnpjPostgresRepository } from './FindCnpjPostgresRepository';
 
