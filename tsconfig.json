@@ -2,10 +2,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./src",
+    "moduleResolution": "node",
     "module": "commonjs",
     "target": "es2019",
     "esModuleInterop": true,
-    "allowJs": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
@@ -20,5 +20,6 @@
       "@container/*": ["container/*"]
     }
   },
-  "exclude": ["temp", "coverage", "dist", "./*.js"]
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "jest**.ts", "**/*.spec.ts", "**/*.test.ts", "**/*.mock.ts"]
 }
