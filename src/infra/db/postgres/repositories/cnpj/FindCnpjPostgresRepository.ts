@@ -200,7 +200,7 @@ export class FindCnpjPostgresRepository implements FindCnpjRepository {
       cadasterStatus: this.cadasterStatusTypes[cadasterStatus],
       cadasterStatusDate: this.parseRawDate(cadasterStatusDate),
       cadasterStatusReason,
-      activityStartAt,
+      activityStartAt: this.parseRawDate(activityStartAt),
       mainCnae: {
         code: mainCnaeCode,
         description: mainCnaeDescription,
