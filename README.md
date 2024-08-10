@@ -89,4 +89,6 @@ When all data is loaded, it's time to make available the refined data, to do thi
 npm run dev
 ```
 
+Endpoint: Method GET and path **/:cnpj**
+
 
